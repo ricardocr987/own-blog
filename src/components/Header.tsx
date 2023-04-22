@@ -59,7 +59,7 @@ const Header = () => {
         </div>
         <div className="absolute right-0 mr-10 px-2 md:px-5 py-2 rounded-lg border border-gray-400">
           {connected ?
-            <div className="relative">
+            <div ref={profileMenuRef} className="relative">
               <div className="flex items-center cursor-pointer" onClick={handleProfileMenuToggle} ref={profileMenuRef}>
                 <Image
                   unoptimized
@@ -72,11 +72,11 @@ const Header = () => {
                 <p className="inline align-middle text-white text-shadow ml-2 font-medium">{author.username}</p>
               </div>
               {showProfileMenu && (
-                <div ref={profileMenuRef} className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg z-10">
                   <ul className="py-1">
                     {links.map((link, index) => (
                       <li key={index} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                        <Link href={`/category/${link.url}`}><span className="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer">{link.name}</span></Link>
+                        <Link href={`/${link.url}`}><span className="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer">{link.name}</span></Link>
                       </li>
                     ))}
                   </ul>

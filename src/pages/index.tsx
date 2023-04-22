@@ -1,4 +1,4 @@
-import { Button } from '@/components';
+import { Button, Footer } from '@/components';
 import { FeaturedPosts } from '@/sections';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -28,6 +28,7 @@ export default function Home() {
         Explore:
       </div>
       <FeaturedPosts />
+      <Footer />
     </div>
   );
 }
