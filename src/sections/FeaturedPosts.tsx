@@ -4,7 +4,7 @@ import 'react-multi-carousel/lib/styles.css';
 
 import { FeaturedPostCard } from '@/components';
 import { Post } from '@/types';
-import { customLeftArrow, customRightArrow, responsive } from '@/constants';
+import { customLeftArrow, customRightArrow, responsiveCarousel } from '@/constants';
 
 const featuredPosts: Post[] = [
   {     
@@ -132,7 +132,7 @@ const featuredPosts: Post[] = [
 const FeaturedPosts = () => {
   return (
     <div className="mb-8">
-      <Carousel infinite customLeftArrow={customLeftArrow} customRightArrow={customRightArrow} responsive={responsive} itemClass="px-4">
+      <Carousel infinite customLeftArrow={customLeftArrow} customRightArrow={customRightArrow} responsive={responsiveCarousel} itemClass="px-4">
         {featuredPosts.map((post, index) => (
           <FeaturedPostCard key={index} post={post} />
         ))}

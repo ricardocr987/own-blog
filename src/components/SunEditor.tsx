@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react"
 import SunEditorCore from "suneditor/src/lib/core";
 import 'suneditor/dist/css/suneditor.min.css';
 import dynamic from "next/dynamic";
-import { responsive } from "@/constants";
+import { responsiveEditor } from "@/constants";
 
 const SunEditor = dynamic(() => import("suneditor-react"), {
     ssr: false,
@@ -31,7 +31,7 @@ const Editor = ({content = '', handleChange}: ButtonProps) => {
   
     const handleResize = useCallback(() => {
         const { innerWidth } = window;
-        const { width, height } = Object.values(responsive).find(
+        const { width, height } = Object.values(responsiveEditor).find(
             ({ breakpoint }) => innerWidth >= breakpoint.min && innerWidth <= breakpoint.max
         )!;
         setWidth(width);
