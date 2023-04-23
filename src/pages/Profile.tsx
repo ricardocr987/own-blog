@@ -33,8 +33,8 @@ const Profile = () => {
     return (
         <div className="container mx-auto px-10 mb-8">
             {connected ?
-                <div className="container mx-auto px-16 lg:px-52">
-                    <div className="container mx-auto px-10 grid grid-cols-1 md:grid-cols-2 bg-white rounded-lg shadow-md mb-4">
+                <div className="container mx-auto md:px-16 lg:px-68">
+                    <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 bg-white rounded-lg shadow-md mb-4">
                         <div className="py-5 md:py-10 px-10 flex justify-center items-center">
                             <div className="w-full space-y-4 flex flex-col items-center">
                                 <Image
@@ -104,12 +104,12 @@ const Profile = () => {
                             }
                         </div>
                     </div>
-                    <div className="container mx-auto px-10 grid grid-rows-1 bg-white rounded-lg shadow-md mb-4">
-                        <div className="py-5 px-10 flex justify-center items-center">
-                            <p className="text-black text-5xl">Dashboard</p>
+                    <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 bg-white rounded-lg shadow-md mb-4">
+                        <div className="py-5 px-10 flex justify-center text-center">
+                            <p className="text-black text-4xl text-center">Dashboard</p>
                         </div>
-                        <div className="py-5 h-96 border rounded mb-4">
-                            <p className="text-black text-5xl"></p>
+                        <div className="py-5 h-96 border rounded mb-4 flex justify-center text-center">
+                            CREATE DATA CHARTS
                         </div>
                     </div>
                 </div>

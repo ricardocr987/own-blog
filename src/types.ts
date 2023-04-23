@@ -28,11 +28,6 @@ export type Comment = {
     message: string
 }
 
-export type AdjacentPost = {
-    previous: Post
-    next: Post
-}
-
 export type NavLink = {
     url: string
     name: string
