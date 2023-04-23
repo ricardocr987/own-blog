@@ -6,6 +6,7 @@ export { default as Author } from './Author';
 export { default as RecentPosts } from './RecentPosts';
 export { default as AdjacentPostCard } from './AdjacentPostCard';
 export { default as FeaturedPostCard } from './FeaturedPostCard';
+export { default as EditPostCard } from './EditPostCard';
 export { default as Comments } from './Comments';
 export { default as CommentsForm } from './CreateComment';
 export { default as Loader } from './Loader';
