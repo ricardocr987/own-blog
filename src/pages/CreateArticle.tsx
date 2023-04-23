@@ -21,19 +21,19 @@ const CreateArticle = () => {
       <div className="container mx-auto px-10 mb-8">
         {showPreview ? (
           <div>
-            <div className="flex justify-center px-5 py-5">
+            <div className="flex justify-center px-2 py-2">
               <PreviewContent content={content} />
             </div>
-            <div className="flex justify-center px-5 py-5">
+            <div className="flex justify-center px-2 py-2">
               <Button text="Edit" onClick={handleEditClick} />
             </div>
           </div>
         ) : (
           <div>
-            <div className="flex justify-center px-5 py-5">
+            <div className="flex justify-center px-2 py-2">
               <Editor content={content} handleChange={handleChange} />
             </div>
-            <div className="flex justify-center px-5 py-5">
+            <div className="flex justify-center px-2 py-2">
               <Button text="Preview" onClick={handlePreviewClick} />
             </div>
           </div>

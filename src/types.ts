@@ -37,3 +37,14 @@ export type NavLink = {
     url: string
     name: string
 }
+
+type Breakpoint = {
+    min: number
+    max: number
+};
+
+export type Responsive = {
+    breakpoint: Breakpoint
+    width: string
+    height: string
+};

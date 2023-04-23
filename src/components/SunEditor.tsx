@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react"
 import SunEditorCore from "suneditor/src/lib/core";
 import 'suneditor/dist/css/suneditor.min.css';
 import dynamic from "next/dynamic";
+import { responsive } from "@/constants";
 
 const SunEditor = dynamic(() => import("suneditor-react"), {
     ssr: false,
@@ -21,24 +22,30 @@ const Editor = ({content = '', handleChange}: ButtonProps) => {
         editor.current = sunEditor;
     };
 
-    const [width, setWidth] = useState('700');
-    const [height, setHeight] = useState('200');
+    const [width, setWidth] = useState<string>(
+        typeof window !== 'undefined' ? `${window.innerWidth}` : '700'
+    );
+    const [height, setHeight] = useState<string>(
+        typeof window !== 'undefined' ? `${window.innerHeight}` : '200'
+    );
   
     const handleResize = useCallback(() => {
-      const { innerWidth, innerHeight } = window;
-      setWidth(innerWidth > 1200 ? '1200' : `${innerWidth}`);
-      setHeight(innerHeight > 280 ? '280' : `${innerHeight}`);
+        const { innerWidth } = window;
+        const { width, height } = Object.values(responsive).find(
+            ({ breakpoint }) => innerWidth >= breakpoint.min && innerWidth <= breakpoint.max
+        )!;
+        setWidth(width);
+        setHeight(height);
     }, []);
-  
+      
     useEffect(() => {
-      handleResize();
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, [handleResize]);
     
     return (
         <SunEditor
-            autoFocus
             setContents={content}
             onChange={handleChange}
             getSunEditorInstance={getSunEditorInstance}
@@ -53,7 +60,6 @@ const Editor = ({content = '', handleChange}: ButtonProps) => {
                     "list",
                     "align",
                     "fontSize",
-                    "formatBlock",
                     "table",
                     "image",
                     "video",

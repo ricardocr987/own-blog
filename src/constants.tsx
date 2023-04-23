@@ -1,3 +1,5 @@
+import { Responsive } from "@/types";
+
 export const customLeftArrow = (
     <div className="absolute arrow-btn left-0 text-center py-3 cursor-pointer bg-gradient-to-r from-gray-800 via-gray-900 to-black hover:from-gray-700 hover:to-gray-800 rounded-full">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 text-white w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -14,21 +16,25 @@ export const customRightArrow = (
     </div>
 );
 
-export const responsive = {
-    superLargeDesktop: {
+export const responsive: Record<string, Responsive> = {
+  'superLargeDesktop': {
         breakpoint: { max: 4000, min: 1024 },
-        items: 5,
-    },
-    desktop: {
+        width: '100%',
+        height: '500px'
+  },
+  'desktop': {
         breakpoint: { max: 1024, min: 768 },
-        items: 3,
-    },
-    tablet: {
+        width: '100%',
+        height: '450px'
+  },
+  'tablet': {
         breakpoint: { max: 768, min: 640 },
-        items: 2,
-    },
-    mobile: {
+        width: '100%',
+        height: '400px'
+  },
+  'mobile': {
         breakpoint: { max: 640, min: 0 },
-        items: 1,
-    },
+        width: '100%',
+        height: '320px'
+  }
 };
