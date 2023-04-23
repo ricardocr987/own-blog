@@ -16,25 +16,44 @@ export const customRightArrow = (
     </div>
 );
 
-export const responsive: Record<string, Responsive> = {
-  'superLargeDesktop': {
+export const responsiveCarousel = {
+    superLargeDesktop: {
+        breakpoint: { max: 4000, min: 1024 },
+        items: 5,
+    },
+    desktop: {
+        breakpoint: { max: 1024, min: 768 },
+        items: 3,
+    },
+    tablet: {
+        breakpoint: { max: 768, min: 640 },
+        items: 2,
+    },
+    mobile: {
+        breakpoint: { max: 640, min: 0 },
+        items: 1,
+    },
+};
+
+export const responsiveEditor: Record<string, Responsive> = {
+    'superLargeDesktop': {
         breakpoint: { max: 4000, min: 1024 },
         width: '100%',
         height: '500px'
-  },
-  'desktop': {
+    },
+    'desktop': {
         breakpoint: { max: 1024, min: 768 },
         width: '100%',
         height: '450px'
-  },
-  'tablet': {
+    },
+    'tablet': {
         breakpoint: { max: 768, min: 640 },
         width: '100%',
         height: '400px'
-  },
-  'mobile': {
+    },
+    'mobile': {
         breakpoint: { max: 640, min: 0 },
         width: '100%',
         height: '320px'
-  }
+    }
 };
