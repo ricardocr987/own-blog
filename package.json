@@ -9,9 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@metaplex-foundation/js": "^0.18.3",
+    "@solana/spl-token": "^0.3.7",
+    "@solana/wallet-adapter-react": "^0.15.32",
+    "@solana/wallet-adapter-react-ui": "^0.9.31",
+    "@solana/wallet-adapter-wallets": "^0.19.16",
+    "@solana/web3.js": "^1.75.0",
     "@types/node": "18.15.11",
     "@types/react": "18.0.37",
     "@types/react-dom": "18.0.11",
+    "aleph-sdk-ts": "^3.4.3",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "html-react-parser": "^3.0.16",

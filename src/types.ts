@@ -43,3 +43,8 @@ export type Responsive = {
     width: string
     height: string
 };
+
+export type TokenInfo = {
+    name: string
+    image: string
+}
