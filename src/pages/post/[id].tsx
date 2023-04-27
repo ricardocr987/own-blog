@@ -27,7 +27,7 @@ const PostDetails: React.FC<PostDetailsProps> = ({ post }) => {
 export default PostDetails;
 
 // Fetch data at build time
-export async function getStaticProps({ params }: {params: Post}) {
+export async function getStaticProps({ params }: { params: Post }) {
   const data = await getPostDetails(params.id);
   return {
     props: {
