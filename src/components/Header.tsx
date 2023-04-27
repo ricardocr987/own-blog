@@ -7,6 +7,7 @@ import { postAuthorDetails, getAuthorDetails } from '@/services';
 import AuthorForm from './AuthorForm';
 import SearchBar from './SearchBar';
 import HeaderAuthorDetails from './HeaderAuthorDetails';
+import { authorInitValues } from '@/constants';
 const WalletMultiButtonDynamic = dynamic(
   async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
   { ssr: false }
@@ -33,7 +34,7 @@ const links: NavLink[] = [
 
 const Header = () => {
   const wallet = useWallet();
-  const [authorDetails, setAuthorDetails] = useState<Author | null>(null);
+  const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
   const [newAuthor, setNewAuthor] = useState(false);
 
   const handleCreateAuthor = async (authorDetails: Author) => {
@@ -67,7 +68,7 @@ const Header = () => {
           <div className="float-right py-1 cursor-pointer text-white hover:text-black">
             <div className="rounded-lg border border-white hover:border-white text-white font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-gray-200 hover:text-black">
               {wallet.connected ? 
-                authorDetails ? 
+                authorDetails.username !== '' ? 
                   <HeaderAuthorDetails authorDetails={authorDetails} links={links}/>
                 :
                   <div className='relative px-2 md:px-3 py-2 font-medium cursor-pointer' onClick={() => setNewAuthor(!newAuthor)}>

@@ -6,7 +6,7 @@ import { useWallet } from '@solana/wallet-adapter-react';
 import { useClickOutside, useNotification } from '@/hooks';
 import Loader from './Loader';
 import ImagesDropdown from './ImagesDropdown';
-import NotificationContainer from './Notification';
+import NotificationsContainer from './Notification';
 
 interface AuthorFormProps {
     onAuthorCreate: (author: Author) => void
@@ -91,8 +91,8 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor }: AuthorFormProps) => {
                             Image
                         </label>
                         <div className="flex items-center">
-                            {showImagesDropdown ?
-                                <ImagesDropdown tokens={tokens} setSelectedToken={setSelectedToken}/>
+                            {showImagesDropdown && tokens ?
+                                <ImagesDropdown tokens={tokens} selectedToken={selectedToken} setSelectedToken={setSelectedToken}/>
                             :
                                 <Loader />
                             }
@@ -107,7 +107,7 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor }: AuthorFormProps) => {
                         </div>
                     </div>
                 </form>
-                <NotificationContainer 
+                <NotificationsContainer 
                     notifications={notifications} 
                     removeNotification={removeNotification}
                 />

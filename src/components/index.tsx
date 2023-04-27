@@ -12,5 +12,4 @@ export { default as Button } from './Button';
 export { default as Editor } from './SunEditor';
 export { default as Footer } from './Footer';
 export { default as PreviewContent } from './PreviewContent';
-export { default as AuthorForm } from './AuthorForm';
-export { default as SearchBar } from './SearchBar'
+export { default as AuthWrapper } from './AuthWrapper'

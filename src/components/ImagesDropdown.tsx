@@ -1,42 +1,41 @@
 import { useClickOutside } from '@/hooks';
 import { TokenInfo } from '@/types';
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 interface ImageDropdownProps {
   tokens: TokenInfo[];
+  selectedToken: string
   setSelectedToken: (uri: string) => void;
 }
 
-const ImageDropdown = ({ tokens, setSelectedToken }: ImageDropdownProps) => {
+const ImageDropdown = ({ tokens, selectedToken, setSelectedToken }: ImageDropdownProps) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(tokens[0].image);
 
     const imagesForm = useRef<HTMLDivElement | null>(null);
     useClickOutside(imagesForm, () => setIsOpen(false));
 
-    const handleItemClick = useCallback((token: TokenInfo) => {
+    const handleItemClick = (token: TokenInfo) => {
         setSelectedToken(token.image);
-        setSelectedImage(token.image);
         setIsOpen(false);
-    }, [tokens]);
+    };
 
     return (
-        <div className="relative">
+        <div className="relative" ref={imagesForm}>
             <div>
-                <img className='rounded-lg' src={selectedImage} width={70} height={70} alt={selectedImage} />
+                <img className='rounded-lg' src={selectedToken} width={80} height={80} alt={selectedToken} />
             </div>
             <div
                 className="flex cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
-                ref={imagesForm}
+                
             >
                 <div className="py-1 px-2 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white">
-                    Select
+                    Change
                 </div>
             </div>
             {isOpen && (
                 <div className="absolute z-10 w-40 max-h-64 overflow-y-auto bg-white border rounded-md shadow-md">
-                    <ul>
+                    <ul className='max-height-10'>
                         {tokens.map((token) => (
                             <li
                                 key={token.name}

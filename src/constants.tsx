@@ -1,4 +1,4 @@
-import { Responsive } from "@/types";
+import { Author, Responsive } from "@/types";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { Envs } from "@/config";
 
@@ -88,3 +88,9 @@ export const decimalsFromPubkey: Record<string, number> = {
 }
 
 export const messagesAddress = "";
+export const authorInitValues: Author = {
+    username: '',
+    createdAt: 0,
+    bio: '',
+    uri: '',
+}

@@ -37,7 +37,7 @@ export async function postAuthorDetails(authorDetails: Author, wallet: WalletCon
             connect: wallet.connect
         })
         try {
-            const response = await publishAggregate({
+            await publishAggregate({
                 account: alephAccount,
                 key: wallet.publicKey.toString() + '-author',
                 content: authorDetails,
@@ -46,7 +46,6 @@ export async function postAuthorDetails(authorDetails: Author, wallet: WalletCon
                 inlineRequested: true,
                 APIServer: "https://api2.aleph.im"
             });
-            console.log(response)
         } catch (error) {
             console.log(error);
         }
