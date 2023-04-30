@@ -1,18 +1,19 @@
 import { useState, useCallback } from "react";
-
+import { NotificationType } from "@/types";
 interface Notification {
     id: number;
     text: string;
+    type: NotificationType
 }
 
 const useNotification = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [nextId, setNextId] = useState(1);
   
-    const addNotification = (text: string) => {
+    const addNotification = (text: string, type: NotificationType) => {
         setNotifications((notifications) => [
             ...notifications,
-            { id: nextId, text },
+            { id: nextId, text, type },
         ]);
         setNextId((id) => id + 1);
     };

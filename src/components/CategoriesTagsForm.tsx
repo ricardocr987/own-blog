@@ -31,19 +31,19 @@ const CategoriesTagsForm = ({setPost, tags}: CategoriesTagsFormProps) => {
 
   return (
     <div>
-      <div className="mt-4">
+      <div className="">
         <p className="text-lg">Categories</p>
         <p className="text-sm">Press enter or add a comma after each tag</p>
           <input
             type="text"
-            className="w-full border-none outline-none text-sm items-center p-2 mt-2 border border-gray-300 rounded-md bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400"
+            className="w-full border-grey outline-none text-sm items-center p-2 mt-2 border border-gray-300 rounded-md bg-white"
             spellCheck="false"
             onKeyUp={addTag}
             placeholder="Type a tag and press enter"
           />
       </div>
-      <div className="mt-4">
-        <div className="flex flex-wrap items-center p-2 mt-2 border bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 rounded-md">
+      <div className="">
+        <div className="flex flex-wrap items-center p-2 mt-2 border bg-white rounded-md">
           {tags.map((tag, index) => (
             <div
               key={index}

@@ -55,7 +55,7 @@ const UploadFile: React.FC<UploadFileProps> = ({setFile, file}) => {
     <div
         className={`drag-area ${
             isDragActive ? "border-2 " : "border-2 dashed "
-        } flex items-center justify-center flex-col h-44 w-full rounded-md transition-colors text-3xl duration-300 ease-in-out text-gray-400 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 hover:text-black font-medium cursor-pointer`}
+        } flex items-center justify-center flex-col h-20 w-full rounded-md transition-colors text-3xl duration-300 ease-in-out text-gray-400 bg-white hover:text-black font-medium cursor-pointer`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}

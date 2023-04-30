@@ -1,3 +1,4 @@
+import { NotificationType } from '@/types';
 import React, { useEffect, useRef, useState } from 'react';
 
 interface NotificationProps {
@@ -25,10 +26,27 @@ const Notification = ({ notification, removeNotification }: NotificationProps) =
 
   requestAnimationFrame(animateProgress);
 
+  let bgColor = "bg-red-400";
+  let bgPorgressBar = "bg-red-800";
+  switch (notification.type) {
+    case "success":
+      bgColor = "bg-emerald-400";
+      bgPorgressBar = "bg-emerald-800";
+      break;
+    case "warning":
+      bgColor = "bg-amber-400";
+      bgPorgressBar = "bg-amber-800";
+      break;
+    case "info":
+      bgColor = "bg-sky-400";
+      bgPorgressBar = "bg-sky-800";
+      break;
+  }
+
   return (
-    <div className="bg-red-400 py-2 rounded-md shadow-md cursor-pointer mb-2 flex items-center relative">
-      <div className="w-full bg-red-400 rounded-full h-1 absolute bottom-0">
-        <div className="bg-red-800 h-1 rounded-full" style={{ width: `${progress}%` }} />
+    <div className={`${bgColor} py-2 rounded-md shadow-md cursor-pointer mb-2 flex items-center relative`}>
+      <div className={`w-full ${bgColor} rounded-full h-1 absolute bottom-0`}>
+        <div className={`${bgPorgressBar} h-1 rounded-full`} style={{ width: `${progress}%` }} />
       </div>
       <div
         className="cursor-pointer px-2"
@@ -46,6 +64,7 @@ const Notification = ({ notification, removeNotification }: NotificationProps) =
 interface Notification {
     id: number;
     text: string;
+    type: NotificationType
 }
 
 interface NotificationsContainerProps {

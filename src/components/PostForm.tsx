@@ -1,6 +1,7 @@
 import { Post } from '@/types';
 import CategoriesTagsForm from './CategoriesTagsForm';
 import FileUpload from './FileUpload';
+import TokenDropdown from './TokenDropdown';
 
 type Props = {
     post: Post
@@ -18,65 +19,60 @@ const PostForm: React.FC<Props> = ({ post, setPost, file, setFile }) => {
 
     return (
         <div className="w-auto bg-white">
-            <label htmlFor="title" className="block mb-1">Title:</label>
-            <div className="border border-gray-300 rounded-md mb-4">
-                <input
-                    type="text"
-                    id="title"
-                    name="title"
-                    className="block w-full rounded-md text-sm py-2 px-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400"
-                    placeholder="Enter the title"
-                    value={post.title}
-                    onChange={handleChange}
-                />
+            <div className="flex flex-col lg:flex-row lg:items-center">
+                <div className="flex-1 mb-4 lg:mb-0">
+                    <label htmlFor="title" className="block mb-1">Title:</label>
+                    <div className="border border-gray-300 rounded-md">
+                        <input
+                            type="text"
+                            id="title"
+                            name="title"
+                            className="block w-full rounded-md text-sm py-2 px-3 bg-white"
+                            placeholder="Enter the title"
+                            value={post.title}
+                            onChange={handleChange}
+                        />
+                    </div>
+                </div>
+                <div className="flex-1 flex flex-col lg:ml-10 lg:flex-row lg:items-center">
+                    <div className="flex items-center">
+                        <TokenDropdown/>
+                        <div className="border border-gray-300 rounded-md ">
+                            <input
+                                type="text"
+                                id="price"
+                                name="price"
+                                className="block w-20 rounded-md text-sm py-2 px-3 bg-white"
+                                value={post.price}
+                                onChange={handleChange}
+                            />
+                        </div>
+                    </div>
+                </div>
             </div>
-            <label htmlFor="summary" className="block mb-1">Summary:</label>
-            <div className="border border-gray-300 rounded-md mb-4">
-                <textarea
-                    id="summary"
-                    name="summary"
-                    rows={3}
-                    className="block w-full rounded-md text-sm py-2 px-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400"
-                    placeholder="Enter the summary"
-                    value={post.summary}
-                    onChange={handleChange}
-                />
-            </div>
-            <label htmlFor="featuredImage" className="block mb-1">Featured Image:</label>
-            <div className="border border-gray-300 rounded-md mb-4">
-                <FileUpload setFile={setFile} file={file}/>
+            <div className="flex flex-col lg:flex-row lg:items-center">
+                <div className="flex-1 mb-4 lg:mb-0">
+                    <label htmlFor="summary" className="block mb-2 mt-2">Summary:</label>
+                    <div className="border border-gray-300 rounded-md mb-4">
+                        <textarea
+                            id="summary"
+                            name="summary"
+                            rows={3}
+                            className="block w-full rounded-md text-sm py-2 px-3 bg-white"
+                            placeholder="Enter the summary"
+                            value={post.summary}
+                            onChange={handleChange}
+                        />
+                    </div>
+                </div>
+                <div className="flex-1 mb-4 lg:mb-0 lg:ml-10">
+                    <label className="block mb-2">Featured Image::</label>
+                    <div className="border border-gray-300 rounded-md mb-4">
+                        <FileUpload setFile={setFile} file={file}/>
+                    </div>
+                </div>
             </div>
             <CategoriesTagsForm setPost={setPost} tags={post.categories}/>
-            <div className="flex justify-center items-center mt-4 space-x-4">
-                <div className="flex flex-col items-center">
-                    <label htmlFor="token" className="block mb-2">Token:</label>
-                    <div className="border border-gray-300 rounded-md mb-4">
-                        <input
-                            type="text"
-                            id="token"
-                            name="token"
-                            className="rounded-md text-sm py-2 px-3"
-                            placeholder="Enter the token"
-                            value={post.token}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-                <div className="flex flex-col items-center">
-                    <label htmlFor="price" className="block mb-2">Price:</label>
-                    <div className="border border-gray-300 rounded-md mb-4">
-                        <input
-                            type="text"
-                            id="price"
-                            name="price"
-                            className="rounded-md text-sm py-2 px-3"
-                            placeholder="Enter the price"
-                            value={post.price}
-                            onChange={handleChange}
-                        />
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };

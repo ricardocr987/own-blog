@@ -8,10 +8,7 @@ export default function Home() {
     <div className="container mx-auto px-10 mb-8">
       <div className="h-50 flex flex-col justify-center items-center gap-4 mb-8 lg:mb-10">
         <div className="text-white text-lg md:text-2xl font-bold flex justify-center items-center text-center">
-          Create and monetize your blog
-        </div>
-        <div className="flex justify-center items-center gap-2">
-          <span className="text-white text-lg md:text-2xl font-bold">on</span>
+          <div className='px-2'>Monetize on</div>
           <Image
             unoptimized
             width={130}
@@ -19,6 +16,9 @@ export default function Home() {
             alt={'solana'}
             src={'./solanaLogo.svg'}
           />
+        </div>
+        <div className="text-white text-lg md:text-2xl font-bold flex justify-center items-center text-center">
+          Store on Aleph
         </div>
         <Link href={'/CreateArticle'}>
           <Button text="Start writing"/>

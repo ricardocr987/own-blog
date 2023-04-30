@@ -45,3 +45,10 @@ export type TokenInfo = {
     name: string
     image: string
 }
+
+export enum NotificationType {
+    SUCCESS = 'success',
+    ERROR = 'error',
+    WARNING = 'warning',
+    INFO = 'info',
+}

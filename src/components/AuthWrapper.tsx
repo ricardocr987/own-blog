@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Author from "./Author";
 import NotificationsContainer from "./Notification";
 import { useNotification } from "@/hooks";
+import { NotificationType } from "@/types";
 
 interface AuthWrapperProps {
     children: React.ReactNode
@@ -24,10 +25,10 @@ const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
               setAuthorDetails(details);
               setSigned(true);
             } else {
-              addNotification('Please sign in to get access');
+              addNotification('Please sign in to get access', NotificationType.WARNING);
             }
           } else {
-            addNotification('Please connect wallet to get access');
+            addNotification('Please connect wallet to get access', NotificationType.WARNING);
           }
         };
         fetchAuthorDetails();

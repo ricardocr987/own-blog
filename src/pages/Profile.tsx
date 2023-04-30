@@ -4,7 +4,7 @@ import NotificationsContainer from "@/components/Notification";
 import { authorInitValues } from "@/constants";
 import { useNotification } from "@/hooks";
 import { getTokenInfo, postAuthorDetails } from "@/services";
-import { Author, TokenInfo } from "@/types";
+import { Author, NotificationType, TokenInfo } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import moment from "moment";
 import Image from 'next/image';
@@ -47,10 +47,10 @@ const Profile = () => {
                 setAuthorDetails(formAuthorDetails);
                 setIsEditing(false);
             } catch(e) {
-                addNotification('Aleph network error');
+                addNotification('Aleph network error', NotificationType.ERROR);
             }
         } else {
-            addNotification('Please, fill all fields');
+            addNotification('Please, fill all fields', NotificationType.WARNING);
         }       
     };
 

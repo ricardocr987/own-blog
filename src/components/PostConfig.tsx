@@ -13,7 +13,7 @@ interface PostConfigProps {
 const PostConfig = ({ post, setPost, setShowConfig, setShowPreview, setFile, file }: PostConfigProps) => {
     return (
         <div className="grid grid-flow-row">
-            <div className="flex items-center justify-center my-2 px-2 space-x-5">
+            <div className="flex items-center justify-center mb-4 space-x-5">
                 <div className="grid justify-items-center">
                     <div className="relative flex items-center justify-center w-8 h-8 rounded-full border transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white" onClick={() => { setShowConfig(false); setShowPreview(true) }}>
                         <svg className="fill-current h-4 w-4" id="Layer_1_1_" version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +29,7 @@ const PostConfig = ({ post, setPost, setShowConfig, setShowPreview, setFile, fil
                     <div className="text-center text-xs mt-1 text-white">Edit</div>
                 </div>
             </div>
-            <div className="rounded-md bg-white w-full px-8 py-8">
+            <div className="rounded-md bg-white w-full px-16 py-16">
                 <PostForm setPost={setPost} post={post} setFile={setFile} file={file}/>
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { Author, TokenInfo } from '@/types';
+import { Author, NotificationType, TokenInfo } from '@/types';
 import { useEffect, useRef, useState } from 'react';
 import { connection } from '@/constants';
 import { getTokenInfo } from '@/services';
@@ -28,10 +28,10 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor }: AuthorFormProps) => {
                 onAuthorCreate({ username, bio, uri: selectedToken, createdAt: Date.now() }); 
                 setNewAuthor(false);
             } catch(e) {
-                addNotification('Aleph network error');
+                addNotification('Aleph network error', NotificationType.ERROR);
             }
         } else {
-            addNotification('Please, fill all fields');
+            addNotification('Please, fill all fields', NotificationType.WARNING);
         }       
     };
 
