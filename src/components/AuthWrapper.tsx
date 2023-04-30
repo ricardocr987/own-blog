@@ -24,10 +24,10 @@ const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
               setAuthorDetails(details);
               setSigned(true);
             } else {
-              addNotification('Please sign in to be able to write content');
+              addNotification('Please sign in to get access');
             }
           } else {
-            addNotification('Please connect wallet to be able to write content');
+            addNotification('Please connect wallet to get access');
           }
         };
         fetchAuthorDetails();
@@ -38,11 +38,11 @@ const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
     
   
     return (
-      <div className="container mx-auto px-10 mb-8">
-        { wallet.publicKey && wallet.connected && signed && <>{children}</> }
+      <div>
+        {wallet.publicKey && wallet.connected && signed && <>{children}</> }
         <NotificationsContainer 
-            notifications={notifications} 
-            removeNotification={removeNotification}
+          notifications={notifications} 
+          removeNotification={removeNotification}
         />
       </div>
     )

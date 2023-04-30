@@ -1,5 +1,5 @@
 import { Author, TokenInfo } from '@/types';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { connection } from '@/constants';
 import { getTokenInfo } from '@/services';
 import { useWallet } from '@solana/wallet-adapter-react';

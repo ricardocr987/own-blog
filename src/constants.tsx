@@ -1,4 +1,4 @@
-import { Author, Responsive } from "@/types";
+import { Author, Post, Responsive } from "@/types";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { Envs } from "@/config";
 
@@ -94,3 +94,19 @@ export const authorInitValues: Author = {
     bio: '',
     uri: '',
 }
+export const postInitialValues: Post = {
+    id: '',
+    price: 0,
+    createdAt: 0,
+    featuredImage: '',
+    title: '',
+    author: {
+        username: '',
+        createdAt: 0,
+        bio: '',
+        uri: '',
+    },
+    summary: '',
+    content: '',
+    categories: [],
+};

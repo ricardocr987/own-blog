@@ -8,6 +8,7 @@ const posts: Post[] = [
   {     
     id: '1',
     createdAt: Date.now(),
+    price: 0,
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Solana',
     author: {
@@ -19,15 +20,13 @@ const posts: Post[] = [
     summary: 'Solana is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '1',
-        name: 'Solana'
-      },
+      'Solana',
     ]
   },
   {     
     id: '2',
     createdAt: Date.now(),
+    price: 0,
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
     author: {
@@ -39,10 +38,7 @@ const posts: Post[] = [
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '2',
-        name: 'Aleph'
-      },
+      'Aleph',
     ]
   },
 ]

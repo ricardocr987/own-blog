@@ -1,5 +1,7 @@
-import { EditPostCard } from "@/components";
-import { Post } from "@/types";
+import { AuthWrapper, EditPostCard } from "@/components";
+import { authorInitValues } from "@/constants";
+import { Author, Post } from "@/types";
+import { useState } from "react";
 
 const posts: Post[] = [
     {     
@@ -7,6 +9,7 @@ const posts: Post[] = [
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Solana',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -16,10 +19,7 @@ const posts: Post[] = [
         summary: 'Solana is great',
         content: 'because is cheap, fast and with an awesome UX',
         categories: [  
-            {     
-                id: '1',
-                name: 'Solana'
-            },
+            'Solana'
         ]
     },
     {     
@@ -27,6 +27,7 @@ const posts: Post[] = [
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Aleph',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -36,10 +37,7 @@ const posts: Post[] = [
         summary: 'Aleph is great',
         content: 'because is cheap, fast and with an awesome UX',
         categories: [  
-            {     
-                id: '2',
-                name: 'Aleph'
-            },
+            'Aleph'
         ]
     },
     {     
@@ -47,6 +45,7 @@ const posts: Post[] = [
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Aleph',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -56,10 +55,7 @@ const posts: Post[] = [
         summary: 'Aleph is great',
         content: 'because is cheap, fast and with an awesome UX',
         categories: [  
-            {     
-                id: '2',
-                name: 'Aleph'
-            },
+            'Aleph'
         ]
     },
     {     
@@ -67,6 +63,7 @@ const posts: Post[] = [
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Aleph',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -76,10 +73,7 @@ const posts: Post[] = [
         summary: 'Aleph is great',
         content: 'because is cheap, fast and with an awesome UX',
         categories: [  
-            {     
-                id: '2',
-                name: 'Aleph'
-            },
+            'Aleph'
         ]
     },
     {     
@@ -87,6 +81,7 @@ const posts: Post[] = [
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Aleph',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -96,10 +91,7 @@ const posts: Post[] = [
         summary: 'Aleph is great',
         content: 'because is cheap, fast and with an awesome UX',
         categories: [  
-            {     
-                id: '2',
-                name: 'Aleph'
-            },
+            'Aleph'
         ]
     },
     {     
@@ -107,6 +99,7 @@ const posts: Post[] = [
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Aleph',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -116,10 +109,7 @@ const posts: Post[] = [
         summary: 'Aleph is great',
         content: 'because is cheap, fast and with an awesome UX',
         categories: [  
-            {     
-                id: '2',
-                name: 'Aleph'
-            },
+            'Aleph'
         ]
     },
     {     
@@ -127,6 +117,7 @@ const posts: Post[] = [
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Aleph',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -136,37 +127,27 @@ const posts: Post[] = [
         summary: 'Aleph is great',
         content: 'because is cheap, fast and with an awesome UX',
         categories: [  
-            {     
-                id: '2',
-                name: 'Aleph'
-            },
+            'Aleph'
         ]
     },
 ]
 
 const MyArticles = () => {
-    const connected = true;
+    const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
 
     return (
-        <div className="container mx-auto px-10 mb-8">
-            {connected ?
-                <>
-                    <div className="text-white text-2xl font-bold mb-4">
-                        Your articles:
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                        {posts.map((post, index) => (
-                            <EditPostCard key={index} post={post} />
-                        ))}
-                    </div>
-                </>
-            : 
-                <div className="text-white text-2xl font-bold mb-4 text-center mt-32">
-                    Connect your wallet
+        <AuthWrapper setAuthorDetails={setAuthorDetails}>
+            <div className="container mx-auto px-10 mb-8">
+                <div className="text-white text-2xl font-bold mb-4">
+                    Your articles:
                 </div>
-            }
-
-        </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {posts.map((post, index) => (
+                        <EditPostCard key={index} post={post} />
+                    ))}
+                </div>
+            </div>
+        </AuthWrapper>
     );
 };
 
