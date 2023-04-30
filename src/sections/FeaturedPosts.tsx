@@ -12,6 +12,7 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Solana',
+    price: 0,
     author: {
       username: 'Riki',
       createdAt: Date.now(),
@@ -21,10 +22,7 @@ const featuredPosts: Post[] = [
     summary: 'Solana is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '1',
-        name: 'Solana'
-      },
+      'Aleph'
     ]
   },
   {     
@@ -32,6 +30,7 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
+    price: 0,
     author: {
       username: 'Riki',
       createdAt: Date.now(),
@@ -41,10 +40,7 @@ const featuredPosts: Post[] = [
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '2',
-        name: 'Aleph'
-      },
+      'Aleph'
     ]
   },
   {     
@@ -52,6 +48,7 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
+    price: 0,
     author: {
       username: 'Riki',
       createdAt: Date.now(),
@@ -61,10 +58,7 @@ const featuredPosts: Post[] = [
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '2',
-        name: 'Aleph'
-      },
+      'Aleph'
     ]
   },
   {     
@@ -72,6 +66,7 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
+    price: 0,
     author: {
       username: 'Riki',
       createdAt: Date.now(),
@@ -81,10 +76,7 @@ const featuredPosts: Post[] = [
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '2',
-        name: 'Aleph'
-      },
+      'Aleph'
     ]
   },
   {     
@@ -92,6 +84,7 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
+    price: 0,
     author: {
       username: 'Riki',
       createdAt: Date.now(),
@@ -101,10 +94,7 @@ const featuredPosts: Post[] = [
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '2',
-        name: 'Aleph'
-      },
+      'Aleph'
     ]
   },
   {     
@@ -112,6 +102,7 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
+    price: 0,
     author: {
       username: 'Riki',
       createdAt: Date.now(),
@@ -121,10 +112,7 @@ const featuredPosts: Post[] = [
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
-      {     
-        id: '2',
-        name: 'Aleph'
-      },
+      'Aleph'
     ]
   },
 ]

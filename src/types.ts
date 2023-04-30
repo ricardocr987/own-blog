@@ -7,18 +7,15 @@ export type Author = {
 
 export type Post = {
     id: string
+    price: number
+    token?: string
     createdAt: number
     featuredImage: string
     title: string
     author: Author
     summary: string
     content: string
-    categories: Category[]
-}
-
-export type Category = {
-    id: string
-    name: string
+    categories: string[]
 }
 
 export type Comment = {

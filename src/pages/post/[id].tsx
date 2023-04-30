@@ -17,7 +17,6 @@ const PostDetails: React.FC<PostDetailsProps> = ({ post }) => {
   return (
     <div className="container mx-auto px-10 mb-8">
         <PostDetail post={post} />
-        <Author author={post.author} />
         <CommentsForm id={post.id} />
         <Comments id={post.id} />
     </div>
@@ -53,6 +52,7 @@ async function getPosts(): Promise<Post[]> {
             createdAt: Date.now(),
             featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
             title: 'Solana',
+            price: 0,
             author: {
                 username: 'Riki',
                 createdAt: Date.now(),
@@ -62,10 +62,7 @@ async function getPosts(): Promise<Post[]> {
             summary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
             content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
             categories: [  
-                {     
-                id: '1',
-                name: 'Solana'
-                },
+              'Solana'
             ]
         },
         {     
@@ -73,6 +70,7 @@ async function getPosts(): Promise<Post[]> {
             createdAt: Date.now(),
             featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
             title: 'Aleph',
+            price: 0,
             author: {
                 username: 'Riki',
                 createdAt: Date.now(),
@@ -82,10 +80,7 @@ async function getPosts(): Promise<Post[]> {
             summary: 'Aleph is great',
             content: 'because is cheap, fast and with an awesome UX',
             categories: [  
-                {     
-                id: '2',
-                name: 'Aleph'
-                },
+              'Aleph'
             ]
         },
     ]
@@ -97,6 +92,7 @@ async function getPostDetails(id: string): Promise<Post> {
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Solana',
+        price: 0,
         author: {
             username: 'Riki',
             createdAt: Date.now(),
@@ -106,10 +102,7 @@ async function getPostDetails(id: string): Promise<Post> {
         summary: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
         content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
         categories: [  
-            {     
-                id: '1',
-                name: 'Solana'
-            },
+          'Aleph'
         ]
     }
 }
