@@ -17,14 +17,14 @@ const PostForm: React.FC<Props> = ({ post, setPost, file, setFile }) => {
     };
 
     return (
-        <div className="w-auto bg-white p-6">
+        <div className="w-auto bg-white">
             <label htmlFor="title" className="block mb-1">Title:</label>
             <div className="border border-gray-300 rounded-md mb-4">
                 <input
                     type="text"
                     id="title"
                     name="title"
-                    className="block w-full rounded-md text-sm py-2 px-3"
+                    className="block w-full rounded-md text-sm py-2 px-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400"
                     placeholder="Enter the title"
                     value={post.title}
                     onChange={handleChange}
@@ -36,7 +36,7 @@ const PostForm: React.FC<Props> = ({ post, setPost, file, setFile }) => {
                     id="summary"
                     name="summary"
                     rows={3}
-                    className="block w-full rounded-md text-sm py-2 px-3"
+                    className="block w-full rounded-md text-sm py-2 px-3 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400"
                     placeholder="Enter the summary"
                     value={post.summary}
                     onChange={handleChange}

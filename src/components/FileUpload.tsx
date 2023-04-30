@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Button from "./Button";
 
 const validExtensions = ["image/jpeg", "image/jpg", "image/png"];
 
@@ -53,24 +54,22 @@ const UploadFile: React.FC<UploadFileProps> = ({setFile, file}) => {
   return (
     <div
         className={`drag-area ${
-            isDragActive ? "border-2 border-white" : "border-2 dashed border-white"
-        } flex items-center justify-center flex-col h-44 w-full rounded-md`}
+            isDragActive ? "border-2 " : "border-2 dashed "
+        } flex items-center justify-center flex-col h-44 w-full rounded-md transition-colors text-3xl duration-300 ease-in-out text-gray-400 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 hover:text-black font-medium cursor-pointer`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
     >
         {file ? (
             <img
-                className="w-full h-full object-cover rounded-md"
+                className="w-full h-full object-cover rounded-md "
                 src={URL.createObjectURL(file)}
                 alt="uploaded file"
                 onLoad={handleImageLoad}
             />
         ) : (
             <>
-                <button className="px-4 py-2 text-2xl font-medium bg-white text-blue-600 rounded-md">
-                    Drag & drop image
-                </button>
+                Drag & drop
                 <input type="file" hidden onChange={handleInputChange} />
             </>
         )}

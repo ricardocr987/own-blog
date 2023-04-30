@@ -23,7 +23,7 @@ const Editor = ({content = '', handleChange}: ButtonProps) => {
     };
 
     const [width, setWidth] = useState<string>(
-        typeof window !== 'undefined' ? `${window.innerWidth}` : '700'
+        typeof window !== 'undefined' ? `${window.innerWidth}` : '400'
     );
     const [height, setHeight] = useState<string>(
         typeof window !== 'undefined' ? `${window.innerHeight}` : '200'
@@ -45,28 +45,33 @@ const Editor = ({content = '', handleChange}: ButtonProps) => {
     }, [handleResize]);
     
     return (
-        <SunEditor
-            setContents={content}
-            onChange={handleChange}
-            getSunEditorInstance={getSunEditorInstance}
-            height={height}
-            width={width}
-            setOptions={{
-                buttonList: [[
-                    "bold",
-                    "underline",
-                    "italic",
-                    "strike",
-                    "list",
-                    "align",
-                    "fontSize",
-                    "table",
-                    "image",
-                    "video",
-                    "audio",
-                ]]
-            }}
-        />
+        <>
+            <SunEditor
+                setContents={content}
+                onChange={handleChange}
+                getSunEditorInstance={getSunEditorInstance}
+                height={height}
+                width={width}
+                setOptions={{
+                    buttonList: [[
+                        "bold",
+                        "underline",
+                        "italic",
+                        "strike",
+                        "list",
+                        "align",
+                        "fontSize",
+                        "table",
+                        "image",
+                        "video",
+                        "audio",
+                    ]]
+                }}
+            />
+            <div>
+                
+            </div>
+        </>
     );
 };
 

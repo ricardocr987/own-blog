@@ -58,7 +58,7 @@ const Header = () => {
 
   return (
     <>
-      <div className="container mx-auto px-10 mb-16 mt-2">        
+      <div className="container mx-auto px-5 mb-16 mt-2">        
         <div className="w-full py-8">
           <div className="float-left inline-block mr-10">
             <Link href="/">
