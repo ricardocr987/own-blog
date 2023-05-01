@@ -2,20 +2,35 @@ import { useClickOutside } from "@/hooks";
 import { useRef, useState } from "react";
 
 const SearchBar = () => {
-  const [showSearchBarPopup, setShowSearchBarPopup] = useState(false);
-  const searchBarRef = useRef<HTMLDivElement | null>(null);
-  useClickOutside(searchBarRef, () => setShowSearchBarPopup(false));
+    const [showSearchBarPopup, setShowSearchBarPopup] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("")
+    const searchBarRef = useRef<HTMLDivElement | null>(null);
+    useClickOutside(searchBarRef, () => setShowSearchBarPopup(false));
+
+    const handleSearchSubmit = () => {
+
+    }
+
+    const handleInputChange = () => {
+
+    }
 
     return (
         <>
             {showSearchBarPopup && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-80 z-10 transition-all ease-in-out duration-1000 ">
-                    <div ref={searchBarRef}>
-                        <form className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                    <div
+                        className={`absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2`}
+                        ref={searchBarRef}
+                    >
+                        <form onSubmit={handleSearchSubmit}>
                             <input
                                 type="text"
+                                placeholder={"Search..."}
+                                value={searchTerm}
+                                onChange={handleInputChange}
+                                required
                                 className="bg-gray-200 text-gray-800 rounded-full w-72 sm:w-80 md:w-96 py-2 px-1 pl-8"
-                                placeholder="Search..."
                             />
                             <div className="absolute top-0 left-0">
                                 <svg
