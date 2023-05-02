@@ -48,7 +48,6 @@ const Header = () => {
     }
   };
   
-
   const handleSignIn = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const fetchAuthorDetails = async () => {
       try {
