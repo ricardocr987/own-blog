@@ -8,6 +8,9 @@ import AuthorForm from './AuthorForm';
 import SearchBar from './SearchBar';
 import HeaderAuthorDetails from './HeaderAuthorDetails';
 import { authorInitValues } from '@/constants';
+import { getCsrfToken, signIn, useSession } from 'next-auth/react';
+import { SigninMessage } from '@/utils/SignMessage';
+import bs58 from 'bs58';
 const WalletMultiButtonDynamic = dynamic(
   async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
   { ssr: false }
@@ -36,6 +39,7 @@ const Header = () => {
   const wallet = useWallet();
   const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
   const [newAuthor, setNewAuthor] = useState(false);
+  const { data: session, status } = useSession();
 
   const handleCreateAuthor = async (authorDetails: Author) => {
     if (wallet.publicKey && wallet.connected) {
@@ -43,18 +47,56 @@ const Header = () => {
       setAuthorDetails(authorDetails);
     }
   };
+  
 
-  useEffect(() => {
+  const handleSignIn = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const fetchAuthorDetails = async () => {
-      if (wallet.publicKey && wallet.connected) {
+      try {
+        const csrf = await getCsrfToken();
+        if (!wallet.publicKey || !csrf || !wallet.signMessage) return;
+
         const details = await getAuthorDetails(wallet.publicKey);
-        if (details !== null) {
-          setAuthorDetails(details);
-        }
+        if (!details) {
+          setNewAuthor(!newAuthor)
+          return;
+        } 
+
+        const message = new SigninMessage({
+          domain: window.location.host,
+          publicKey: wallet.publicKey?.toBase58(),
+          statement: `Sign in.`,
+          nonce: csrf,
+        });
+
+        const data = new TextEncoder().encode(message.prepare());
+        const signature = await wallet.signMessage(data);
+        const serializedSignature = bs58.encode(signature);
+
+        e.preventDefault()
+        signIn("credentials", {
+          message: JSON.stringify(message),
+          //author: JSON.stringify(details),
+          redirect: false,
+          signature: serializedSignature,
+        });
+        setAuthorDetails(details);
+      } catch(e) {
+        console.log(e)
       }
     };
     fetchAuthorDetails();
-  }, [wallet.publicKey]);
+  }
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (status === "authenticated") {
+        if (!wallet.publicKey ) return
+        const details = await getAuthorDetails(wallet.publicKey)
+        if (details != null) setAuthorDetails(details)
+      } 
+    }
+    checkAuth()
+  });
 
   return (
     <>
@@ -68,10 +110,10 @@ const Header = () => {
           <div className="float-right py-1 cursor-pointer text-white hover:text-black">
             <div className="rounded-lg border border-white hover:border-white text-white font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-gray-200 hover:text-black">
               {wallet.connected ? 
-                authorDetails.username !== '' ? 
+                status === "authenticated" ? 
                   <HeaderAuthorDetails authorDetails={authorDetails} links={links}/>
                 :
-                  <div className='relative px-2 md:px-3 py-2 font-medium cursor-pointer' onClick={() => setNewAuthor(!newAuthor)}>
+                  <div className='relative px-2 md:px-3 py-2 font-medium cursor-pointer' onClick={(e) => handleSignIn(e)}>
                     Sign in
                   </div>
               :

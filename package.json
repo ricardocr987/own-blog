@@ -19,15 +19,18 @@
     "@types/react": "18.0.37",
     "@types/react-dom": "18.0.11",
     "aleph-sdk-ts": "^3.4.3",
+    "bs58": "^5.0.0",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
     "html-react-parser": "^3.0.16",
     "moment": "^2.29.4",
     "next": "13.3.0",
+    "next-auth": "^4.22.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-multi-carousel": "^2.8.3",
     "suneditor-react": "^3.5.0",
+    "tweetnacl": "^1.0.3",
     "typescript": "5.0.4"
   },
   "devDependencies": {
