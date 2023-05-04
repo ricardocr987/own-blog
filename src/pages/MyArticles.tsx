@@ -12,6 +12,7 @@ const posts: Post[] = [
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'vibing',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -30,6 +31,7 @@ const posts: Post[] = [
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'vibing',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -48,6 +50,7 @@ const posts: Post[] = [
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'vibing',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -66,6 +69,7 @@ const posts: Post[] = [
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'vibing',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -84,6 +88,7 @@ const posts: Post[] = [
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'vibing',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -102,6 +107,7 @@ const posts: Post[] = [
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'vibing',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -120,6 +126,7 @@ const posts: Post[] = [
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'vibing',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',

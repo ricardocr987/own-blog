@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { getCsrfToken } from "next-auth/react"; // ojo, se supone que no es necesario para el metodo sigin
 import { SigninMessage } from "../../../utils/SignMessage";
 import { getUrl } from "@/utils/checkEnvironment";
 
-export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-  const providers = [
+// se supone que no es necesario para el metodo sigin validar el token porque ya lo hace la libreria
+export const authOptions: NextAuthOptions = {
+  providers: [
     CredentialsProvider({
       name: "Solana",
       credentials: {
@@ -45,38 +45,24 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         }
       },
     }),
-  ];
-
-  const isDefaultSigninPage =
-    req.method === "GET" && req.query.nextauth?.includes("signin");
-
-  // Hides Sign-In with Solana from the default sign page
-  if (isDefaultSigninPage) {
-    providers.pop();
-  }
-
-  return await NextAuth(req, res, {
-    providers,
-    session: {
-      strategy: "jwt",
+  ],
+  session: {
+    strategy: "jwt",
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.user = user;
+      }
+      return token;
     },
-    secret: process.env.NEXTAUTH_SECRET,
-    callbacks: {
-      async jwt({ token, user }) {
-        if (user) {
-          token.user = user;
-        }
-        return token;
-      },
-      async session({ session, token }) {
-        // @ts-ignore
-        session.publicKey = token.sub;
-        if (session.user) {
-          session.user.name = token.sub;
-          session.user.image = `https://ui-avatars.com/api/?name=${token.sub}&background=random`;
-        }
-        return session;
-      },
+    async session({ session }) {
+      return session;
     },
-  });
+  },
+}
+
+export default async function auth(req: NextApiRequest, res: NextApiResponse) {
+  return await NextAuth(req, res, authOptions);
 }

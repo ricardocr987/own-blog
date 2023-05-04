@@ -35,10 +35,11 @@ const Profile = () => {
     }, [wallet.publicKey]);
 
     const handleSubmit = async () => {
-        if (formUsername !== '' && formImage !== '') {
+        if (formUsername !== '' && formImage !== '' && wallet.publicKey) {
             try {
                 const formAuthorDetails: Author = { 
                     username: formUsername,
+                    pubkey: wallet.publicKey.toString(),
                     bio: formBio,
                     uri: formImage,
                     createdAt: authorDetails.createdAt

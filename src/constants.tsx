@@ -90,6 +90,7 @@ export const decimalsFromPubkey: Record<string, number> = {
 export const messagesAddress = "";
 export const authorInitValues: Author = {
     username: '',
+    pubkey: '',
     createdAt: 0,
     bio: '',
     uri: '',
@@ -102,6 +103,7 @@ export const postInitialValues: Post = {
     title: '',
     author: {
         username: '',
+        pubkey: '',
         createdAt: 0,
         bio: '',
         uri: '',

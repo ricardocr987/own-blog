@@ -3,6 +3,13 @@ export type Author = {
     createdAt: number
     bio: string
     uri: string
+    pubkey: string
+}
+
+export type ReducedAuthor = {
+    username: string
+    uri: string
+    pubkey: string
 }
 
 export type Post = {
@@ -51,4 +58,10 @@ export enum NotificationType {
     ERROR = 'error',
     WARNING = 'warning',
     INFO = 'info',
+}
+
+export interface Notification {
+    id: number;
+    text: string;
+    type: NotificationType
 }

@@ -1,16 +1,19 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { NotificationType } from "@/types";
-interface Notification {
-    id: number;
-    text: string;
-    type: NotificationType
-}
+import { Notification } from '@/types';
 
 const useNotification = () => {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [nextId, setNextId] = useState(1);
   
     const addNotification = (text: string, type: NotificationType) => {
+        const existingNotification = notifications.find(
+            (notification) => notification.text === text && notification.type === type
+        );
+        if (existingNotification) {
+            return;
+        }
+
         setNotifications((notifications) => [
             ...notifications,
             { id: nextId, text, type },

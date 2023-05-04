@@ -55,6 +55,7 @@ async function getPosts(): Promise<Post[]> {
             price: 0,
             author: {
                 username: 'Riki',
+                pubkey: '',
                 createdAt: Date.now(),
                 bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -74,6 +75,7 @@ async function getPosts(): Promise<Post[]> {
             author: {
                 username: 'Riki',
                 createdAt: Date.now(),
+                pubkey: '',
                 bio: 'vibing',
                 uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
             },
@@ -95,6 +97,7 @@ async function getPostDetails(id: string): Promise<Post> {
         price: 0,
         author: {
             username: 'Riki',
+            pubkey: '',
             createdAt: Date.now(),
             bio: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
             uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',

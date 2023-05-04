@@ -9,6 +9,7 @@ interface AlephResponseAuthor {
     [key: string]: {
         username: string;
         createdAt: number;
+        pubkey: string,
         bio: string;
         uri: string;
     };

@@ -3,30 +3,31 @@ import { useEffect, useRef, useState } from 'react';
 import { connection } from '@/constants';
 import { getTokenInfo } from '@/services';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { useClickOutside, useNotification } from '@/hooks';
+import { useClickOutside } from '@/hooks';
+import { Notification } from '@/types';
 import Loader from './Loader';
 import ImagesDropdown from './ImagesDropdown';
-import NotificationsContainer from './Notification';
 
 interface AuthorFormProps {
     onAuthorCreate: (author: Author) => void
     setNewAuthor: (value: React.SetStateAction<boolean>) => void
+    addNotification: (text: string, type: NotificationType) => void,
+    notifications: Notification[],
+    removeNotification: (id: number) => void
 }  
 
-const AuthorForm = ({ onAuthorCreate, setNewAuthor }: AuthorFormProps) => {
+const AuthorForm = ({ onAuthorCreate, setNewAuthor, addNotification, notifications, removeNotification }: AuthorFormProps) => {
     const { publicKey } = useWallet();
     const [username, setUsername] = useState('');
     const [bio, setBio] = useState('');
     const [selectedToken, setSelectedToken] = useState('');
     const [tokens, setTokens] = useState<TokenInfo[]>([]);
     const [showImagesDropdown, setShowImagesDropdown] = useState(false);
-    const { addNotification, notifications, removeNotification } = useNotification();
 
     const handleSubmit = async () => {
-        if (username !== '' && selectedToken !== '') {
+        if (username !== '' && selectedToken !== '' && publicKey) {
             try {
-                onAuthorCreate({ username, bio, uri: selectedToken, createdAt: Date.now() }); 
-                setNewAuthor(false);
+                onAuthorCreate({ username, pubkey: publicKey.toString() , bio, uri: selectedToken, createdAt: Date.now() }); 
             } catch(e) {
                 addNotification('Aleph network error', NotificationType.ERROR);
             }
@@ -51,7 +52,7 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor }: AuthorFormProps) => {
     useClickOutside(authorFormRef, () => setNewAuthor(false));
 
     return (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center z-20">
             <div ref={authorFormRef} className="bg-white rounded-lg w-96 p-8 relative">
                 <div
                     className="absolute top-0 right-0 mt-2 mr-2 cursor-pointer"
@@ -107,10 +108,6 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor }: AuthorFormProps) => {
                         </div>
                     </div>
                 </form>
-                <NotificationsContainer 
-                    notifications={notifications} 
-                    removeNotification={removeNotification}
-                />
             </div>
         </div>
     );

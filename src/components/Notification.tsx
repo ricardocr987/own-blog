@@ -74,7 +74,7 @@ interface NotificationsContainerProps {
 
 const NotificationsContainer = ({ notifications, removeNotification }: NotificationsContainerProps) => {  
   return (
-    <div className="flex flex-col fixed bottom-10 right-4">
+    <div className="flex flex-col fixed bottom-10 right-4 z-99">
       {notifications.map((notification) => (
         <Notification 
           key={notification.id} 

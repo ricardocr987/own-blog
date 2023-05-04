@@ -15,6 +15,7 @@ const featuredPosts: Post[] = [
     price: 0,
     author: {
       username: 'Riki',
+      pubkey: '',
       createdAt: Date.now(),
       bio: 'vibing',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -33,6 +34,64 @@ const featuredPosts: Post[] = [
     price: 0,
     author: {
       username: 'Riki',
+      pubkey: '',
+      createdAt: Date.now(),
+      bio: 'vibing',
+      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
+    },
+    summary: 'Aleph is great',
+    content: 'because is cheap, fast and with an awesome UX',
+    categories: [  
+      'Aleph'
+    ]
+  },
+  {     
+    id: '2',
+    createdAt: Date.now(),
+    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
+    title: 'Aleph',
+    price: 0,
+    author: {
+      username: 'Riki',
+      pubkey: '',
+      createdAt: Date.now(),
+      bio: 'vibing',
+      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
+    },
+    summary: 'Aleph is great',
+    content: 'because is cheap, fast and with an awesome UX',
+    categories: [  
+      'Aleph'
+    ]
+  },
+  {     
+    id: '2',
+    createdAt: Date.now(),
+    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
+    title: 'Aleph',
+    price: 0,
+    author: {
+      username: 'Riki',
+      pubkey: '',
+      createdAt: Date.now(),
+      bio: 'vibing',
+      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
+    },
+    summary: 'Aleph is great',
+    content: 'because is cheap, fast and with an awesome UX',
+    categories: [  
+      'Aleph'
+    ]
+  },
+  {     
+    id: '2',
+    createdAt: Date.now(),
+    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
+    title: 'Aleph',
+    price: 0,
+    author: {
+      username: 'Riki',
+      pubkey: '',
       createdAt: Date.now(),
       bio: 'vibing',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
@@ -52,60 +111,7 @@ const featuredPosts: Post[] = [
     author: {
       username: 'Riki',
       createdAt: Date.now(),
-      bio: 'vibing',
-      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
-    summary: 'Aleph is great',
-    content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
-      'Aleph'
-    ]
-  },
-  {     
-    id: '2',
-    createdAt: Date.now(),
-    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
-    title: 'Aleph',
-    price: 0,
-    author: {
-      username: 'Riki',
-      createdAt: Date.now(),
-      bio: 'vibing',
-      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
-    summary: 'Aleph is great',
-    content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
-      'Aleph'
-    ]
-  },
-  {     
-    id: '2',
-    createdAt: Date.now(),
-    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
-    title: 'Aleph',
-    price: 0,
-    author: {
-      username: 'Riki',
-      createdAt: Date.now(),
-      bio: 'vibing',
-      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
-    summary: 'Aleph is great',
-    content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
-      'Aleph'
-    ]
-  },
-  {     
-    id: '2',
-    createdAt: Date.now(),
-    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
-    title: 'Aleph',
-    price: 0,
-    author: {
-      username: 'Riki',
-      createdAt: Date.now(),
+      pubkey: '',
       bio: 'vibing',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
     },
@@ -120,7 +126,7 @@ const featuredPosts: Post[] = [
 const FeaturedPosts = () => {
   return (
     <div className="mb-8">
-      <Carousel infinite customLeftArrow={customLeftArrow} customRightArrow={customRightArrow} responsive={responsiveCarousel} itemClass="px-4">
+      <Carousel infinite customLeftArrow={customLeftArrow} customRightArrow={customRightArrow} responsive={responsiveCarousel} itemClass="px-2">
         {featuredPosts.map((post, index) => (
           <FeaturedPostCard key={index} post={post} />
         ))}
