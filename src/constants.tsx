@@ -2,22 +2,34 @@ import { Author, Post, Responsive } from "@/types";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { Envs } from "@/config";
 
-export const customLeftArrow = (
-    <div className="absolute arrow-btn left-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6  w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-        </svg>
-    </div>
-);
+type ArrowProps = {
+    onClick?: void
+}
 
-export const customRightArrow = (
-    <div className="absolute arrow-btn right-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6  w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-        </svg>
-    </div>
-);
-
+export const CustomLeftArrow = ({ onClick }: ArrowProps) => {
+    return (
+        onClick ? 
+            <div className="absolute arrow-btn left-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white" onClick={onClick}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </div>
+        : <></>
+    )
+}
+  
+export const CustomRightArrow = ({ onClick }: ArrowProps) => {
+    return (
+        onClick ? 
+            <div className="absolute arrow-btn right-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white" onClick={onClick}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </div>
+        : <></>
+    );
+}
+  
 export const responsiveCarousel = {
     superLargeDesktop: {
         breakpoint: { max: 4000, min: 1024 },

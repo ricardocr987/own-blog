@@ -102,6 +102,8 @@ const Header = () => {
     fetchAuthorDetails();
   }
 
+  useEffect(() => {}, [session]);
+
   return (
     <>
       <div className="container mx-auto px-5 mb-16 mt-2">        
