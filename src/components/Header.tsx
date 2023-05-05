@@ -8,7 +8,7 @@ import AuthorForm from './AuthorForm';
 import SearchBar from './SearchBar';
 import HeaderAuthorDetails from './HeaderAuthorDetails';
 import { authorInitValues } from '@/constants';
-import { getCsrfToken, signIn, useSession } from 'next-auth/react';
+import { GetSessionParams, getCsrfToken, getSession, signIn, useSession } from 'next-auth/react';
 import { SigninMessage } from '@/utils/SignMessage';
 import bs58 from 'bs58';
 import { useNotification } from '@/hooks';
@@ -60,7 +60,7 @@ const Header = () => {
     }
   };
   
-  const handleSignIn = (e?: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleSignIn = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const fetchAuthorDetails = async () => {
       try {
         const csrf = await getCsrfToken();
@@ -75,6 +75,8 @@ const Header = () => {
         const message = new SigninMessage({
           domain: window.location.host,
           publicKey: wallet.publicKey?.toBase58(),
+          username: authorDetails.username,
+          uri: authorDetails.uri,
           statement: `Sign in.`,
           nonce: csrf,
         });
@@ -83,31 +85,22 @@ const Header = () => {
         const signature = await wallet.signMessage(data);
         const serializedSignature = bs58.encode(signature);
 
-        if (e) e.preventDefault()
+        e.preventDefault()
         //signIn() function will handle obtaining the CSRF token in the background
-        await signIn("credentials", {
+        const res = await signIn("credentials", {
           message: JSON.stringify(message),
           author: JSON.stringify(details),
           redirect: false,
           signature: serializedSignature,
         });
-        setAuthorDetails(details);
+        if (res?.status === 200) addNotification('Sing in successfully', NotificationType.SUCCESS)
+        if (res && res.ok) setAuthorDetails(details);
       } catch(e) {
         console.log(e)
       }
     };
     fetchAuthorDetails();
   }
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      if (wallet.publicKey && status === "authenticated" && session.user?.name === wallet.publicKey?.toString()) {
-        const details = await getAuthorDetails(wallet.publicKey)
-        if (details != null) setAuthorDetails(details)
-      } 
-    }
-    checkAuth()
-  });
 
   return (
     <>
@@ -121,8 +114,8 @@ const Header = () => {
           <div className="float-right py-1 cursor-pointer text-white hover:text-black">
             <div className="rounded-lg border border-white hover:border-white text-white font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-gray-200 hover:text-black">
               {wallet.connected ? 
-                status === "authenticated" && authorDetails.username !== '' ? 
-                  <HeaderAuthorDetails authorDetails={authorDetails} links={links}/>
+                status === "authenticated" ? 
+                  <HeaderAuthorDetails authorDetails={authorDetails} session={session.user} links={links}/>
                 :
                   <div className='relative px-2 md:px-3 py-2 font-medium cursor-pointer' onClick={(e) => handleSignIn(e)}>
                     Sign in

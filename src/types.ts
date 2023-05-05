@@ -9,7 +9,7 @@ export type Author = {
 export type ReducedAuthor = {
     username: string
     uri: string
-    pubkey: string
+    id: string
 }
 
 export type Post = {

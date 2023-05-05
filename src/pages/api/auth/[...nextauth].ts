@@ -1,11 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { SigninMessage } from "../../../utils/SignMessage";
 import { getUrl } from "@/utils/checkEnvironment";
 
-// se supone que no es necesario para el metodo sigin validar el token porque ya lo hace la libreria
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Solana",
@@ -25,11 +24,12 @@ export const authOptions: NextAuthOptions = {
             JSON.parse(credentials?.message || "{}")
           );
 
-          const nextAuthUrl = new URL('http://localhost:3000' || getUrl());
+          const nextAuthUrl = new URL(process.env.NEXTAUTH_URL || getUrl());
 
-          if (signinMessage.domain !== nextAuthUrl.host) {
+          if (signinMessage.domain !== nextAuthUrl.href) {
             return null;
           }
+
           const validationResult = await signinMessage.validate(
             credentials?.signature || ""
           );
@@ -39,6 +39,8 @@ export const authOptions: NextAuthOptions = {
 
           return {
             id: signinMessage.publicKey,
+            username: signinMessage.username,
+            uri: signinMessage.uri,
           };
         } catch (e) {
           return null;
@@ -51,14 +53,27 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.user = user;
+    async signIn({ user, account }) {
+      if (account) {
+        account.id = user.id
+        account.username = user.username
+        account.uri = user.uri      
       }
-      return token;
+      return true
     },
-    async session({ session }) {
-      return session;
+    async jwt({ token, account }) {
+      if (account) {
+        token.id = account.id
+        token.username = account.username
+        token.uri = account.uri 
+      }
+      return token
+    },
+    async session({ session, token }) {
+      session.user.username = token.username
+      session.user.uri = token.uri
+      session.user.id = token.id
+      return session
     },
   },
 }

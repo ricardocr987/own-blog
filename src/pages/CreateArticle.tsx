@@ -5,8 +5,10 @@ import { Post } from "@/types";
 import PostConfig from "@/components/PostConfig";
 import { v4 as uuid } from 'uuid'
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
+import { Publish as publishStore } from 'aleph-sdk-ts/dist/messages/store';
+import { ItemType } from "aleph-sdk-ts/dist/messages/message";
+import { GetAccountFromProvider } from "aleph-sdk-ts/dist/accounts/solana";
+import { useWallet } from "@solana/wallet-adapter-react";
 
 const CreateArticle = () => {
   const [showPreview, setShowPreview] = useState(false);
@@ -14,18 +16,67 @@ const CreateArticle = () => {
   const [post, setPost] = useState<Post>(postInitialValues)
   const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
   const [file, setFile] = useState<File | undefined>();
+  const wallet = useWallet()
 
   const handleContentChange = (newContent: string) => {
     const updatedPost = { ...post, content: newContent };
     setPost(updatedPost);
   }
 
+  function fileToBuffer(file: File): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          const buffer = Buffer.from(reader.result as ArrayBuffer);
+          resolve(buffer);
+        }
+      };
+      reader.onerror = () => {
+        reject(new Error('Failed to read file.'));
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+  
   const handlePublish = () => {
+    const uploadFeaturedImage = async () => {
+      if (!file) {
+        console.log('No file was dropped or an error occurred while processing the file.');
+        return;
+      }
+      if (!wallet.signMessage || !wallet.publicKey) return
+      try {
+        /*        
+        const formData = new FormData();
+        formData.append('featuredImage', file);
+    
+        const response = await axios.post('/api/uploadImage', formData); 
+        */
+        const buffer = await fileToBuffer(file)
+        const account = await GetAccountFromProvider({
+          signMessage: wallet.signMessage,
+          publicKey: wallet.publicKey,
+          connected: wallet.connected,
+          connect: wallet.connect
+        })
+        const store = await publishStore({
+          account,
+          channel: 'own-blog',
+          fileObject: buffer,
+          storageEngine: ItemType.storage,
+          APIServer: 'https://api2.aleph.im',
+        });
+        post.featuredImage = 'https://api2.aleph.im/api/v0/storage/raw/' + store.content.item_hash
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    uploadFeaturedImage()
     post.id = uuid()
     post.createdAt = Date.now()
-    console.log(post, file)
   }
-
+  
   return (
     <AuthWrapper setAuthorDetails={setAuthorDetails}>
       <div className="px-7">
@@ -64,14 +115,6 @@ const CreateArticle = () => {
 };
 
 export default CreateArticle;
-
-export async function getServerSideProps({ req, res }: Props) {
-  return {
-    props: {
-      session: await getServerSession(req, res, authOptions)
-    }
-  }
-}
 
 interface Props {
   req: NextApiRequest, 

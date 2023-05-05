@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Button from "./Button";
 
 const validExtensions = ["image/jpeg", "image/jpg", "image/png"];
 
@@ -32,7 +31,7 @@ const UploadFile: React.FC<UploadFileProps> = ({setFile, file}) => {
     event.preventDefault();
     setIsDragActive(false);
     const droppedFile = event.dataTransfer.files?.[0];
-    if (droppedFile) {
+    if (droppedFile && handleFileValidation(droppedFile)) {
       setFile(droppedFile);
     }
   };
@@ -42,13 +41,8 @@ const UploadFile: React.FC<UploadFileProps> = ({setFile, file}) => {
     if (validExtensions.includes(fileType)) {
       return true;
     } else {
-      alert("This is not an Image File!");
       return false;
     }
-  };
-
-  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    // Do something with the image once it's loaded
   };
 
   return (
@@ -65,12 +59,11 @@ const UploadFile: React.FC<UploadFileProps> = ({setFile, file}) => {
                 className="w-full h-full object-cover rounded-md "
                 src={URL.createObjectURL(file)}
                 alt="uploaded file"
-                onLoad={handleImageLoad}
             />
         ) : (
             <>
                 Drag & drop
-                <input type="file" hidden onChange={handleInputChange} />
+                <input type="image" hidden onChange={handleInputChange} />
             </>
         )}
     </div>

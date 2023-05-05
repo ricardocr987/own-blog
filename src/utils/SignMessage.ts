@@ -5,19 +5,25 @@ type SignMessage = {
   publicKey: string;
   nonce: string;
   statement: string;
+  uri: string;
+  username: string;
 };
 
 export class SigninMessage {
   domain: any;
   publicKey: any;
   nonce: any;
-  statement: any;
+  statement: any;  
+  uri: any;
+  username: any;
 
-  constructor({ domain, publicKey, nonce, statement }: SignMessage) {
+  constructor({ domain, publicKey, nonce, statement, uri, username }: SignMessage) {
     this.domain = domain;
     this.publicKey = publicKey;
     this.nonce = nonce;
-    this.statement = statement;
+    this.statement = statement;    
+    this.uri = uri;
+    this.username = username;
   }
 
   prepare() {

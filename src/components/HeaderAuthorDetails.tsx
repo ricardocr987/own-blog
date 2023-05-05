@@ -1,15 +1,16 @@
-import { Author, NavLink } from "@/types";
+import { Author, NavLink, ReducedAuthor } from "@/types";
 import Image from "next/image";
 import ProfileMenu from "./ProfileMenu";
 import { useClickOutside } from "@/hooks";
 import { useState, useRef } from "react";
 
 interface ProfileMenuProps {
-    authorDetails: Author
+    session: ReducedAuthor
     links: NavLink[]
+    authorDetails: Author
 }
 
-const HeaderAuthorDetails = ({ authorDetails, links }: ProfileMenuProps)  => {
+const HeaderAuthorDetails = ({ session, links, authorDetails }: ProfileMenuProps)  => {
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const handleProfileMenuToggle = () => {
         setShowProfileMenu(!showProfileMenu);
@@ -24,11 +25,11 @@ const HeaderAuthorDetails = ({ authorDetails, links }: ProfileMenuProps)  => {
                     unoptimized
                     width={30}
                     height={30}
-                    alt={authorDetails.username}
+                    alt={session.username || authorDetails.username}
                     className="drop-shadow-lg rounded-full"
-                    src={authorDetails.uri}
+                    src={session.uri || authorDetails.uri}
                 />
-                <p className="inline align-middle ml-2 font-medium">{authorDetails.username}</p>
+                <p className="inline align-middle ml-2 font-medium">{session.username || authorDetails.username}</p>
             </div>
             {showProfileMenu && (
                 <ProfileMenu links={links} handleProfileMenuToggle={handleProfileMenuToggle}/>
