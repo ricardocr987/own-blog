@@ -109,7 +109,7 @@ export const authorInitValues: Author = {
 }
 export const postInitialValues: Post = {
     id: '',
-    price: 0,
+    
     createdAt: 0,
     featuredImage: '',
     title: '',

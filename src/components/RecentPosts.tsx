@@ -8,7 +8,7 @@ const posts: Post[] = [
   {     
     id: '1',
     createdAt: Date.now(),
-    price: 0,
+    
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Solana',
     author: {
@@ -27,7 +27,7 @@ const posts: Post[] = [
   {     
     id: '2',
     createdAt: Date.now(),
-    price: 0,
+    
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
     author: {

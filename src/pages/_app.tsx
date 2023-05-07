@@ -4,10 +4,14 @@ import '@/styles/globals.scss'
 import type { AppProps } from 'next/app'
 import { SessionProvider } from "next-auth/react"
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps: { session, ...pageProps }}: AppProps) {
   return (
     <ContextProvider>
-      <SessionProvider session={pageProps.session} refetchInterval={0}>
+      <SessionProvider 
+        session={pageProps.session}
+        refetchInterval={5 * 60}
+        refetchOnWindowFocus={true}
+      >
         <Layout>
           <Component {...pageProps} />
         </Layout>

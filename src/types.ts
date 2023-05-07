@@ -14,7 +14,6 @@ export type ReducedAuthor = {
 
 export type Post = {
     id: string
-    price: number
     token?: string
     createdAt: number
     featuredImage: string

@@ -8,7 +8,7 @@ import AuthorForm from './AuthorForm';
 import SearchBar from './SearchBar';
 import HeaderAuthorDetails from './HeaderAuthorDetails';
 import { authorInitValues } from '@/constants';
-import { GetSessionParams, getCsrfToken, getSession, signIn, useSession } from 'next-auth/react';
+import { getCsrfToken, signIn, useSession } from 'next-auth/react';
 import { SigninMessage } from '@/utils/SignMessage';
 import bs58 from 'bs58';
 import { useNotification } from '@/hooks';
@@ -102,8 +102,6 @@ const Header = () => {
     fetchAuthorDetails();
   }
 
-  useEffect(() => {}, [session]);
-
   return (
     <>
       <div className="container mx-auto px-5 mb-16 mt-2">        
@@ -116,7 +114,7 @@ const Header = () => {
           <div className="float-right py-1 cursor-pointer text-white hover:text-black">
             <div className="rounded-lg border border-white hover:border-white text-white font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-gray-200 hover:text-black">
               {wallet.connected ? 
-                status === "authenticated" ? 
+                status === "authenticated" && session?.user ? 
                   <HeaderAuthorDetails authorDetails={authorDetails} session={session.user} links={links}/>
                 :
                   <div className='relative px-2 md:px-3 py-2 font-medium cursor-pointer' onClick={(e) => handleSignIn(e)}>

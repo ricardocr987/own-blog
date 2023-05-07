@@ -52,7 +52,7 @@ async function getPosts(): Promise<Post[]> {
             createdAt: Date.now(),
             featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
             title: 'Solana',
-            price: 0,
+            
             author: {
                 username: 'Riki',
                 pubkey: '',
@@ -71,7 +71,7 @@ async function getPosts(): Promise<Post[]> {
             createdAt: Date.now(),
             featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
             title: 'Aleph',
-            price: 0,
+            
             author: {
                 username: 'Riki',
                 createdAt: Date.now(),
@@ -94,7 +94,7 @@ async function getPostDetails(id: string): Promise<Post> {
         createdAt: Date.now(),
         featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
         title: 'Solana',
-        price: 0,
+        
         author: {
             username: 'Riki',
             pubkey: '',

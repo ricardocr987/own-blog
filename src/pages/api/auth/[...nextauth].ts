@@ -3,6 +3,7 @@ import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { SigninMessage } from "../../../utils/SignMessage";
 import { getUrl } from "@/utils/checkEnvironment";
+import { Author } from "@/types";
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -53,11 +54,12 @@ export const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, credentials }) {
+      const author: Author = JSON.parse(credentials?.author as string)
       if (account) {
-        account.id = user.id
-        account.username = user.username
-        account.uri = user.uri      
+        account.id = author.pubkey
+        account.username = author.username
+        account.uri = author.uri
       }
       return true
     },
@@ -73,6 +75,7 @@ export const authOptions: AuthOptions = {
       session.user.username = token.username
       session.user.uri = token.uri
       session.user.id = token.id
+
       return session
     },
   },
