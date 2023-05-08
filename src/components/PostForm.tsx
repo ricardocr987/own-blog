@@ -34,7 +34,7 @@ const PostForm: React.FC<Props> = ({ post, setPost, file, setFile }) => {
                         />
                     </div>
                 </div>
-                <div className="flex-1 flex flex-col lg:ml-10 lg:flex-row lg:items-center">
+                {/*<div className="flex-1 flex flex-col lg:ml-10 lg:flex-row lg:items-center">
                     <div className="flex items-center">
                         <TokenDropdown/>
                         <div className="border border-gray-300 rounded-md ">
@@ -48,7 +48,7 @@ const PostForm: React.FC<Props> = ({ post, setPost, file, setFile }) => {
                             />
                         </div>
                     </div>
-                </div>
+                </div>*/}
             </div>
             <div className="flex flex-col lg:flex-row lg:items-center">
                 <div className="flex-1 mb-4 lg:mb-0">

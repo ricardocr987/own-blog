@@ -3,7 +3,7 @@ import ImagesDropdown from "@/components/ImagesDropdown";
 import NotificationsContainer from "@/components/Notification";
 import { authorInitValues } from "@/constants";
 import { useNotification } from "@/hooks";
-import { getTokenInfo, postAuthorDetails } from "@/services";
+import { getTokenInfo } from "@/services";
 import { Author, NotificationType, TokenInfo } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import moment from "moment";
@@ -22,7 +22,7 @@ const Profile = () => {
     const [formUsername, setFormUsername] = useState(authorDetails.username || '');
     const [formBio, setFormBio] = useState(authorDetails.bio || '');
 
-    useEffect(() => {
+    useEffect(() => { 
         async function fetchData() {
             if (wallet.publicKey) {
                 const tokens: TokenInfo[] = await getTokenInfo(wallet.publicKey, connection);
@@ -42,9 +42,14 @@ const Profile = () => {
                     pubkey: wallet.publicKey.toString(),
                     bio: formBio,
                     uri: formImage,
-                    createdAt: authorDetails.createdAt
+                    createdAt: authorDetails.createdAt,
+                    articles: []
                 }
-                await postAuthorDetails(formAuthorDetails, wallet);
+                const res = await fetch('/api/updateAuthor', {
+                    method: 'POST',
+                    body: JSON.stringify(formAuthorDetails)
+                })
+                console.log(res)             
                 setAuthorDetails(formAuthorDetails);
                 setIsEditing(false);
             } catch(e) {

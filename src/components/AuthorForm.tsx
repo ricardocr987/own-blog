@@ -27,7 +27,7 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor, addNotification, notificatio
     const handleSubmit = async () => {
         if (username !== '' && selectedToken !== '' && publicKey) {
             try {
-                onAuthorCreate({ username, pubkey: publicKey.toString() , bio, uri: selectedToken, createdAt: Date.now() }); 
+                onAuthorCreate({ username, pubkey: publicKey.toString() , bio, uri: selectedToken, createdAt: Date.now(), articles: [] }); 
             } catch(e) {
                 addNotification('Aleph network error', NotificationType.ERROR);
             }

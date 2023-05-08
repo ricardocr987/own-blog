@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { AuthWrapper, Author, Button, Editor, PreviewContent} from "@/components";
 import { authorInitValues, postInitialValues } from "@/constants";
-import { Post } from "@/types";
+import { Post, ReducedPost } from "@/types";
 import PostConfig from "@/components/PostConfig";
 import { v4 as uuid } from 'uuid'
 import { NextApiRequest, NextApiResponse } from "next";
@@ -9,6 +9,7 @@ import { Publish as publishStore } from 'aleph-sdk-ts/dist/messages/store';
 import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { GetAccountFromProvider } from "aleph-sdk-ts/dist/accounts/solana";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { useSession } from "next-auth/react";
 
 const CreateArticle = () => {
   const [showPreview, setShowPreview] = useState(false);
@@ -17,6 +18,7 @@ const CreateArticle = () => {
   const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
   const [file, setFile] = useState<File | undefined>();
   const wallet = useWallet()
+  const { data: session } = useSession();
 
   const handleContentChange = (newContent: string) => {
     const updatedPost = { ...post, content: newContent };
@@ -68,6 +70,16 @@ const CreateArticle = () => {
           APIServer: 'https://api2.aleph.im',
         });
         post.featuredImage = 'https://api2.aleph.im/api/v0/storage/raw/' + store.content.item_hash
+        post.author = {
+          username: session?.user.username || authorDetails.username,
+          uri: session?.user.uri || authorDetails.uri,
+          id: session?.user.id || authorDetails.pubkey,
+        }
+        const res = await fetch('/api/postArticle', {
+          method: 'POST',
+          body: JSON.stringify(post)
+        })
+        console.log(res)
       } catch (error) {
         console.log(error);
       }

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Author, NavLink, NotificationType } from '@/types';
+import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
+import { Author, GetUserResponse, NavLink, NotificationType } from '@/types';
 import dynamic from 'next/dynamic';
 import { useWallet } from "@solana/wallet-adapter-react";
-import { postAuthorDetails, getAuthorDetails } from '@/services';
 import AuthorForm from './AuthorForm';
 import SearchBar from './SearchBar';
 import HeaderAuthorDetails from './HeaderAuthorDetails';
-import { authorInitValues } from '@/constants';
+import { authorInitValues, messagesAddress } from '@/constants';
 import { getCsrfToken, signIn, useSession } from 'next-auth/react';
 import { SigninMessage } from '@/utils/SignMessage';
 import bs58 from 'bs58';
@@ -49,11 +49,10 @@ const Header = () => {
       authorDetails.pubkey = wallet.publicKey.toString()
       const res = await fetch('/api/signup', {
         method: 'POST',
-        body: JSON.stringify({ username: authorDetails.username, uri: authorDetails.uri, pubkey: wallet.publicKey.toString() })
+        body: JSON.stringify(authorDetails)
       })
       if (res.status === 406) addNotification("User already exists", NotificationType.ERROR)
       if (res.status === 201) {
-        await postAuthorDetails(authorDetails, wallet);
         addNotification("User created", NotificationType.SUCCESS);
         setNewAuthor(false);
       }
@@ -66,35 +65,42 @@ const Header = () => {
         const csrf = await getCsrfToken();
         if (!wallet.publicKey || !csrf || !wallet.signMessage) return;
 
-        const details = await getAuthorDetails(wallet.publicKey);
-        if (!details) {
+        let details: Author | undefined = undefined
+        try {
+          const response = await getAggregate<GetUserResponse>({
+            keys: [wallet.publicKey.toString()],
+            address: messagesAddress,
+            APIServer: 'https://api2.aleph.im'
+          });
+          details = response[wallet.publicKey.toString()]
+        } catch {
           setNewAuthor(!newAuthor)
-          return;
-        } 
+        }
+        if (details) {
+          const message = new SigninMessage({
+            domain: window.location.host,
+            publicKey: wallet.publicKey?.toBase58(),
+            username: authorDetails.username,
+            uri: authorDetails.uri,
+            statement: `Sign in.`,
+            nonce: csrf,
+          });
 
-        const message = new SigninMessage({
-          domain: window.location.host,
-          publicKey: wallet.publicKey?.toBase58(),
-          username: authorDetails.username,
-          uri: authorDetails.uri,
-          statement: `Sign in.`,
-          nonce: csrf,
-        });
+          const data = new TextEncoder().encode(message.prepare());
+          const signature = await wallet.signMessage(data);
+          const serializedSignature = bs58.encode(signature);
 
-        const data = new TextEncoder().encode(message.prepare());
-        const signature = await wallet.signMessage(data);
-        const serializedSignature = bs58.encode(signature);
-
-        e.preventDefault()
-        //signIn() function will handle obtaining the CSRF token in the background
-        const res = await signIn("credentials", {
-          message: JSON.stringify(message),
-          author: JSON.stringify(details),
-          redirect: false,
-          signature: serializedSignature,
-        });
-        if (res?.status === 200) addNotification('Sing in successfully', NotificationType.SUCCESS)
-        if (res && res.ok) setAuthorDetails(details);
+          e.preventDefault()
+          //signIn() function will handle obtaining the CSRF token in the background
+          const res = await signIn("credentials", {
+            message: JSON.stringify(message),
+            author: JSON.stringify(details),
+            redirect: false,
+            signature: serializedSignature,
+          });
+          if (res?.status === 200) addNotification('Sing in successfully', NotificationType.SUCCESS)
+          if (res && res.ok) setAuthorDetails(details);
+        }
       } catch(e) {
         console.log(e)
       }

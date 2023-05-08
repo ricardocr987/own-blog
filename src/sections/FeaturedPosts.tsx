@@ -12,14 +12,11 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Solana',
-    
     author: {
       username: 'Riki',
-      pubkey: '',
-      createdAt: Date.now(),
-      bio: 'vibing',
+      id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
+  },
     summary: 'Solana is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
@@ -31,33 +28,11 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
-    
     author: {
       username: 'Riki',
-      pubkey: '',
-      createdAt: Date.now(),
-      bio: 'vibing',
+      id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
-    summary: 'Aleph is great',
-    content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
-      'Aleph'
-    ]
   },
-  {     
-    id: '2',
-    createdAt: Date.now(),
-    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
-    title: 'Aleph',
-    
-    author: {
-      username: 'Riki',
-      pubkey: '',
-      createdAt: Date.now(),
-      bio: 'vibing',
-      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
@@ -71,11 +46,9 @@ const featuredPosts: Post[] = [
     title: 'Aleph',
     author: {
       username: 'Riki',
-      pubkey: '',
-      createdAt: Date.now(),
-      bio: 'vibing',
+      id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
+  },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
@@ -89,11 +62,9 @@ const featuredPosts: Post[] = [
     title: 'Aleph',
     author: {
       username: 'Riki',
-      pubkey: '',
-      createdAt: Date.now(),
-      bio: 'vibing',
+      id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
+  },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
@@ -105,14 +76,27 @@ const featuredPosts: Post[] = [
     createdAt: Date.now(),
     featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
     title: 'Aleph',
-    
     author: {
       username: 'Riki',
-      createdAt: Date.now(),
-      pubkey: '',
-      bio: 'vibing',
+      id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
+  },
+    summary: 'Aleph is great',
+    content: 'because is cheap, fast and with an awesome UX',
+    categories: [  
+      'Aleph'
+    ]
+  },
+  {     
+    id: '2',
+    createdAt: Date.now(),
+    featuredImage: 'https://res.cloudinary.com/dtzqgftjk/image/upload/v1675415515/SolanaCC_Poap_Sq_qhhojm.jpg',
+    title: 'Aleph',
+    author: {
+      username: 'Riki',
+      id: '',
+      uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
+  },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  

@@ -4,6 +4,7 @@ export type Author = {
     bio: string
     uri: string
     pubkey: string
+    articles: string[]
 }
 
 export type ReducedAuthor = {
@@ -12,13 +13,18 @@ export type ReducedAuthor = {
     id: string
 }
 
+export type ReducedPost = {
+    id: string
+    title: string
+    author: ReducedAuthor
+}
+
 export type Post = {
     id: string
-    token?: string
     createdAt: number
     featuredImage: string
     title: string
-    author: Author
+    author: ReducedAuthor
     summary: string
     content: string
     categories: string[]
@@ -63,4 +69,8 @@ export interface Notification {
     id: number;
     text: string;
     type: NotificationType
+}
+
+export type GetUserResponse = {
+    [key: string]: Author
 }

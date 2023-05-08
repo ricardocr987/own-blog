@@ -99,25 +99,23 @@ export const decimalsFromPubkey: Record<string, number> = {
     'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': 5,
 }
 
-export const messagesAddress = "";
+export const messagesAddress = "BRickAcqVt2wxzNeMpsrwWuhGsUUzcqmDrGJQV9xdfuM";
 export const authorInitValues: Author = {
     username: '',
     pubkey: '',
     createdAt: 0,
     bio: '',
     uri: '',
+    articles: []
 }
 export const postInitialValues: Post = {
     id: '',
-    
     createdAt: 0,
     featuredImage: '',
     title: '',
     author: {
         username: '',
-        pubkey: '',
-        createdAt: 0,
-        bio: '',
+        id: '',
         uri: '',
     },
     summary: '',

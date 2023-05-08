@@ -13,11 +13,9 @@ const posts: Post[] = [
     title: 'Solana',
     author: {
       username: 'Riki',
-      pubkey: '',
-      createdAt: Date.now(),
-      bio: 'vibing',
+      id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-    },
+  },
     summary: 'Solana is great',
     content: 'because is cheap, fast and with an awesome UX',
     categories: [  
@@ -32,9 +30,7 @@ const posts: Post[] = [
     title: 'Aleph',
     author: {
       username: 'Riki',
-      pubkey: '',
-      createdAt: Date.now(),
-      bio: 'vibing',
+      id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
     },
     summary: 'Aleph is great',

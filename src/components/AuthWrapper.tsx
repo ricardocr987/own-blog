@@ -1,11 +1,12 @@
-import { getAuthorDetails } from "@/services";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useEffect } from "react";
 import Author from "./Author";
 import NotificationsContainer from "./Notification";
 import { useNotification } from "@/hooks";
-import { NotificationType } from "@/types";
+import { GetUserResponse, NotificationType } from "@/types";
 import { useSession } from "next-auth/react";
+import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
+import { messagesAddress } from "@/constants";
 
 interface AuthWrapperProps {
   children: React.ReactNode
@@ -20,11 +21,18 @@ const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
   const fetchAuthorDetails = async () => {
     if (!wallet.publicKey) return;
 
-    const details = await getAuthorDetails(wallet.publicKey);
-    if (!details) {
+    let details: Author | undefined = undefined
+    try {
+      const response = await getAggregate<GetUserResponse>({
+        keys: [wallet.publicKey.toString()],
+        address: messagesAddress,
+        APIServer: 'https://api2.aleph.im'
+      });
+      details = response[wallet.publicKey.toString()]
+      setAuthorDetails(details);
+    } catch {
       return;
     }
-    setAuthorDetails(details);
   };
 
   useEffect(() => {
