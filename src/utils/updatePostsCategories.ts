@@ -10,7 +10,7 @@ import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
 
 interface AlephResponseCategory {
     [key: string]: {
-        posts: ReducedPost[]
+        posts: string[]
     };
 }
 
@@ -40,7 +40,7 @@ export async function updatePostsCategories(
             await publishAggregate({
                 account: account,
                 key: category,
-                content: { posts: [...response[category].posts, reducedPost] },
+                content: { posts: [...response[category].posts, newPost.id] },
                 channel: "own-blog",
                 storageEngine: ItemType.inline,
                 inlineRequested: true,

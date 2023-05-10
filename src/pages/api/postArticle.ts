@@ -5,6 +5,7 @@ import { authOptions } from "./auth/[...nextauth]";
 import { postArticle } from "@/utils/postArticle";
 import { updatePostArticles } from "@/utils/updateAuthorPosts";
 import { updateAuthorArticles } from "@/utils/updateAuthorArticles";
+import { updatePostsCategories } from "@/utils/updatePostsCategories";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
@@ -18,9 +19,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)));
         const newPost = JSON.parse(req.body)
 
-        // updates categories post (if a new one is created) and includes the reduced post info in the category post
-        // await updatePostsCategories(account, session, newPost)
-
         // creates an specific aggregate for the whole article
         await postArticle(account, newPost)
 
@@ -29,6 +27,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
         // updates author aggregate including the post id
         await updateAuthorArticles(account, session.user.id, newPost.id)
+
+        // updates categories post (if a new one is created) and includes the reduced post info in the category post
+        await updatePostsCategories(account, session, newPost)
 
         return res.status(201).send("Post updated correctly");
     } catch (error) {

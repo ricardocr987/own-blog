@@ -1,5 +1,5 @@
-import { Author, Post, Responsive } from "@/types";
-import { Connection, PublicKey } from "@solana/web3.js";
+import { Author, Post, Responsive, TokenInfo } from "@/types";
+import { ConfirmOptions, Connection, PublicKey } from "@solana/web3.js";
 import { Envs } from "@/config";
 
 type ArrowProps = {
@@ -72,7 +72,8 @@ export const responsiveEditor: Record<string, Responsive> = {
     }
 };
 
-export const connection = new Connection(Envs.RPC, "confirmed");
+export const confirmOptions: ConfirmOptions = { commitment: "confirmed" };
+export const connection = new Connection(Envs.RPC || "https://api.mainnet-beta.solana.com", "confirmed");
 
 export const BRICK_PROGRAM_ID = 'BrickarF2QeREBZsapbhgYPHJi5FYkJVnx7mZhxETCt5'
 export const BRICK_PROGRAM_ID_PK = new PublicKey(BRICK_PROGRAM_ID)
@@ -122,3 +123,14 @@ export const postInitialValues: Post = {
     content: '',
     categories: [],
 };
+
+export const tokens: TokenInfo[] = [ 
+    {
+        name: "SOL",
+        image: "./solanaLogoMark.svg"
+    },
+    {
+        name: "USDC",
+        image: "./usdcLogo.svg"
+    },
+];

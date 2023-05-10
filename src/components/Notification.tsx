@@ -72,7 +72,7 @@ interface NotificationsContainerProps {
     removeNotification: (id: number) => void;
 }
 
-const NotificationsContainer = ({ notifications, removeNotification }: NotificationsContainerProps) => {  
+const NotificationsContainer = ({ notifications, removeNotification }: NotificationsContainerProps) => {
   return (
     <div className="flex flex-col fixed bottom-10 right-4 z-99">
       {notifications.map((notification) => (

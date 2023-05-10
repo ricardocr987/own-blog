@@ -4,6 +4,8 @@ export type Author = {
     bio: string
     uri: string
     pubkey: string
+    subscriptionPrice?: number
+    subscriptioToken?: string
     articles: string[]
 }
 
@@ -73,4 +75,8 @@ export interface Notification {
 
 export type GetUserResponse = {
     [key: string]: Author
+}
+
+export type GetArticleResponse = {
+    [key: string]: Post
 }

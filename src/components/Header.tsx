@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import { Author, GetUserResponse, NavLink, NotificationType } from '@/types';

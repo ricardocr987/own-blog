@@ -1,27 +1,23 @@
+import { tokens } from "@/constants";
 import { useClickOutside } from "@/hooks";
 import { TokenInfo } from "@/types";
-import { useRef, useState } from "react";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 
-const tokens: TokenInfo[] = [ 
-  {
-    name: "SOL",
-    image: "./solanaLogoMark.svg"
-  },
-  {
-    name: "USDC",
-    image: "./usdcLogo.svg"
-  },
-];
 
-const TokenDropdown: React.FC = () => {
+
+type TokenDropdownProps = {
+    selectedToken: string
+    setSelectedToken: Dispatch<SetStateAction<string>>
+}
+
+const TokenDropdown = ({ selectedToken, setSelectedToken }: TokenDropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedToken, setSelectedToken] = useState(tokens[0].image)
 
   const tokenForm = useRef<HTMLDivElement | null>(null);
   useClickOutside(tokenForm, () => setIsOpen(false));
 
   const handleItemClick = (token: TokenInfo) => {
-      setSelectedToken(token.image);
+    setSelectedToken(token.image);
       setIsOpen(false);
   };
 

@@ -161,7 +161,6 @@ const Profile = () => {
                         </div>
                     </div>
                 </div>
-
             </div>
             <NotificationsContainer 
                 notifications={notifications} 

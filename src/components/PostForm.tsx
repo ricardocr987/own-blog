@@ -1,7 +1,6 @@
 import { Post } from '@/types';
 import CategoriesTagsForm from './CategoriesTagsForm';
 import FileUpload from './FileUpload';
-import TokenDropdown from './TokenDropdown';
 
 type Props = {
     post: Post
@@ -34,21 +33,6 @@ const PostForm: React.FC<Props> = ({ post, setPost, file, setFile }) => {
                         />
                     </div>
                 </div>
-                {/*<div className="flex-1 flex flex-col lg:ml-10 lg:flex-row lg:items-center">
-                    <div className="flex items-center">
-                        <TokenDropdown/>
-                        <div className="border border-gray-300 rounded-md ">
-                            <input
-                                type="text"
-                                id="price"
-                                name="price"
-                                className="block w-20 rounded-md text-sm py-2 px-3 bg-white"
-                                value={post.price}
-                                onChange={handleChange}
-                            />
-                        </div>
-                    </div>
-                </div>*/}
             </div>
             <div className="flex flex-col lg:flex-row lg:items-center">
                 <div className="flex-1 mb-4 lg:mb-0">
