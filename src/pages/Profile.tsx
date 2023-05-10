@@ -37,21 +37,22 @@ const Profile = () => {
     const handleSubmit = async () => {
         if (formUsername !== '' && formImage !== '' && wallet.publicKey) {
             try {
-                const formAuthorDetails: Author = { 
+                const formAuthorDetails: Author = {
+                    ...authorDetails,
                     username: formUsername,
-                    pubkey: wallet.publicKey.toString(),
                     bio: formBio,
                     uri: formImage,
-                    createdAt: authorDetails.createdAt,
-                    articles: []
                 }
-                const res = await fetch('/api/updateAuthor', {
+                const res = await fetch('/api/signup', {
                     method: 'POST',
-                    body: JSON.stringify(formAuthorDetails)
+                    body: JSON.stringify(authorDetails)
                 })
-                console.log(res)             
-                setAuthorDetails(formAuthorDetails);
-                setIsEditing(false);
+                if (res.status === 406) addNotification("User already exists", NotificationType.ERROR)
+                if (res.status === 201) {
+                    addNotification("User updated", NotificationType.SUCCESS);
+                    setAuthorDetails(formAuthorDetails);
+                    setIsEditing(false);
+                }
             } catch(e) {
                 addNotification('Aleph network error', NotificationType.ERROR);
             }

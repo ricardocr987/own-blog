@@ -75,6 +75,8 @@ const CreateArticle = () => {
           uri: session?.user.uri || authorDetails.uri,
           id: session?.user.id || authorDetails.pubkey,
         }
+        post.id = uuid()
+        post.createdAt = Date.now()
         const res = await fetch('/api/postArticle', {
           method: 'POST',
           body: JSON.stringify(post)
@@ -85,8 +87,6 @@ const CreateArticle = () => {
       }
     };
     uploadFeaturedImage()
-    post.id = uuid()
-    post.createdAt = Date.now()
   }
   
   return (
