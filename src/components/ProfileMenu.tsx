@@ -21,7 +21,7 @@ const ProfileMenu = ({links, handleProfileMenuToggle}: ProfileMenuProps)  => {
             <ul className="py-1">
                 {links.map((link, index) => (
                     link.url === 'Disconnect' ? (
-                        <li onClick={handleDisconnect} key={index} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                        <li onClick={() => handleDisconnect} key={index} className="block px-4 py-2 text-gray-800 hover:bg-gray-100">
                             <span className="block px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer">{link.name}</span>
                         </li>
                     ) : (

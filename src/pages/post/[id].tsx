@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { PostDetail, Author, Comments, CommentsForm, Loader } from '@/components';
+import { PostDetail, Comments, CommentsForm } from '@/components';
 import { NotificationType, Post } from '@/types';
-
-import {  GetArticleResponse, GetUserResponse} from '@/types';
+import {  GetArticleResponse } from '@/types';
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import { GetServerSidePropsContext } from 'next';
 import { messagesAddress } from '@/constants';
@@ -51,26 +49,27 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
 const PostDetails = ({ post }: ServerSideProps['props']) => {
     const { addNotification, notifications, removeNotification } = useNotification();
 
-  useEffect(() => {
-    if (!post) {
-      addNotification('This article does not exist', NotificationType.ERROR);
-    }
-  }, []);
-  return (
-    <>
-      {post &&
-        <div className="container mx-auto px-10 mb-8">
-            <PostDetail post={post} />
-            <CommentsForm id={post.id} />
-            <Comments id={post.id} />
-        </div>
-      }
-        <NotificationsContainer 
-          notifications={notifications} 
-          removeNotification={removeNotification}
-        />
-    </>
-  );
+    useEffect(() => {
+        if (!post) {
+        addNotification('This article does not exist', NotificationType.ERROR);
+        }
+    }, []);
+    
+    return (
+        <>
+        {post &&
+            <div className="container mx-auto px-10 mb-8">
+                <PostDetail post={post} />
+                <CommentsForm id={post.id} />
+                <Comments id={post.id} />
+            </div>
+        }
+            <NotificationsContainer 
+            notifications={notifications} 
+            removeNotification={removeNotification}
+            />
+        </>
+    );
 };
 
 export default PostDetails;

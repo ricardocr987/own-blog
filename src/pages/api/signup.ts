@@ -1,7 +1,7 @@
 import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
-import { ReducedAuthor } from "@/types";
+import { ReducedAuthor, UsernameAndPubkey } from "@/types";
 import { createUserAggregate } from "@/utils/createUserAggregate";
 import { updateAuthorsPost } from "@/utils/updateAuthorsPost";
 
@@ -16,18 +16,18 @@ export default async function handler(
     try {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)))
         const newUser = JSON.parse(req.body)
-
-        const post = await getPost<ReducedAuthor[]>({
-            types: 'string[]',
+        const post = await getPost<UsernameAndPubkey[]>({
+            types: 'UsernameAndPubkey[]',
             pagination: 200,
             page: 1,
             refs: [],
             addresses: [],
             tags: [],
-            hashes: ['3bf745986fdeaab767f254a3c727e4a7a0f1eabcfb8a031eadfc81fbfde561d2'],
+            hashes: ['e20405765ee6eff946c34803e3be913124181f9a10ba3d736c93178f459e32a7'],
             APIServer: "https://api2.aleph.im"
         })
-        const previousContent = post.posts[0].content
+
+        let previousContent = post.posts[0].content
         const foundUser = previousContent.find(user => user.username === newUser.username);
         if (foundUser) return res.status(406).send('User already exists');
 

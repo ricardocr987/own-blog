@@ -2,7 +2,7 @@ import NotificationsContainer from '@/components/Notification';
 import ProfilePostCard from '@/components/ProfilePostCard';
 import { confirmOptions, connection, messagesAddress } from '@/constants';
 import { useNotification } from '@/hooks';
-import { Author, GetArticleResponse, GetUserResponse, NotificationType, Post } from '@/types';
+import { Author, GetArticleResponse, GetUserResponse, NextAuthUser, NotificationType, Post } from '@/types';
 import { convertToLamports } from '@/utils/solToLamports';
 import { PublicKey } from '@metaplex-foundation/js';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -10,19 +10,29 @@ import { SystemProgram, Transaction } from '@solana/web3.js';
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import moment from 'moment';
 import { GetServerSidePropsContext } from 'next';
+import { getServerSession } from 'next-auth';
 import Image from 'next/image';
-import { useEffect } from 'react';
+import { authOptions } from '../api/auth/[...nextauth]';
+import { AuthorProfileView } from '@/components/AuthorProfileView';
 
 type ServerSideProps = {
     props: {
         profile: Author | null
         articles: Post[] | null
+        user: NextAuthUser | null
+        author: boolean
     }
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext): Promise<ServerSideProps> {
+    const session = await getServerSession(context.req, context.res, authOptions)
+    let author = false
     const { params } = context
-    if (params && typeof params.id === "string") {
+    if (params && typeof params.id === "string" && session) {
+        const user = Object.fromEntries(
+            Object.entries(session.user).filter(([_, value]) => value !== undefined)
+        ) as NextAuthUser;
+        if (user.id === params.id) author = true
         try {
             const response = await getAggregate<GetUserResponse>({
                 keys: [params.id],
@@ -43,7 +53,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                 return {
                     props: {
                         profile: response[params.id],
-                        articles
+                        articles,
+                        user,
+                        author
                     }
                 }
             }
@@ -51,7 +63,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
             return {
                 props: {
                     profile: null,
-                    articles: null
+                    articles: null,
+                    user: null,
+                    author
                 }
             }
         }
@@ -59,20 +73,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
     return {
         props: {
             profile: null,
-            articles: null
+            articles: null,
+            user: null,
+            author
         }
     }
 }
 
-export default function Profile({ profile, articles }: ServerSideProps['props']) {
+export default function Profile({ user, profile, articles, author }: ServerSideProps['props']) {
     const { addNotification, notifications, removeNotification } = useNotification();
     const wallet = useWallet()
-
-    useEffect(() => {
-        if (!profile) {
-            addNotification('This user does not exist', NotificationType.ERROR);
-        }
-    }, []);
+    if (!profile) {
+        addNotification('This user does not exist', NotificationType.ERROR);
+    }
 
     const handleTip = async () => {
         if (profile && wallet.publicKey) {
@@ -113,58 +126,70 @@ export default function Profile({ profile, articles }: ServerSideProps['props'])
                             </div>
                         </div>
                         <div className="py-5 md:py-10 px-10 mb-5 mt-5 flex justify-center items-center border rounded-lg">
-                            <div className="w-full">
-                                <div className="mb-4 min-h-18">
-                                    <p className="text-black font-bold text-lg">Bio:</p>
-                                    <p className="text-black text-base max-w-full break-words">{profile.bio}</p>
+                            {author ?
+                                <AuthorProfileView profile={profile}/>
+                            :
+                                <div className="w-full">
+                                    <div className="mb-4 min-h-18">
+                                        <p className="text-black font-bold text-lg">Bio:</p>
+                                        <p className="text-black text-base max-w-full break-words">{profile.bio}</p>
+                                    </div>
+                                    <div className="mb-4">
+                                        <p className="text-black font-bold text-lg">Created at:</p>
+                                        <p className="text-black text-base max-w-full break-words">{moment(profile.createdAt).format('MMM DD, YYYY')}</p>
+                                    </div>
+                                    <div className="flex flex-col items-center mt-4">
+                                        {profile.subscriptioToken ?
+                                            <div className="flex flex-col items-center">
+                                                <p className="mb-2">
+                                                    This user requiere to pay a {profile.subscriptionPrice} on {profile.subscriptioToken}
+                                                </p>
+                                                <div 
+                                                    className="flex justify-center py-2 w-32 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
+                                                    onClick={() => handleSuscription}
+                                                >
+                                                    Subscribe
+                                                </div>  
+                                            </div>
+                                        :
+                                            <div className="flex flex-col items-center">
+                                                <p className="mb-2">
+                                                    This user publishes content for free, but you can support with a tip!
+                                                </p>
+                                                <div 
+                                                    className="flex justify-center py-2 w-32 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
+                                                    onClick={() => handleTip}
+                                                >
+                                                    TIP 0.1 SOL
+                                                </div>  
+                                            </div>      
+                                        }
+                                    </div>
                                 </div>
-                                <div className="mb-4">
-                                    <p className="text-black font-bold text-lg">Created at:</p>
-                                    <p className="text-black text-base max-w-full break-words">{moment(profile.createdAt).format('MMM DD, YYYY')}</p>
-                                </div>
-                                <div className="flex flex-col items-center mt-4">
-                                    {profile.subscriptioToken ?
-                                        <div className="flex flex-col items-center">
-                                            <p className="mb-2">
-                                                This user requiere to pay a {profile.subscriptionPrice} on {profile.subscriptioToken}
-                                            </p>
-                                            <div 
-                                                className="flex justify-center py-2 w-32 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
-                                                onClick={handleSuscription}
-                                            >
-                                                Subscribe
-                                            </div>  
-                                        </div>
-                                    :
-                                        <div className="flex flex-col items-center">
-                                            <p className="mb-2">
-                                                This user publishes content for free, but you can support with a tip!
-                                            </p>
-                                            <div 
-                                                className="flex justify-center py-2 w-32 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
-                                                onClick={handleTip}
-                                            >
-                                                TIP 0.1 SOL
-                                            </div>  
-                                        </div>      
-                                    }
-                                </div>
-                            </div>
+                            }
                         </div>
                     </div>
                     {articles && articles.length > 0 &&
-                        <div className={`grid grid-cols-1 gap-4 ${articles.length > 4 ? 'grid-rows-5' : `grid-rows-${articles.length}`}`}>
+                        <div className='mb-4'>
                             {articles.map((post, index) => (
                                 <ProfilePostCard key={index} post={post} />
                             ))}
                         </div>
                     }
-                </> 
+                    <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 bg-white rounded-lg shadow-md mb-4">
+                        <div className="py-5 px-10 flex justify-center text-center">
+                            <p className="text-black text-4xl text-center">Dashboard</p>
+                        </div>
+                        <div className="py-5 h-96 border rounded mb-4 flex justify-center text-center">
+                            CREATE DATA CHARTS
+                        </div>
+                    </div>
+                </>
             }
-            <NotificationsContainer 
+            {/*<NotificationsContainer 
                 notifications={notifications} 
                 removeNotification={removeNotification}
-            />
+            />*/}
         </div>
     );
 }

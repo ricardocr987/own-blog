@@ -9,7 +9,7 @@ type ArrowProps = {
 export const CustomLeftArrow = ({ onClick }: ArrowProps) => {
     return (
         onClick ? 
-            <div className="absolute arrow-btn left-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white" onClick={onClick}>
+            <div className="absolute arrow-btn left-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white" onClick={() => onClick}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -21,7 +21,7 @@ export const CustomLeftArrow = ({ onClick }: ArrowProps) => {
 export const CustomRightArrow = ({ onClick }: ArrowProps) => {
     return (
         onClick ? 
-            <div className="absolute arrow-btn right-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white" onClick={onClick}>
+            <div className="absolute arrow-btn right-0 text-center py-3 cursor-pointer border rounded-full transition-colors duration-300 ease-in-out text-white hover:text-black hover:bg-white" onClick={() => onClick}>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
@@ -100,7 +100,7 @@ export const decimalsFromPubkey: Record<string, number> = {
     'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': 5,
 }
 
-export const messagesAddress = "BRickAcqVt2wxzNeMpsrwWuhGsUUzcqmDrGJQV9xdfuM";
+export const messagesAddress = "BriCkuwezZFQhaSuwF833uZUkepeaKK5jz95nnGMS9JE";
 export const authorInitValues: Author = {
     username: '',
     pubkey: '',
@@ -127,10 +127,10 @@ export const postInitialValues: Post = {
 export const tokens: TokenInfo[] = [ 
     {
         name: "SOL",
-        image: "./solanaLogoMark.svg"
+        image: "/solanaLogoMark.svg"
     },
     {
         name: "USDC",
-        image: "./usdcLogo.svg"
+        image: "/usdcLogo.svg"
     },
 ];

@@ -18,14 +18,10 @@ const WalletMultiButtonDynamic = dynamic(
   { ssr: false }
 );
 
-const links: NavLink[] = [
+let links: NavLink[] = [
   {     
     name: 'Create Article',
     url: 'CreateArticle'
-  },
-  {     
-    name: 'My Articles',
-    url: 'MyArticles'
   },
   {     
     name: 'Profile',
@@ -43,6 +39,8 @@ const Header = () => {
   const [newAuthor, setNewAuthor] = useState(false);
   const { data: session, status } = useSession();
   const { addNotification, notifications, removeNotification } = useNotification();
+
+  if (session?.user.id) links[1].url = `/profile/${session.user.id}`
 
   const handleCreateAuthor = async (authorDetails: Author) => {
     if (wallet.publicKey && wallet.connected) {
@@ -142,7 +140,8 @@ const Header = () => {
         </div>
       </div>
       {newAuthor && (
-        <AuthorForm 
+        <AuthorForm
+          newAuthor={newAuthor}
           onAuthorCreate={handleCreateAuthor} 
           setNewAuthor={setNewAuthor}
           addNotification={addNotification}

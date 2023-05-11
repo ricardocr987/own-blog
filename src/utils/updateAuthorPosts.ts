@@ -24,7 +24,7 @@ export async function updatePostArticles(
     content.push(...previousContent, newPost.id)
     return await publishPost({
         account,
-        postType: 'string[]',
+        postType: 'amend',
         content: [content], 
         channel: 'own-blog',
         APIServer: 'https://api2.aleph.im',

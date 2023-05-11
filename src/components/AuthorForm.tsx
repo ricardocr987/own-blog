@@ -14,9 +14,10 @@ interface AuthorFormProps {
     addNotification: (text: string, type: NotificationType) => void,
     notifications: Notification[],
     removeNotification: (id: number) => void
+    newAuthor: boolean
 }  
 
-const AuthorForm = ({ onAuthorCreate, setNewAuthor, addNotification, notifications, removeNotification }: AuthorFormProps) => {
+const AuthorForm = ({ onAuthorCreate, setNewAuthor, addNotification, newAuthor }: AuthorFormProps) => {
     const { publicKey } = useWallet();
     const [username, setUsername] = useState('');
     const [bio, setBio] = useState('');
@@ -38,7 +39,7 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor, addNotification, notificatio
 
     useEffect(() => {
         async function fetchData() {
-            if (publicKey) {
+            if (publicKey && newAuthor) {
                 const tokens: TokenInfo[] = await getTokenInfo(publicKey, connection);
                 setTokens(tokens);
                 setShowImagesDropdown(true);
@@ -46,7 +47,7 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor, addNotification, notificatio
             } 
         }
         fetchData();
-    }, [publicKey]);
+    }, []);
 
     const authorFormRef = useRef<HTMLDivElement | null>(null);
     useClickOutside(authorFormRef, () => setNewAuthor(false));

@@ -1,5 +1,5 @@
 import { NotificationType } from '@/types';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface NotificationProps {
   notification: Notification

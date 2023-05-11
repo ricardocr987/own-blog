@@ -15,6 +15,11 @@ export type ReducedAuthor = {
     id: string
 }
 
+export type UsernameAndPubkey = {
+    username: string
+    id: string
+}
+
 export type ReducedPost = {
     id: string
     title: string
@@ -80,3 +85,9 @@ export type GetUserResponse = {
 export type GetArticleResponse = {
     [key: string]: Post
 }
+
+export type NextAuthUser = {
+    id: string,
+    username: string,
+    uri: string,
+  }
