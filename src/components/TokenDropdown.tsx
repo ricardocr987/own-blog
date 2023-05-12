@@ -6,8 +6,8 @@ import { Dispatch, SetStateAction, useRef, useState } from "react";
 
 
 type TokenDropdownProps = {
-    selectedToken: string
-    setSelectedToken: Dispatch<SetStateAction<string>>
+    selectedToken: TokenInfo
+    setSelectedToken: Dispatch<SetStateAction<TokenInfo>>
 }
 
 const TokenDropdown = ({ selectedToken, setSelectedToken }: TokenDropdownProps) => {
@@ -17,14 +17,14 @@ const TokenDropdown = ({ selectedToken, setSelectedToken }: TokenDropdownProps) 
     useClickOutside(tokenForm, () => setIsOpen(false));
 
     const handleItemClick = (token: TokenInfo) => {
-        setSelectedToken(token.image);
+        setSelectedToken(token);
         setIsOpen(false);
     };
 
     return (
         <div className="relative" ref={tokenForm}>
             <div className="border-gray-300 border bg-white rounded-md w-12 h-10" onClick={() => setIsOpen(!isOpen)}>
-                <img className='block rounded-md text-sm py-2 px-3 w-full h-full' src={selectedToken} width={80} height={80} alt={selectedToken} />
+                <img className='block rounded-md text-sm py-2 px-3 w-full h-full' src={selectedToken.image} width={80} height={80} alt={selectedToken.image} />
             </div>
             {isOpen && (
                 <div className="absolute z-10 w-24 max-h-64 overflow-y-auto bg-white border rounded-md shadow-md">

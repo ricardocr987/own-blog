@@ -5,9 +5,28 @@ export type Author = {
     uri: string
     pubkey: string
     subscriptionPrice?: number
-    subscriptioToken?: string
+    subscriptionToken?: string
+    subscriptionBrickToken?: string
     articles: string[]
 }
+
+export type Uri = {
+    name: string;
+    symbol: string;
+    description: string;
+    image: string;
+    attributes: Array<{
+        trait_type: string;
+        value: string;
+    }>;
+    properties: {
+        files: Array<{
+            uri: string;
+            type: string;
+        }>;
+        category: string;
+    };
+};
 
 export type ReducedAuthor = {
     username: string

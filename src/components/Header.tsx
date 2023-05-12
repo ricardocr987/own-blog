@@ -40,7 +40,7 @@ const Header = () => {
   const { data: session, status } = useSession();
   const { addNotification, notifications, removeNotification } = useNotification();
 
-  if (session?.user.id) links[1].url = `/profile/${session.user.id}`
+  if (session?.user.id) links[1].url = `profile/${session.user.id}`
 
   const handleCreateAuthor = async (authorDetails: Author) => {
     if (wallet.publicKey && wallet.connected) {

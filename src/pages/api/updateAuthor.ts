@@ -1,7 +1,7 @@
 import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
-import { ReducedAuthor, UsernameAndPubkey } from "@/types";
+import { UsernameAndPubkey } from "@/types";
 import { createUserAggregate } from "@/utils/createUserAggregate"; 
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";

@@ -139,10 +139,10 @@ export default function Profile({ user, profile, articles, author }: ServerSideP
                                         <p className="text-black text-base max-w-full break-words">{moment(profile.createdAt).format('MMM DD, YYYY')}</p>
                                     </div>
                                     <div className="flex flex-col items-center mt-4">
-                                        {profile.subscriptioToken ?
+                                        {profile.subscriptionToken ?
                                             <div className="flex flex-col items-center">
                                                 <p className="mb-2">
-                                                    This user requiere to pay a {profile.subscriptionPrice} on {profile.subscriptioToken}
+                                                    This user requiere to pay a {profile.subscriptionPrice} on {profile.subscriptionToken}
                                                 </p>
                                                 <div 
                                                     className="flex justify-center py-2 w-32 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"

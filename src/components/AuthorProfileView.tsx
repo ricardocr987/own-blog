@@ -1,14 +1,18 @@
 import { Loader } from "@/components";
 import ImagesDropdown from "@/components/ImagesDropdown";
-import { authorInitValues, tokens } from "@/constants";
+import { METADATA_PROGRAM_ID_PK, authorInitValues, decimalsFromPubkey, messagesAddress, mintFromSymbol, tokens } from "@/constants";
 import { useNotification } from "@/hooks";
-import { getTokenInfo } from "@/services";
-import { Author, NotificationType, TokenInfo } from "@/types";
+import { getAppPubkey, getMetadataPubkey, getTokenInfo, getTokenMintPubkey, getTokenPubkey } from "@/services";
+import { Author, NotificationType, TokenInfo, Uri } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { connection } from '@/constants';
 import TokenDropdown from "@/components/TokenDropdown";
+import { CreateTokenInstructionAccounts, CreateTokenInstructionArgs, createCreateTokenInstruction } from "@/utils/solita";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from "@solana/web3.js";
+import BN from "bn.js";
 
 type AuthorProfileViewProps = {
     profile: Author
@@ -25,7 +29,7 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
     const [formImage, setFormImage] = useState(profile?.uri || "");
     const [formUsername, setFormUsername] = useState(profile?.username || "");
     const [formBio, setFormBio] = useState(profile?.bio || "");
-    const [subToken, setSubToken] = useState(tokens[0].image);
+    const [subToken, setSubToken] = useState(tokens[0]);
     const [subPrice, setSubPrice] = useState('0');
     
     useEffect(() => { 
@@ -40,8 +44,90 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
         fetchData();
     }, []);
 
-    const handleMonetize = async () => {
-
+    async function sendCreateTokenTransaction() {
+        try {
+            if (wallet.publicKey) {
+                const acceptedMintDecimals = decimalsFromPubkey[mintFromSymbol[subToken.name]]
+                const parsedNumber = parseFloat(subPrice.replace(/,/g, ''))
+                const standardizedNumber = parsedNumber * Math.pow(10, acceptedMintDecimals)
+                const offChainId = wallet.publicKey?.toString()
+                const offChainId1 = offChainId.slice(0, 32)
+                let offChainId2 = offChainId.slice(32, 64)
+                if (offChainId.length < 32) offChainId2 = ""
+                const tokenMint = getTokenMintPubkey(offChainId1)
+                const tokenAccount = getTokenPubkey(tokenMint)
+                const appAccount = getAppPubkey('own-blog')
+                const metadataAccount = getMetadataPubkey(tokenMint)
+                const accounts: CreateTokenInstructionAccounts = {
+                    metadataProgram: METADATA_PROGRAM_ID_PK,
+                    messagesProgram: new PublicKey('ALepH1n9jxScbz45aZhBYVa35zxBNbKSvL6rWQpb4snc'),
+                    systemProgram: SystemProgram.programId,
+                    tokenProgram: TOKEN_PROGRAM_ID,
+                    rent: SYSVAR_RENT_PUBKEY,
+                    authority: wallet.publicKey,
+                    app: appAccount,
+                    tokenMint: tokenMint,
+                    token: tokenAccount,
+                    acceptedMint: new PublicKey(mintFromSymbol[subToken.name]),
+                    tokenMetadata: metadataAccount,
+                }
+                const date = new Date();
+                const uri: Uri = {
+                    name: profile.username, 
+                    symbol:'Own-Blog', 
+                    description:`You are a subscriber of ${profile.username} for ${date.toLocaleString('default', { month: 'long' })} month`,
+                    image: profile.uri,
+                    attributes:[
+                        {
+                            trait_type: 'author',
+                            value: profile.username
+                        },
+                        {
+                            trait_type: 'month',
+                            value: date.toLocaleString('default', { month: 'long' })
+                        }
+                    ],
+                    properties:{
+                        files:[{ uri: profile.uri, type: "image/gif" }],
+                        category: "image"
+                    }
+                }
+                const uriResponse = await fetch('/api/uploadUri', {
+                    method: 'POST',
+                    body: JSON.stringify(uri)
+                })
+                if (uriResponse.status === 200) {
+                    const args: CreateTokenInstructionArgs = {
+                        offChainId: offChainId1,
+                        offChainId2: offChainId2,
+                        offChainMetadata: '',
+                        refundTimespan: new BN(Number(0)),
+                        tokenPrice: standardizedNumber,// to convert it to the right amount
+                        exemplars: -1,
+                        tokenName: profile.username,
+                        tokenSymbol: 'Own-Blog',
+                        tokenUri: `https://api2.aleph.im/api/v0/aggregates/${messagesAddress}.json?keys=${profile.pubkey}tokenUri`,
+                    }
+                
+                    const transaction = new Transaction().add(
+                        createCreateTokenInstruction(accounts, args)
+                    )
+                    let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
+                    transaction.recentBlockhash = blockhash;
+                    const signature = await wallet.sendTransaction(
+                        transaction,
+                        connection,
+                    )
+                    profile.subscriptionPrice = Number(subPrice)
+                    profile.subscriptionToken = mintFromSymbol[subToken.name]
+                    profile.subscriptionBrickToken = tokenMint.toString()
+                    const res = await fetch('/api/updateMonetization', {
+                        method: 'POST',
+                        body: JSON.stringify(profile)
+                    })
+                }
+            }
+        } catch (e) { console.log(e) }
     }
 
     const handleEdit = async () => {
@@ -141,7 +227,7 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
                         <div className="flex justify-center items-center">
                             <div 
                                 className="py-2 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
-                                onClick={() => handleMonetize()}
+                                onClick={() => sendCreateTokenTransaction()}
                             >
                                 Save
                             </div>
