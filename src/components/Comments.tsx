@@ -2,19 +2,14 @@ import React from 'react';
 import moment from 'moment';
 import { Comment } from '@/types';
 
-const comments: Comment[] = [
-  {
-    id: '1',
-    createdAt: Date.now(),
-    username: 'Riki',
-    message: 'Cool'
-  }
-]
+type CommentsProps = {
+  comments: Comment[]
+}
 
-const Comments = ({id}: {id: string}) => {
+const Comments = ({comments}: CommentsProps) => {
   return (
     <>
-      {comments.length > 0 && (
+      {comments && comments.length > 0 && (
         <div className="bg-white shadow-lg rounded-lg p-8 pb-12 mb-8">
           <h3 className="text-xl mb-8 font-semibold border-b pb-4">
             {comments.length}

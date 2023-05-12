@@ -1,12 +1,31 @@
 import React, { useState } from 'react';
-import { Comment } from '@/types'
-import Button from './Button';
+import { Comment, Post } from '@/types'
+import { useSession } from 'next-auth/react';
 
-const CreateComment = ({id}: {id: string}) => {
-  const [error, setError] = useState<boolean>(false);
-  const [localStorage, setLocalStorage] = useState<Storage | null>(null);
-  const [showSuccessMessage, setShowSuccessMessage] = useState<boolean>(false);
-  const [formData, setFormData] = useState<Comment>({ id: '', createdAt: 0, username: '', message: '' });
+const CreateComment = ({post}: {post: Post})  => {
+  const [formData, setFormData] = useState<Comment>({ createdAt: 0, username: '', message: '' });
+  const { data: session } = useSession();
+
+  const submitComment = () => {
+    const postComment = async () => {
+      if (!session) return
+
+      formData.createdAt = Date.now()
+      formData.username = session.user.username
+      if (post.comments) {
+        post.comments.push(formData)
+      } else {
+        post.comments = [formData]
+      }
+      console.log(post)
+      const res = await fetch('/api/postComment', {
+        method: 'POST',
+        body: JSON.stringify(post)
+      })
+    }
+
+    postComment()
+  }
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-8 pb-12 mb-8">
@@ -25,14 +44,15 @@ const CreateComment = ({id}: {id: string}) => {
           placeholder="Comment"
         />
       </div>
-      {error && <p className="text-xs text-red-500">All fields are mandatory</p>}
       <div className="mt-8">
         <div className="flex justify-end">
-          <div className="py-2 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer">
+          <div
+            onClick={(e) => submitComment()}
+            className="py-2 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
+          >
             Post
           </div>
         </div>
-        {showSuccessMessage && <span className="text-xl float-right font-semibold mt-3 text-green-500">Comment submitted for review</span>}
       </div>
     </div>
   );

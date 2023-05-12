@@ -54,10 +54,10 @@ export type Post = {
     summary: string
     content: string
     tags: string[]
+    comments?: Comment[]
 }
 
 export type Comment = {
-    id: string
     createdAt: number
     username: string
     message: string
@@ -109,4 +109,4 @@ export type NextAuthUser = {
     id: string,
     username: string,
     uri: string,
-  }
+}

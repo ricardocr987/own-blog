@@ -57,16 +57,16 @@ const PostDetails = ({ post }: ServerSideProps['props']) => {
     
     return (
         <>
-        {post &&
-            <div className="container mx-auto px-10 mb-8">
-                <PostDetail post={post} />
-                <CommentsForm id={post.id} />
-                <Comments id={post.id} />
-            </div>
-        }
+            {post &&
+                <div className="container mx-auto px-10 mb-8">
+                    <PostDetail post={post} />
+                    <CommentsForm post={post} />
+                    { post.comments && <Comments comments={post.comments} /> }
+                </div>
+            }
             <NotificationsContainer 
-            notifications={notifications} 
-            removeNotification={removeNotification}
+                notifications={notifications} 
+                removeNotification={removeNotification}
             />
         </>
     );
