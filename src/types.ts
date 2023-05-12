@@ -53,7 +53,7 @@ export type Post = {
     author: ReducedAuthor
     summary: string
     content: string
-    categories: string[]
+    tags: string[]
 }
 
 export type Comment = {

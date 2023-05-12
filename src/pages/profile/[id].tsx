@@ -14,12 +14,12 @@ import { getServerSession } from 'next-auth';
 import Image from 'next/image';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { AuthorProfileView } from '@/components/AuthorProfileView';
+import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
 
 type ServerSideProps = {
     props: {
         profile: Author | null
         articles: Post[] | null
-        user: NextAuthUser | null
         author: boolean
     }
 }
@@ -40,21 +40,32 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                 APIServer: 'https://api2.aleph.im'
             });
             const articlesResponse = response[params.id].articles;
-            const articlesPromises = articlesResponse.map(async (article) => {
-                const res = await getAggregate<GetArticleResponse>({
-                    keys: [article],
-                    address: messagesAddress,
-                    APIServer: 'https://api2.aleph.im'
+            console.log(articlesResponse)
+            if (articlesResponse.length > 0) {
+                const articlesPromises = articlesResponse.map(async (article) => {
+                    const res = await getAggregate<GetArticleResponse>({
+                        keys: [article],
+                        address: messagesAddress,
+                        APIServer: 'https://api2.aleph.im'
+                    });
+                    return res[article];
                 });
-                return res[article];
-            });
-            const articles = await Promise.all(articlesPromises);
-            if (response && response[params.id]) {
+                const articles = await Promise.all(articlesPromises);
+                if (response && response[params.id]) {
+                    return {
+                        props: {
+                            profile: response[params.id],
+                            articles,
+                            author
+                        }
+                    }
+                }
+            }
+            else {
                 return {
                     props: {
                         profile: response[params.id],
-                        articles,
-                        user,
+                        articles: null,
                         author
                     }
                 }
@@ -64,7 +75,6 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                 props: {
                     profile: null,
                     articles: null,
-                    user: null,
                     author
                 }
             }
@@ -74,13 +84,12 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
         props: {
             profile: null,
             articles: null,
-            user: null,
             author
         }
     }
 }
 
-export default function Profile({ user, profile, articles, author }: ServerSideProps['props']) {
+export default function Profile({ profile, articles, author }: ServerSideProps['props']) {
     const { addNotification, notifications, removeNotification } = useNotification();
     const wallet = useWallet()
     if (!profile) {

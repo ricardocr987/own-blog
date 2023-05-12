@@ -50,13 +50,13 @@ const PostForm: React.FC<Props> = ({ post, setPost, file, setFile }) => {
                     </div>
                 </div>
                 <div className="flex-1 mb-4 lg:mb-0 lg:ml-10">
-                    <label className="block mb-2">Featured Image::</label>
+                    <label className="block mb-2">Featured Image:</label>
                     <div className="border border-gray-300 rounded-md mb-4">
                         <FileUpload setFile={setFile} file={file}/>
                     </div>
                 </div>
             </div>
-            <CategoriesTagsForm setPost={setPost} tags={post.categories}/>
+            <CategoriesTagsForm setPost={setPost} tags={post.tags}/>
         </div>
     );
 };

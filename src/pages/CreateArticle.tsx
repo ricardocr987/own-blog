@@ -6,7 +6,7 @@ import PostConfig from "@/components/PostConfig";
 import { v4 as uuid } from 'uuid'
 import { NextApiRequest, NextApiResponse } from "next";
 import { Publish as publishStore } from 'aleph-sdk-ts/dist/messages/store';
-import { ItemType } from "aleph-sdk-ts/dist/messages/message";
+import { ItemType, StoreMessage } from "aleph-sdk-ts/dist/messages/message";
 import { GetAccountFromProvider } from "aleph-sdk-ts/dist/accounts/solana";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useSession } from "next-auth/react";
@@ -47,14 +47,12 @@ const CreateArticle = () => {
         console.log('No file was dropped or an error occurred while processing the file.');
         return;
       }
+      if (!session) {
+        console.log('No active session');
+        return;
+      }
       if (!wallet.signMessage || !wallet.publicKey) return
       try {
-        /*        
-        const formData = new FormData();
-        formData.append('featuredImage', file);
-    
-        const response = await axios.post('/api/uploadImage', formData); 
-        */
         const buffer = await fileToBuffer(file)
         const account = await GetAccountFromProvider({
           signMessage: wallet.signMessage,
@@ -77,6 +75,7 @@ const CreateArticle = () => {
         }
         post.id = uuid()
         post.createdAt = Date.now()
+        post.tags.push(session.user.username)
         const res = await fetch('/api/postArticle', {
           method: 'POST',
           body: JSON.stringify(post)

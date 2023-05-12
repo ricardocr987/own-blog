@@ -18,7 +18,7 @@ const featuredPosts: Post[] = [
   },
     summary: 'Solana is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Aleph'
     ]
   },
@@ -34,7 +34,7 @@ const featuredPosts: Post[] = [
   },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Aleph'
     ]
   },
@@ -50,7 +50,7 @@ const featuredPosts: Post[] = [
   },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Aleph'
     ]
   },
@@ -66,7 +66,7 @@ const featuredPosts: Post[] = [
   },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Aleph'
     ]
   },
@@ -82,7 +82,7 @@ const featuredPosts: Post[] = [
   },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Aleph'
     ]
   },
@@ -98,7 +98,7 @@ const featuredPosts: Post[] = [
   },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Aleph'
     ]
   },

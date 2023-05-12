@@ -18,7 +18,7 @@ const posts: Post[] = [
   },
     summary: 'Solana is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Solana',
     ]
   },
@@ -35,7 +35,7 @@ const posts: Post[] = [
     },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
-    categories: [  
+    tags: [  
       'Aleph',
     ]
   },

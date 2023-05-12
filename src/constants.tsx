@@ -121,7 +121,7 @@ export const postInitialValues: Post = {
     },
     summary: '',
     content: '',
-    categories: [],
+    tags: [],
 };
 
 export const tokens: TokenInfo[] = [ 

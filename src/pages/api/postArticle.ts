@@ -3,9 +3,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
 import { postArticle } from "@/utils/postArticle";
-import { updatePostArticles } from "@/utils/updateAuthorPosts";
+import { Publish as publishPost } from 'aleph-sdk-ts/dist/messages/post';
+
+import { Post } from "@/types";
+import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { updateAuthorArticles } from "@/utils/updateAuthorArticles";
-import { updatePostsCategories } from "@/utils/updatePostsCategories";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
@@ -17,19 +19,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
     try {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)));
-        const newPost = JSON.parse(req.body)
+        const newPost = JSON.parse(req.body) as Post
 
         // creates an specific aggregate for the whole article
         await postArticle(account, newPost)
-
-        // updates the post with that contains all the articles ids
-        await updatePostArticles(account, newPost)
-
         // updates author aggregate including the post id
         await updateAuthorArticles(account, session.user.id, newPost.id)
 
-        // updates categories post (if a new one is created) and includes the reduced post info in the category post
-        await updatePostsCategories(account, session, newPost)
+        // creates a post with the post id + his tags
+        await publishPost({
+            account: account,
+            postType: 'Post',
+            content: {id: newPost.id, tags: newPost.tags},
+            channel: 'own-blog',
+            APIServer: 'https://api2.aleph.im',
+            inlineRequested: true,
+            storageEngine: ItemType.inline
+        })
 
         return res.status(201).send("Post updated correctly");
     } catch (error) {

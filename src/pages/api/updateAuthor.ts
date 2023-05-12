@@ -38,7 +38,7 @@ export default async function handler(
         const foundUser = previousContent.find(user => user.username === newUser.username);
         if (foundUser) return res.status(406).send('User already exists');
 
-        // changes the username in the post with the user reduced info
+        // changes the username in the post with the ner username
         const foundUserIndex = previousContent.findIndex(user => user.id === newUser.pubkey);
         if (foundUserIndex !== -1) {
             previousContent[foundUserIndex].username = newUser.username;
