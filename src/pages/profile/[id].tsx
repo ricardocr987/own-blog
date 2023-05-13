@@ -91,10 +91,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
 
 export default function Profile({ profile, articles, author }: ServerSideProps['props']) {
     const { addNotification, notifications, removeNotification } = useNotification();
-    const wallet = useWallet()
     if (!profile) {
         addNotification('This user does not exist', NotificationType.ERROR);
     }
+    const wallet = useWallet()
 
     const handleTip = async () => {
         if (profile && wallet.publicKey) {
