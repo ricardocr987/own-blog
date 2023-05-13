@@ -92,7 +92,7 @@ export enum NotificationType {
 }
 
 export interface Notification {
-    id: number;
+    id: string;
     text: string;
     type: NotificationType
 }

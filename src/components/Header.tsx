@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import Link from 'next/link';
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import { Author, GetUserResponse, NavLink, NotificationType } from '@/types';
@@ -11,8 +11,7 @@ import { authorInitValues, messagesAddress } from '@/constants';
 import { getCsrfToken, signIn, useSession } from 'next-auth/react';
 import { SigninMessage } from '@/utils/SignMessage';
 import bs58 from 'bs58';
-import { useNotification } from '@/hooks';
-import NotificationsContainer from './Notification';
+import { NotificationContext } from '@/contexts/NotificationContext';
 const WalletMultiButtonDynamic = dynamic(
   async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton,
   { ssr: false }
@@ -38,7 +37,7 @@ const Header = () => {
   const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
   const [newAuthor, setNewAuthor] = useState(false);
   const { data: session, status } = useSession();
-  const { addNotification, notifications, removeNotification } = useNotification();
+  const { addNotification } = useContext(NotificationContext);
 
   if (session?.user.id) links[1].url = `profile/${session.user.id}`
 
@@ -144,15 +143,8 @@ const Header = () => {
           newAuthor={newAuthor}
           onAuthorCreate={handleCreateAuthor} 
           setNewAuthor={setNewAuthor}
-          addNotification={addNotification}
-          notifications={notifications}
-          removeNotification={removeNotification}
         />
       )}
-      <NotificationsContainer 
-        notifications={notifications} 
-        removeNotification={removeNotification}
-      />
     </>
   );
 };

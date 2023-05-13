@@ -1,18 +1,17 @@
-import { Loader } from "@/components";
 import ImagesDropdown from "@/components/ImagesDropdown";
 import { METADATA_PROGRAM_ID_PK, authorInitValues, decimalsFromPubkey, messagesAddress, mintFromSymbol, tokens } from "@/constants";
-import { useNotification } from "@/hooks";
 import { getAppPubkey, getMetadataPubkey, getTokenInfo, getTokenMintPubkey, getTokenPubkey } from "@/services";
 import { Author, NotificationType, TokenInfo, Uri } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { connection } from '@/constants';
 import TokenDropdown from "@/components/TokenDropdown";
 import { CreateTokenInstructionAccounts, CreateTokenInstructionArgs, createCreateTokenInstruction } from "@/utils/solita";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from "@solana/web3.js";
 import BN from "bn.js";
+import { NotificationContext } from "@/contexts/NotificationContext";
 
 type AuthorProfileViewProps = {
     profile: Author
@@ -23,7 +22,7 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isMonetizeConfigOpen, setMonetizeConfigOpen] = useState(false);
     const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
-    const { addNotification, notifications, removeNotification } = useNotification();
+    const { addNotification } = useContext(NotificationContext);
     const [showImagesDropdown, setShowImagesDropdown] = useState(false);
     const [tokensImages, setTokensImages] = useState<TokenInfo[]>([]);
     const [formImage, setFormImage] = useState(profile?.uri || "");

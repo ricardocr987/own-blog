@@ -1,5 +1,5 @@
 import { Author, NotificationType, TokenInfo } from '@/types';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { connection } from '@/constants';
 import { getTokenInfo } from '@/services';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -7,17 +7,17 @@ import { useClickOutside } from '@/hooks';
 import { Notification } from '@/types';
 import Loader from './Loader';
 import ImagesDropdown from './ImagesDropdown';
+import { NotificationContext } from '@/contexts/NotificationContext';
 
 interface AuthorFormProps {
     onAuthorCreate: (author: Author) => void
     setNewAuthor: (value: React.SetStateAction<boolean>) => void
-    addNotification: (text: string, type: NotificationType) => void,
-    notifications: Notification[],
-    removeNotification: (id: number) => void
     newAuthor: boolean
 }  
 
-const AuthorForm = ({ onAuthorCreate, setNewAuthor, addNotification, newAuthor }: AuthorFormProps) => {
+const AuthorForm = ({ onAuthorCreate, setNewAuthor, newAuthor }: AuthorFormProps) => {
+    const { addNotification } = useContext(NotificationContext);
+
     const { publicKey } = useWallet();
     const [username, setUsername] = useState('');
     const [bio, setBio] = useState('');

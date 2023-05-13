@@ -1,12 +1,11 @@
 import { useWallet } from "@solana/wallet-adapter-react";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import Author from "./Author";
-import NotificationsContainer from "./Notification";
-import { useNotification } from "@/hooks";
 import { GetUserResponse, NotificationType } from "@/types";
 import { useSession } from "next-auth/react";
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import { messagesAddress } from "@/constants";
+import { NotificationContext } from "@/contexts/NotificationContext";
 
 interface AuthWrapperProps {
   children: React.ReactNode
@@ -15,7 +14,7 @@ interface AuthWrapperProps {
 
 const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
   const wallet = useWallet();
-  const { addNotification, notifications, removeNotification } = useNotification();
+  const { addNotification } = useContext(NotificationContext);
   const { status, update, data: session } = useSession();
 
   const fetchAuthorDetails = async () => {
@@ -65,16 +64,12 @@ const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
     }, 500);
     
     return () => clearTimeout(timeout);
-  }, [wallet.publicKey]);
+  }, [wallet.publicKey, session?.user.username]);
   
 
   return (
     <div>
       {wallet.publicKey && wallet.connected && status === "authenticated" && <>{children}</> }
-      <NotificationsContainer 
-        notifications={notifications} 
-        removeNotification={removeNotification}
-      />
     </div>
   )
 }

@@ -1,7 +1,5 @@
-import NotificationsContainer from '@/components/Notification';
 import ProfilePostCard from '@/components/ProfilePostCard';
 import { confirmOptions, connection, messagesAddress } from '@/constants';
-import { useNotification } from '@/hooks';
 import { Author, GetArticleResponse, GetUserResponse, NextAuthUser, NotificationType, Post } from '@/types';
 import { convertToLamports } from '@/utils/solToLamports';
 import { PublicKey } from '@metaplex-foundation/js';
@@ -15,6 +13,8 @@ import Image from 'next/image';
 import { authOptions } from '../api/auth/[...nextauth]';
 import { AuthorProfileView } from '@/components/AuthorProfileView';
 import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
+import { NotificationContext } from '@/contexts/NotificationContext';
+import { useContext } from 'react';
 
 type ServerSideProps = {
     props: {
@@ -90,10 +90,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
 }
 
 export default function Profile({ profile, articles, author }: ServerSideProps['props']) {
-    const { addNotification, notifications, removeNotification } = useNotification();
-    if (!profile) {
-        addNotification('This user does not exist', NotificationType.ERROR);
-    }
+    const { addNotification } = useContext(NotificationContext);
+
+    if (!profile) addNotification('This user does not exist', NotificationType.ERROR);
+    
     const wallet = useWallet()
 
     const handleTip = async () => {
@@ -195,10 +195,6 @@ export default function Profile({ profile, articles, author }: ServerSideProps['
                     </div>
                 </>
             }
-            {/*<NotificationsContainer 
-                notifications={notifications} 
-                removeNotification={removeNotification}
-            />*/}
         </div>
     );
 }

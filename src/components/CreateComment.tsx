@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
-import { Comment, Post } from '@/types'
+import React, { useContext, useState } from 'react';
+import { Comment, NotificationType, Post } from '@/types'
 import { useSession } from 'next-auth/react';
+import { NotificationContext } from '@/contexts/NotificationContext';
 
 const CreateComment = ({post}: {post: Post})  => {
   const [formData, setFormData] = useState<Comment>({ createdAt: 0, username: '', message: '' });
   const { data: session } = useSession();
+  const { addNotification } = useContext(NotificationContext);
 
   const submitComment = () => {
     const postComment = async () => {
@@ -17,11 +19,16 @@ const CreateComment = ({post}: {post: Post})  => {
       } else {
         post.comments = [formData]
       }
-      console.log(post)
-      const res = await fetch('/api/postComment', {
-        method: 'POST',
-        body: JSON.stringify(post)
-      })
+      try {
+        const res = await fetch('/api/postComment', {
+          method: 'POST',
+          body: JSON.stringify(post)
+        })
+        if (res.status === 201) addNotification('Comment posted successfully', NotificationType.SUCCESS)
+        setFormData({ createdAt: 0, username: '', message: '' })
+      } catch (e) {
+        addNotification('Error: Comment has not posted', NotificationType.ERROR)
+      }
     }
 
     postComment()

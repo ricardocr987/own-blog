@@ -1,9 +1,10 @@
+import { NotificationContext } from '@/contexts/NotificationContext';
 import { NotificationType } from '@/types';
-import React, { useRef, useState } from 'react';
+import React, { memo, useContext, useRef, useState } from 'react';
 
 interface NotificationProps {
   notification: Notification
-  removeNotification: (id: number) => void
+  removeNotification: (id: string) => void
 }
 
 const Notification = ({ notification, removeNotification }: NotificationProps) => {
@@ -62,17 +63,14 @@ const Notification = ({ notification, removeNotification }: NotificationProps) =
 };
 
 interface Notification {
-    id: number;
+    id: string;
     text: string;
     type: NotificationType
 }
 
-interface NotificationsContainerProps {
-    notifications: Notification[];
-    removeNotification: (id: number) => void;
-}
-
-const NotificationsContainer = ({ notifications, removeNotification }: NotificationsContainerProps) => {
+const NotificationsContainer = () => {
+  const { notifications, removeNotification } = useContext(NotificationContext);
+  console.log(notifications)
   return (
     <div className="flex flex-col fixed bottom-10 right-4 z-99">
       {notifications.map((notification) => (

@@ -1,12 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { PostDetail, Comments, CommentsForm } from '@/components';
 import { NotificationType, Post } from '@/types';
 import {  GetArticleResponse } from '@/types';
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import { GetServerSidePropsContext } from 'next';
 import { messagesAddress } from '@/constants';
-import NotificationsContainer from '@/components/Notification';
-import { useNotification } from '@/hooks';
+import { NotificationContext } from '@/contexts/NotificationContext';
 
 type ServerSideProps = {
     props: {
@@ -24,6 +23,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                 APIServer: 'https://api2.aleph.im'
             });
             if (response) {
+                if (response[params.id].comments) response[params.id].comments?.sort((a, b) => b.createdAt - a.createdAt)
                 return {
                     props: {
                         post: response[params.id],
@@ -47,12 +47,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
 
 
 const PostDetails = ({ post }: ServerSideProps['props']) => {
-    const { addNotification, notifications, removeNotification } = useNotification();
+    const { addNotification } = useContext(NotificationContext);
 
     useEffect(() => {
-        if (!post) {
-        addNotification('This article does not exist', NotificationType.ERROR);
-        }
+        if (!post) addNotification('This article does not exist', NotificationType.ERROR);
     }, []);
     
     return (
@@ -64,10 +62,6 @@ const PostDetails = ({ post }: ServerSideProps['props']) => {
                     { post.comments && <Comments comments={post.comments} /> }
                 </div>
             }
-            <NotificationsContainer 
-                notifications={notifications} 
-                removeNotification={removeNotification}
-            />
         </>
     );
 };
