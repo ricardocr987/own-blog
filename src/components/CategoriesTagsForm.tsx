@@ -1,5 +1,6 @@
-import { Post } from "@/types";
-import React, { useState } from "react";
+import { NotificationContext } from "@/contexts/NotificationContext";
+import { NotificationType, Post } from "@/types";
+import React, { useContext, useEffect, useState } from "react";
 
 interface CategoriesTagsFormProps {
   setPost: React.Dispatch<React.SetStateAction<Post>>
@@ -8,15 +9,20 @@ interface CategoriesTagsFormProps {
 
 const CategoriesTagsForm = ({setPost, tags}: CategoriesTagsFormProps) => {
   const [remainingTags, setRemainingTags] = useState(10 - tags.length);
+  const { addNotification } = useContext(NotificationContext);
 
   const addTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (remainingTags <= 0) {
+      addNotification('You can not add more tags', NotificationType.WARNING);
+      return;
+    }
     if (e.key === "Enter") {
       let tag = e.currentTarget.value.replace(/\s+/g, " ");
       if (tag.length > 1 && !tags.includes(tag)) {
         if (tags.length < 10) {
           const tagsAux = ([...tags, ...tag.split(",")]);
           setRemainingTags(remainingTags - 1);
-          setPost((prevPost: Post) => ({ ...prevPost, categories: tagsAux }));
+          setPost((prevPost: Post) => ({ ...prevPost, tags: tagsAux }));
         }
       }
       e.currentTarget.value = "";
@@ -25,10 +31,10 @@ const CategoriesTagsForm = ({setPost, tags}: CategoriesTagsFormProps) => {
 
   const removeTag = (tag: string) => {
     const updatedTags = tags.filter((t) => t !== tag);
-    setPost((prevPost: Post) => ({ ...prevPost, categories: updatedTags }));
+    setPost((prevPost: Post) => ({ ...prevPost, tags: updatedTags }));
     setRemainingTags(remainingTags + 1);
   };
-
+  
   return (
     <div>
       <div>

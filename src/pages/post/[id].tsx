@@ -1,15 +1,18 @@
 import React, { useContext, useEffect } from 'react';
 import { PostDetail, Comments, CommentsForm } from '@/components';
-import { NotificationType, Post } from '@/types';
+import { GetUserResponse, NextAuthUser, NotificationType, Post } from '@/types';
 import {  GetArticleResponse } from '@/types';
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import { GetServerSidePropsContext } from 'next';
 import { messagesAddress } from '@/constants';
 import { NotificationContext } from '@/contexts/NotificationContext';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]';
 
 type ServerSideProps = {
     props: {
-        post: Post | null
+        post?: Post
+        notAllowed?: boolean 
     }
 }
 
@@ -24,33 +27,67 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
             });
             if (response) {
                 if (response[params.id].comments) response[params.id].comments?.sort((a, b) => b.createdAt - a.createdAt)
-                return {
-                    props: {
-                        post: response[params.id],
+                const authorResponse = await getAggregate<GetUserResponse>({
+                    keys: [response[params.id].author.id],
+                    address: messagesAddress,
+                    APIServer: 'https://api2.aleph.im'
+                });
+                if (!authorResponse[response[params.id].author.id].subscriptionPrice || authorResponse[response[params.id].author.id].subscriptionPrice === 0) {
+                    return {
+                        props: {
+                            post: response[params.id],
+                        }
+                    }
+                } else {
+                    const session = await getServerSession(context.req, context.res, authOptions);
+                    if (session) {
+                        if (authorResponse[response[params.id].author.id].subs?.some(sub => sub.pubkey === session.user.id)) {
+                            return {
+                                props: {
+                                    post: response[params.id],
+                                }
+                            }
+                        } else {
+                            const user = Object.fromEntries(
+                                Object.entries(session.user).filter(([_, value]) => value !== undefined)
+                            ) as NextAuthUser
+                            if (user.id === authorResponse[response[params.id].author.id].pubkey){
+                                return {
+                                    props: {
+                                        post: response[params.id],
+                                    }
+                                }
+                            }
+                            return {
+                                props: {
+                                    notAllowed: true
+                                }
+                            }
+                        }
                     }
                 }
             }
         } catch(e) {
             return {
-                props: {
-                    post: null,
-                }
+                props: {}
             }
         }
     }
     return {
-        props: {
-            post: null,
-        }
+        props: {}
     }
 }
 
 
-const PostDetails = ({ post }: ServerSideProps['props']) => {
+const PostDetails = ({ notAllowed, post }: ServerSideProps['props']) => {
     const { addNotification } = useContext(NotificationContext);
 
     useEffect(() => {
-        if (!post) addNotification('This article does not exist', NotificationType.ERROR);
+        if (notAllowed) {
+            addNotification('You are not subscribed to this author', NotificationType.INFO);
+        } else {
+            if (!post) addNotification('This article does not exist', NotificationType.ERROR);
+        }
     }, []);
     
     return (

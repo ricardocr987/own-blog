@@ -8,6 +8,10 @@ export type Author = {
     subscriptionToken?: string
     subscriptionBrickToken?: string
     articles: string[]
+    subs?: {
+        pubkey: string
+        timestamp: number
+    }[]
 }
 
 export type Uri = {
@@ -110,3 +114,17 @@ export type NextAuthUser = {
     username: string,
     uri: string,
 }
+
+export type Withdrawals = {
+    tokenAccount: string
+    tokenMint: string
+    paidMint: string
+    seller: string
+    pubkey: string
+    buyer: string
+    price: number
+    paymentTimestamp: string
+    refundConsumedAt: string
+    bump: number
+    bumpVault: number
+  }

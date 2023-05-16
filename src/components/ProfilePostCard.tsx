@@ -5,22 +5,26 @@ import Link from 'next/link';
 import { Post } from '@/types';
 
 const ProfilePostCard = ({post}: {post: Post}) => (
-  <div className="relative h-40">
-    <Link href={`/post/${post.id}`}><span className="cursor-pointer absolute w-full h-full" />
+  <div className="h-40 overflow-hidden">
+    <Link href={`/post/${post.id}`} className="block w-full h-full cursor-pointer">
       <div className="w-full h-full flex rounded-lg shadow-md mb-4 bg-white">
-        <Image
-          unoptimized
-          width={30}
-          height={30}
-          alt={post.featuredImage}
-          className="rounded-lg bg-center bg-no-repeat bg-cover shadow-md inline-block w-40 h-40"
-          src={post.featuredImage}
+        <div
+          className="w-40 h-full bg-center bg-no-repeat bg-cover rounded-l-lg shadow-md inline-block"
+          style={{ backgroundImage: `url(${post.featuredImage})` }}
         />
-        <div className="flex flex-col flex-1 justify-center p-4">
-          <div className="grid grid-cols-10 grid-rows-3 gap-y-2">
-            <p className="text-black font-semibold text-2xl col-start-1 col-end-4 row-start-1 row-end-2">{post.title}</p>
-            <p className="text-black text-xl col-start-1 col-end-8 row-start-2 row-end-3">{post.summary}</p>
-            <p className="text-black text-xs col-start-9 col-end-11 row-start-3 row-end-4">{moment(post.createdAt).format('MMM DD, YYYY')}</p>
+        <div className="flex flex-col flex-1 justify-center">
+          <div className="grid grid-cols-10 grid-rows-2 px-4">
+            <p className="text-black font-semibold text-2xl col-start-1 col-end-11 row-start-1 row-end-2 truncate">
+              {post.title}
+            </p>
+            <p
+              className="text-black text-xl col-start-1 col-end-11 row-start-2 row-end-3 line-clamp-2"
+            >
+              {post.summary}
+            </p>
+            <p className="text-black text-xs col-start-11 col-end-12 row-start-4 row-end-4">
+              {moment(post.createdAt).format("MMM DD, YYYY")}
+            </p>
           </div>
         </div>
       </div>

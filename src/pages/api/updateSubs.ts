@@ -1,10 +1,10 @@
 import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
 import { NextApiRequest, NextApiResponse } from "next";
-import { ItemType } from "aleph-sdk-ts/dist/messages/message"
+import { Author } from "@/types";
+import { createUserAggregate } from "@/utils/createUserAggregate"; 
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth/[...nextauth]";
-import { Publish as publishPost } from 'aleph-sdk-ts/dist/messages/post';
-import { Uri } from "@/types";
+import { connection } from "@/constants";
 
 export default async function handler(
     req: NextApiRequest,
@@ -19,19 +19,20 @@ export default async function handler(
 
     try {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)))
-        const uri = JSON.parse(req.body) as Uri
-        const response = await publishPost({
-            account,
-            postType: 'amend',
-            content: uri, 
-            channel: 'own-blog',
-            APIServer: 'https://api2.aleph.im',
-            inlineRequested: true,
-            storageEngine: ItemType.inline
-        })
-        
+        const { profile, signature }: { profile: Author, signature: string } = JSON.parse(req.body)
 
-        return res.status(201).send(response.item_hash);
+        const transaction = await connection.getTransaction(signature)
+        if (transaction) {
+            for (const ix of transaction.transaction.message.instructions) {
+                console.log(ix)
+            }
+        } else {
+            res.status(500).send('Internal Server Error.');
+        }
+        // updates user aggregate message
+        await createUserAggregate(account, profile)
+
+        return res.status(201).send("User created correctly");
     } catch (error) {
         res.status(500).send('Internal Server Error.');
     }

@@ -6,6 +6,7 @@ import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import { messagesAddress } from "@/constants";
 import moment from "moment";
 import { debounce } from 'lodash';
+import Link from "next/link";
 
 const SearchBar = () => {
     const [showSearchBarPopup, setShowSearchBarPopup] = useState(false);
@@ -58,14 +59,14 @@ const SearchBar = () => {
         <>
             {showSearchBarPopup &&
                 <div className="fixed top-0 left-0 right-0 bottom-0 bg-gray-800 bg-opacity-80 z-10 transition-all ease-in-out duration-1000">
-                    <div className='absolute top-2/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2' ref={searchBarRef}>
+                    <div className='absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2' ref={searchBarRef}>
                         <input
                             type="text"
                             placeholder={"Search..."}
                             value={searchTerm}
                             onChange={(e) => handleChange(e.target.value)}
                             required
-                            className="bg-gray-200 text-gray-800 rounded-full w-72 sm:w-80 md:w-96 py-2 px-1 pl-8"
+                            className="bg-gray-200 text-gray-800 rounded-full w-72 sm:w-80 md:w-96 py-2 px-1 pl-8 mb-4"
                         />
                         <div className="absolute top-0 left-0">
                             <svg
@@ -77,29 +78,32 @@ const SearchBar = () => {
                                 <path d="M19.707 4.293a1 1 0 0 0-1.414 0L12 10.586 5.707 4.293a1 1 0 1 0-1.414 1.414L10.586 12l-6.293 6.293a1 1 0 0 0 1.414 1.414L12 13.414l6.293 6.293a1 1 0 0 0 1.414-1.414L13.414 12l6.293-6.293a1 1 0 0 0 0-1.414z" />
                             </svg>
                         </div>
-                        <div className="h-96 w-full overflow-auto grid grid-cols-2 gap-2 pt-7">
+                        <div className="grid grid-cols-2 gap-2" style={{ gridAutoRows: 'minmax(0, 1fr)' }}>
                             {authorsResult.length > 0 && (
                                 <div className="max-w-screen-md mx-auto h-32 w-44">
                                     <h2 className="text-xl text-white font-bold mb-4">Authors:</h2>
                                     {authorsResult.map((author) => (
-                                        <div key={author.username} className="bg-gray-200 p-4 mb-4 rounded-md h-full w-full">
-                                        <h3 className="text-xl font-bold mb-2">{author.username}</h3>
-                                        <p className="text-base text-gray-700 mb-2">{author.bio}</p>
-                                        <p className="text-xs text-gray-500">{moment(author.createdAt).format("MMM DD, YYYY")}</p>
-                                        </div>
+                                        <Link href={`/profile/${author.pubkey}`} key={author.pubkey} onClick={() => setShowSearchBarPopup(false)}>
+                                            <div className="bg-gray-200 p-4 mb-4 rounded-md h-full w-full truncate cursor-pointer">
+                                                <h3 className="text-xl font-bold mb-2">{author.username}</h3>
+                                                <p className="text-base text-gray-700 mb-2">{author.bio}</p>
+                                                <p className="text-xs text-gray-500">{moment(author.createdAt).format("MMM DD, YYYY")}</p>
+                                            </div>
+                                        </Link>
                                     ))}
                                 </div>
                             )}
-
                             {postsResult.length > 0 && (
                                 <div className="max-w-screen-md mx-auto h-32 w-44">
                                     <h2 className="text-xl text-white font-bold mb-4">Articles:</h2>
                                     {postsResult.map((post) => (
-                                        <div key={post.id} className="bg-gray-200 p-4 mb-4 rounded-md h-full w-full">
-                                        <h3 className="text-xl font-bold mb-2">{post.title}</h3>
-                                        <p className="text-sm text-gray-700 mb-2">{post.summary}</p>
-                                        <p className="text-xs text-gray-500">{moment(post.createdAt).format("MMM DD, YYYY")}</p>
-                                        </div>
+                                        <Link href={`/post/${post.id}`} key={post.id} onClick={() => setShowSearchBarPopup(false)}>
+                                            <div className="bg-gray-200 p-4 mb-4 rounded-md h-full w-full truncate cursor-pointer">
+                                                <h3 className="text-xl font-bold mb-2">{post.title}</h3>
+                                                <p className="text-sm text-gray-700 mb-2">{post.summary}</p>
+                                                <p className="text-xs text-gray-500">{moment(post.createdAt).format("MMM DD, YYYY")}</p>
+                                            </div>
+                                        </Link>
                                     ))}
                                 </div>
                             )}

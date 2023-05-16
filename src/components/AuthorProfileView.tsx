@@ -1,47 +1,88 @@
 import ImagesDropdown from "@/components/ImagesDropdown";
-import { METADATA_PROGRAM_ID_PK, authorInitValues, decimalsFromPubkey, messagesAddress, mintFromSymbol, tokens } from "@/constants";
-import { getAppPubkey, getMetadataPubkey, getTokenInfo, getTokenMintPubkey, getTokenPubkey } from "@/services";
-import { Author, NotificationType, TokenInfo, Uri } from "@/types";
+import { METADATA_PROGRAM_ID_PK, authorInitValues, decimalsFromPubkey, initialTokenValues, messagesAddress, mintFromSymbol, tokens } from "@/constants";
+import { getAppPubkey, getMetadataPubkey, getPaymentVaultPubkey, getTokenInfo, getTokenMintPubkey, getTokenPubkey } from "@/services";
+import { Author, NotificationType, TokenInfo, Uri, Withdrawals } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
 import { connection } from '@/constants';
 import TokenDropdown from "@/components/TokenDropdown";
-import { CreateTokenInstructionAccounts, CreateTokenInstructionArgs, createCreateTokenInstruction } from "@/utils/solita";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { ACCOUNTS_DATA_LAYOUT, AccountType, AppArgs, CreateTokenInstructionAccounts, CreateTokenInstructionArgs, EditTokenPriceInstructionAccounts, EditTokenPriceInstructionArgs, PaymentArgs, TokenMetadataArgs, WithdrawFundsInstructionAccounts, createCreateTokenInstruction, createEditTokenPriceInstruction, createWithdrawFundsInstruction } from "@/utils/solita";
+import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from "@solana/web3.js";
 import BN from "bn.js";
 import { NotificationContext } from "@/contexts/NotificationContext";
 
 type AuthorProfileViewProps = {
     profile: Author
+    withdrawals: string | null
 }
 
-export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
+export const AuthorProfileView = ({profile, withdrawals }: AuthorProfileViewProps) => {
     const wallet = useWallet();
     const [isEditing, setIsEditing] = useState(false);
     const [isMonetizeConfigOpen, setMonetizeConfigOpen] = useState(false);
-    const [authorDetails, setAuthorDetails] = useState<Author>(authorInitValues);
     const { addNotification } = useContext(NotificationContext);
-    const [showImagesDropdown, setShowImagesDropdown] = useState(false);
     const [tokensImages, setTokensImages] = useState<TokenInfo[]>([]);
     const [formImage, setFormImage] = useState(profile?.uri || "");
     const [formUsername, setFormUsername] = useState(profile?.username || "");
     const [formBio, setFormBio] = useState(profile?.bio || "");
-    const [subToken, setSubToken] = useState(tokens[0]);
-    const [subPrice, setSubPrice] = useState('0');
+    const [subToken, setSubToken] = useState(initialTokenValues(profile.subscriptionToken) || tokens[0]);
+    const [subPrice, setSubPrice] = useState(profile.subscriptionPrice?.toString() || '0');
     
     useEffect(() => { 
         async function fetchData() {
             if (wallet.publicKey) {
                 const tokens: TokenInfo[] = await getTokenInfo(wallet.publicKey, connection);
                 setTokensImages(tokens);
-                setShowImagesDropdown(true);
                 setFormImage(tokens[0].image);
             } 
         }
         fetchData();
     }, []);
+
+    async function handleWithdrawals() {
+        if (!wallet.publicKey) return;
+        if (!withdrawals) return;
+        console.log(withdrawals)
+        const transaction = new Transaction()
+        const paymentAccounts = JSON.parse(withdrawals) as Withdrawals[]
+        await Promise.all(paymentAccounts.map(async (account) => {
+            if (!wallet.publicKey) return;
+            const encodedTokenAccount = await connection.getAccountInfo(new PublicKey(account.tokenAccount))
+            if (!encodedTokenAccount) return;
+            const decodedTokenAccount: TokenMetadataArgs = ACCOUNTS_DATA_LAYOUT[AccountType.TokenMetadata].deserialize(encodedTokenAccount.data)[0]
+            const paymentVault = getPaymentVaultPubkey(new PublicKey(account.pubkey))
+            const receiverVault = await getAssociatedTokenAddress(new PublicKey(account.paidMint), wallet.publicKey)
+            const appAccount = await connection.getAccountInfo(new PublicKey(decodedTokenAccount.app))
+            if (!appAccount) return;
+            const decodedAppAccount: AppArgs = ACCOUNTS_DATA_LAYOUT[AccountType.App].deserialize(appAccount.data)[0]
+            const appCreatorVault = await getAssociatedTokenAddress(new PublicKey(account.paidMint), decodedAppAccount.authority)
+            const accounts: WithdrawFundsInstructionAccounts = {
+                tokenProgram: TOKEN_PROGRAM_ID,
+                authority: wallet.publicKey,
+                app: decodedTokenAccount.app,
+                appCreatorVault: appCreatorVault,
+                token: new PublicKey(account.tokenAccount),
+                tokenMint: new PublicKey(account.tokenMint),
+                receiverVault: receiverVault,
+                buyer: new PublicKey(account.buyer),
+                payment: new PublicKey(account.pubkey),
+                paymentVault: paymentVault,
+            }
+            transaction.add(createWithdrawFundsInstruction(accounts))
+        }))
+        let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
+        transaction.recentBlockhash = blockhash;
+        try {
+            const signature = await wallet.sendTransaction(
+                transaction,
+                connection,
+            )
+        } catch(e) {
+            console.log(e)
+        }
+    }
 
     async function sendCreateTokenTransaction() {
         try {
@@ -57,59 +98,17 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
                 const tokenAccount = getTokenPubkey(tokenMint)
                 const appAccount = getAppPubkey('own-blog')
                 const metadataAccount = getMetadataPubkey(tokenMint)
-                const accounts: CreateTokenInstructionAccounts = {
-                    metadataProgram: METADATA_PROGRAM_ID_PK,
-                    messagesProgram: new PublicKey('ALepH1n9jxScbz45aZhBYVa35zxBNbKSvL6rWQpb4snc'),
-                    systemProgram: SystemProgram.programId,
-                    tokenProgram: TOKEN_PROGRAM_ID,
-                    rent: SYSVAR_RENT_PUBKEY,
-                    authority: wallet.publicKey,
-                    app: appAccount,
-                    tokenMint: tokenMint,
-                    token: tokenAccount,
-                    acceptedMint: new PublicKey(mintFromSymbol[subToken.name]),
-                    tokenMetadata: metadataAccount,
-                }
-                const date = new Date();
-                const uri: Uri = {
-                    name: profile.username, 
-                    symbol:'Own-Blog', 
-                    description:`You are a subscriber of ${profile.username} for ${date.toLocaleString('default', { month: 'long' })} month`,
-                    image: profile.uri,
-                    attributes:[
-                        {
-                            trait_type: 'author',
-                            value: profile.username
-                        },
-                        {
-                            trait_type: 'month',
-                            value: date.toLocaleString('default', { month: 'long' })
-                        }
-                    ],
-                    properties:{
-                        files:[{ uri: profile.uri, type: "image/gif" }],
-                        category: "image"
+                if (profile.subscriptionBrickToken) {
+                    const accounts: EditTokenPriceInstructionAccounts = {
+                        authority: wallet.publicKey,
+                        token: tokenAccount,
                     }
-                }
-                const uriResponse = await fetch('/api/uploadUri', {
-                    method: 'POST',
-                    body: JSON.stringify(uri)
-                })
-                if (uriResponse.status === 200) {
-                    const args: CreateTokenInstructionArgs = {
-                        offChainId: offChainId1,
-                        offChainId2: offChainId2,
-                        offChainMetadata: '',
-                        refundTimespan: new BN(Number(0)),
-                        tokenPrice: standardizedNumber,// to convert it to the right amount
-                        exemplars: -1,
-                        tokenName: profile.username,
-                        tokenSymbol: 'Own-Blog',
-                        tokenUri: `https://api2.aleph.im/api/v0/aggregates/${messagesAddress}.json?keys=${profile.pubkey}tokenUri`,
+                    const args: EditTokenPriceInstructionArgs = {
+                        tokenPrice: standardizedNumber
                     }
                 
                     const transaction = new Transaction().add(
-                        createCreateTokenInstruction(accounts, args)
+                        createEditTokenPriceInstruction(accounts, args)
                     )
                     let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
                     transaction.recentBlockhash = blockhash;
@@ -124,6 +123,77 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
                         method: 'POST',
                         body: JSON.stringify(profile)
                     })
+                    addNotification('Monetization updated!', NotificationType.SUCCESS)
+                } else {
+                    const accounts: CreateTokenInstructionAccounts = {
+                        metadataProgram: METADATA_PROGRAM_ID_PK,
+                        messagesProgram: new PublicKey('ALepH1n9jxScbz45aZhBYVa35zxBNbKSvL6rWQpb4snc'),
+                        systemProgram: SystemProgram.programId,
+                        tokenProgram: TOKEN_PROGRAM_ID,
+                        rent: SYSVAR_RENT_PUBKEY,
+                        authority: wallet.publicKey,
+                        app: appAccount,
+                        tokenMint: tokenMint,
+                        token: tokenAccount,
+                        acceptedMint: new PublicKey(mintFromSymbol[subToken.name]),
+                        tokenMetadata: metadataAccount,
+                    }
+                    const date = new Date();
+                    /*const uri: Uri = {
+                        name: profile.username, 
+                        symbol:'Own-Blog', 
+                        description:`You are a subscriber of ${profile.username} for ${date.toLocaleString('default', { month: 'long' })} month`,
+                        image: profile.uri,
+                        attributes:[
+                            {
+                                trait_type: 'author',
+                                value: profile.username
+                            },
+                            {
+                                trait_type: 'month',
+                                value: date.toLocaleString('default', { month: 'long' })
+                            }
+                        ],
+                        properties:{
+                            files:[{ uri: profile.uri, type: "image/gif" }],
+                            category: "image"
+                        }
+                    }
+                    const uriResponse = await fetch('/api/uploadUri', {
+                        method: 'POST',
+                        body: JSON.stringify(uri)
+                    })*/
+                    //if (uriResponse.status === 200) {
+                        const args: CreateTokenInstructionArgs = {
+                            offChainId: offChainId1,
+                            offChainId2: offChainId2,
+                            offChainMetadata: offChainId1,
+                            refundTimespan: new BN(Number(0)),
+                            tokenPrice: standardizedNumber,// to convert it to the right amount
+                            exemplars: -1,
+                            tokenName: profile.username,
+                            tokenSymbol: 'OB',
+                            tokenUri: 'https://arweave.net/W0GZ1H3wql5BvcH3Hugjx-111K_IJy3LSFnAng8Zpew' // `https://api2.aleph.im/api/v0/aggregates/${messagesAddress}.json?keys=${profile.pubkey}tokenUri`,
+                        }
+                    
+                        const transaction = new Transaction().add(
+                            createCreateTokenInstruction(accounts, args)
+                        )
+                        let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
+                        transaction.recentBlockhash = blockhash;
+                        const signature = await wallet.sendTransaction(
+                            transaction,
+                            connection,
+                        )
+                        profile.subscriptionPrice = Number(subPrice)
+                        profile.subscriptionToken = mintFromSymbol[subToken.name]
+                        profile.subscriptionBrickToken = tokenMint.toString()
+                        const res = await fetch('/api/updateMonetization', {
+                            method: 'POST',
+                            body: JSON.stringify(profile)
+                        })
+                    //}
+                    addNotification('Monetization added!', NotificationType.SUCCESS)
                 }
             }
         } catch (e) { console.log(e) }
@@ -145,7 +215,7 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
                 if (res.status === 406) addNotification("User already exists", NotificationType.ERROR)
                 if (res.status === 201) {
                     addNotification("User updated", NotificationType.SUCCESS);
-                    setAuthorDetails(formAuthorDetails);
+                    // cambiar la info de las cookies
                     setIsEditing(false);
                 }
             } catch(e) {
@@ -250,17 +320,25 @@ export const AuthorProfileView = ({profile}: AuthorProfileViewProps) => {
                         </div>
                         <div className="flex justify-center">
                             <div 
-                                className="py-2 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
+                                className="py-2 px-4 border rounded-lg text-center transition-colors w-34 duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
                                 onClick={() => setIsEditing(true)}
                             >
-                                Edit
+                                Edit Info
                             </div>
                             <div 
-                                className="py-2 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
-                                onClick={() => setMonetizeConfigOpen(!isMonetizeConfigOpen)}
+                                className="py-2 px-4 border rounded-lg transition-colors w-34 duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
+                                onClick={() => setMonetizeConfigOpen(true)}
                             >
                                 Monetize
-                            </div>                                
+                            </div>
+                            {withdrawals &&                             
+                                <div 
+                                    className="py-2 px-4 border rounded-lg transition-colors w-34 duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
+                                    onClick={() => handleWithdrawals()}
+                                >
+                                    Withdraw
+                                </div>
+                            }
                         </div>
                     </div>
             }

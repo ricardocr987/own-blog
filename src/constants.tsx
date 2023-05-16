@@ -100,6 +100,11 @@ export const decimalsFromPubkey: Record<string, number> = {
     'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263': 5,
 }
 
+export const imagesPathFromMint: Record<string, string> = {
+    'So11111111111111111111111111111111111111112': '/solanaLogoMark.svg',
+    'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': '/usdcLogo.svg',
+}
+
 export const messagesAddress = "BriCkuwezZFQhaSuwF833uZUkepeaKK5jz95nnGMS9JE";
 export const authorInitValues: Author = {
     username: '',
@@ -134,3 +139,11 @@ export const tokens: TokenInfo[] = [
         image: "/usdcLogo.svg"
     },
 ];
+
+export function initialTokenValues(mint: string | undefined) : TokenInfo | undefined {
+    if(!mint) return undefined
+    return ({
+        name: symbolFromMint[mint],
+        image: imagesPathFromMint[mint]
+    })
+}
