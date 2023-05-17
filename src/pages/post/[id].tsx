@@ -39,7 +39,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                         }
                     }
                 } else {
-                    const session = await getServerSession(context.req, context.res, authOptions);
+                    const session = await getServerSession(context.req, context.res, authOptions());
                     if (session) {
                         if (authorResponse[response[params.id].author.id].subs?.some(sub => sub.pubkey === session.user.id)) {
                             return {
@@ -95,7 +95,7 @@ const PostDetails = ({ notAllowed, post }: ServerSideProps['props']) => {
             {post &&
                 <div className="container mx-auto px-10 mb-8">
                     <PostDetail post={post} />
-                    <CommentsForm post={post} />
+                    <CommentsForm postId={post.id} />
                     { post.comments && <Comments comments={post.comments} /> }
                 </div>
             }

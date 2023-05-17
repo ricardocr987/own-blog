@@ -55,7 +55,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                 address: messagesAddress,
                 APIServer: 'https://api2.aleph.im',
             });
-            const session = await getServerSession(context.req, context.res, authOptions);
+            const session = await getServerSession(context.req, context.res, authOptions());
             if (session) {
                 const user = Object.fromEntries(
                     Object.entries(session.user).filter(([_, value]) => value !== undefined)
@@ -142,7 +142,13 @@ export default function Profile({ subscriber, profile, articles, author, withdra
             );
             
             const signature = await wallet.sendTransaction(transaction, connection, confirmOptions)
-            if (signature) addNotification(`Tip sent!`, NotificationType.SUCCESS)
+            let blockhash = (await connection.getLatestBlockhash('finalized'));
+            const confirmation = await connection.confirmTransaction({
+                blockhash: blockhash.blockhash,
+                lastValidBlockHeight: blockhash.lastValidBlockHeight,
+                signature,
+            });
+            if (!confirmation.value.err) addNotification(`Tip sent!`, NotificationType.SUCCESS)
         }
     }
 
@@ -191,27 +197,36 @@ export default function Profile({ subscriber, profile, articles, author, withdra
         }
         try {
             const transaction = new Transaction().add(createBuyTokenInstruction(accounts, args)).add(createUseTokenInstruction(useAccounts))
-            let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
-            transaction.recentBlockhash = blockhash;
+            let blockhash = (await connection.getLatestBlockhash('finalized'));
+            transaction.recentBlockhash = blockhash.blockhash;
             const signature = await wallet.sendTransaction(
                 transaction,
                 connection,
             )
-            if (!profile.subs) {
-                profile.subs = [{ pubkey: wallet.publicKey?.toString(), timestamp: Date.now() }];
+            const confirmation = await connection.confirmTransaction({
+                blockhash: blockhash.blockhash,
+                lastValidBlockHeight: blockhash.lastValidBlockHeight,
+                signature,
+            });
+            if (!confirmation.value.err) {
+                if (!profile.subs) {
+                    profile.subs = [{ pubkey: wallet.publicKey?.toString(), timestamp: Date.now() }];
+                } else {
+                    profile.subs.push({ pubkey: wallet.publicKey?.toString(), timestamp: Date.now() });
+                }
+                const updateSubsPayload = {
+                    profile,
+                    signature
+                }
+                const res = await fetch('/api/updateSubs', {
+                    method: 'POST',
+                    body: JSON.stringify(updateSubsPayload)
+                })
+                if (res.status === 406) addNotification("Internal server error", NotificationType.ERROR)
+                if (res.status === 201) addNotification("Subscription completed", NotificationType.SUCCESS);
             } else {
-                profile.subs.push({ pubkey: wallet.publicKey?.toString(), timestamp: Date.now() });
+                addNotification("Can not confirm your transaction", NotificationType.ERROR)
             }
-            const updateSubsPayload = {
-                profile,
-                signature
-            }
-            const res = await fetch('/api/updateSubs', {
-                method: 'POST',
-                body: JSON.stringify(updateSubsPayload)
-            })
-            if (res.status === 406) addNotification("Internal server error", NotificationType.ERROR)
-            if (res.status === 201) addNotification("Subscription completed", NotificationType.SUCCESS);
         } catch(e) {
             console.log(e)
         }
@@ -269,7 +284,7 @@ export default function Profile({ subscriber, profile, articles, author, withdra
                                                 </p>
                                                 <div 
                                                     className="flex justify-center py-2 w-32 px-4 border rounded-lg transition-colors duration-300 ease-in-out text-white bg-black hover:text-black hover:bg-white font-medium cursor-pointer"
-                                                    onClick={() => handleTip}
+                                                    onClick={() => handleTip()}
                                                 >
                                                     TIP 0.1 SOL
                                                 </div>  

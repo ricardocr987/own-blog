@@ -3,35 +3,34 @@ import { Comment, NotificationType, Post } from '@/types'
 import { useSession } from 'next-auth/react';
 import { NotificationContext } from '@/contexts/NotificationContext';
 
-const CreateComment = ({post}: {post: Post})  => {
-  const [formData, setFormData] = useState<Comment>({ createdAt: 0, username: '', message: '' });
+const CreateComment = ({postId}: {postId: string})  => {
+  const [formData, setFormData] = useState<Comment>({ createdAt: 0, username: '', message: '', postId });
   const { data: session } = useSession();
   const { addNotification } = useContext(NotificationContext);
 
-  const submitComment = () => {
-    const postComment = async () => {
-      if (!session) return
-
-      formData.createdAt = Date.now()
-      formData.username = session.user.username
-      if (post.comments) {
-        post.comments.push(formData)
-      } else {
-        post.comments = [formData]
-      }
-      try {
-        const res = await fetch('/api/postComment', {
-          method: 'POST',
-          body: JSON.stringify(post)
-        })
-        if (res.status === 201) addNotification('Comment posted successfully', NotificationType.SUCCESS)
-        setFormData({ createdAt: 0, username: '', message: '' })
-      } catch (e) {
-        addNotification('Error: Comment has not posted', NotificationType.ERROR)
-      }
+  const submitComment = async () => {
+    if (!session) {
+      addNotification('You need to be signed', NotificationType.ERROR)
+      return
     }
 
-    postComment()
+    formData.createdAt = Date.now()
+    formData.username = session.user.username
+
+    try {
+      const res = await fetch('/api/postComment', {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      })
+      if (res.status === 201) {
+        addNotification('Comment posted successfully', NotificationType.SUCCESS)
+        setFormData({ createdAt: 0, username: '', message: '', postId })
+      } else {
+        addNotification(res.statusText, NotificationType.ERROR)
+      }
+    } catch (e) {
+      addNotification('Error: Comment has not posted', NotificationType.ERROR)
+    }
   }
 
   return (

@@ -91,7 +91,6 @@ const Header = () => {
           //signIn() function will handle obtaining the CSRF token in the background
           const res = await signIn("credentials", {
             message: JSON.stringify(message),
-            author: JSON.stringify(details),
             redirect: false,
             signature: serializedSignature,
           });

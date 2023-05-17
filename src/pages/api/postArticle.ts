@@ -10,17 +10,16 @@ import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { updateAuthorArticles } from "@/utils/updateAuthorArticles";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-    if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
-    
-    if (!process.env.MESSAGES_KEY) return res.status(500).send('MESSAGES_KEY environment variable not found.');
-
-    const session = await getServerSession(req, res, authOptions)
+    const session = await getServerSession(req, res, authOptions(req))
     if (!session) return res.status(401).json({ message: "You must be logged in." });
+    if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+    if (!process.env.MESSAGES_KEY) return res.status(500).send('MESSAGES_KEY environment variable not found.');
 
     try {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)));
         const newPost = JSON.parse(req.body) as Post
 
+        if (newPost.author.id !== session.user.id) return res.status(400).send('You should not try to change other users data :/') 
         // creates an specific aggregate for the whole article
         await postArticle(account, newPost)
         // updates author aggregate including the post id

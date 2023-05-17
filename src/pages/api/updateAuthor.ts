@@ -16,7 +16,7 @@ export default async function handler(
     
     if (!process.env.MESSAGES_KEY) return res.status(500).send('MESSAGES_KEY environment variable not found.');
 
-    const session = await getServerSession(req, res, authOptions)
+    const session = await getServerSession(req, res, authOptions(req))
     if (!session) return res.status(401).json({ message: "You must be logged in." });
 
     try {

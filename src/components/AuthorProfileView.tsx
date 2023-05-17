@@ -18,7 +18,7 @@ type AuthorProfileViewProps = {
     withdrawals: string | null
 }
 
-export const AuthorProfileView = ({profile, withdrawals }: AuthorProfileViewProps) => {
+export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewProps) => {
     const wallet = useWallet();
     const [isEditing, setIsEditing] = useState(false);
     const [isMonetizeConfigOpen, setMonetizeConfigOpen] = useState(false);
@@ -39,7 +39,7 @@ export const AuthorProfileView = ({profile, withdrawals }: AuthorProfileViewProp
             } 
         }
         fetchData();
-    }, []);
+    }, [isEditing]);
 
     async function handleWithdrawals() {
         if (!wallet.publicKey) return;
@@ -72,15 +72,22 @@ export const AuthorProfileView = ({profile, withdrawals }: AuthorProfileViewProp
             }
             transaction.add(createWithdrawFundsInstruction(accounts))
         }))
-        let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
-        transaction.recentBlockhash = blockhash;
-        try {
-            const signature = await wallet.sendTransaction(
-                transaction,
-                connection,
-            )
-        } catch(e) {
-            console.log(e)
+        let blockhash = (await connection.getLatestBlockhash('finalized'));
+        transaction.recentBlockhash = blockhash.blockhash;
+        const signature = await wallet.sendTransaction(
+            transaction,
+            connection,
+        )
+        const confirmation = await connection.confirmTransaction({
+            blockhash: blockhash.blockhash,
+            lastValidBlockHeight: blockhash.lastValidBlockHeight,
+            signature,
+        });
+
+        if (!confirmation.value.err) {
+            addNotification('Withdraw successful!', NotificationType.SUCCESS)
+        } else {
+            addNotification('Can not confirm your transaction', NotificationType.ERROR)
         }
     }
 
@@ -110,20 +117,31 @@ export const AuthorProfileView = ({profile, withdrawals }: AuthorProfileViewProp
                     const transaction = new Transaction().add(
                         createEditTokenPriceInstruction(accounts, args)
                     )
-                    let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
-                    transaction.recentBlockhash = blockhash;
+                    let blockhash = (await connection.getLatestBlockhash('finalized'));
+                    transaction.recentBlockhash = blockhash.blockhash;
                     const signature = await wallet.sendTransaction(
                         transaction,
                         connection,
                     )
-                    profile.subscriptionPrice = Number(subPrice)
-                    profile.subscriptionToken = mintFromSymbol[subToken.name]
-                    profile.subscriptionBrickToken = tokenMint.toString()
-                    const res = await fetch('/api/updateMonetization', {
-                        method: 'POST',
-                        body: JSON.stringify(profile)
-                    })
-                    addNotification('Monetization updated!', NotificationType.SUCCESS)
+                    const confirmation = await connection.confirmTransaction({
+                        blockhash: blockhash.blockhash,
+                        lastValidBlockHeight: blockhash.lastValidBlockHeight,
+                        signature,
+                    });
+
+                    if (!confirmation.value.err) {
+                        profile.subscriptionPrice = Number(subPrice)
+                        profile.subscriptionToken = mintFromSymbol[subToken.name]
+                        profile.subscriptionBrickToken = tokenMint.toString()
+                        const res = await fetch('/api/updateMonetization', {
+                            method: 'POST',
+                            body: JSON.stringify(profile)
+                        })
+                        if (res.status === 201) addNotification('Monetization updated!', NotificationType.SUCCESS)
+                        if (res.status === 400) addNotification(res.statusText, NotificationType.ERROR)
+                    } else {
+                        addNotification('Can not confirm your transaction', NotificationType.ERROR)
+                    }
                 } else {
                     const accounts: CreateTokenInstructionAccounts = {
                         metadataProgram: METADATA_PROGRAM_ID_PK,
@@ -179,21 +197,32 @@ export const AuthorProfileView = ({profile, withdrawals }: AuthorProfileViewProp
                         const transaction = new Transaction().add(
                             createCreateTokenInstruction(accounts, args)
                         )
-                        let blockhash = (await connection.getLatestBlockhash('finalized')).blockhash;
-                        transaction.recentBlockhash = blockhash;
+                        let blockhash = (await connection.getLatestBlockhash('finalized'));
+                        transaction.recentBlockhash = blockhash.blockhash;
                         const signature = await wallet.sendTransaction(
                             transaction,
                             connection,
                         )
-                        profile.subscriptionPrice = Number(subPrice)
-                        profile.subscriptionToken = mintFromSymbol[subToken.name]
-                        profile.subscriptionBrickToken = tokenMint.toString()
-                        const res = await fetch('/api/updateMonetization', {
-                            method: 'POST',
-                            body: JSON.stringify(profile)
-                        })
+                        const confirmation = await connection.confirmTransaction({
+                            blockhash: blockhash.blockhash,
+                            lastValidBlockHeight: blockhash.lastValidBlockHeight,
+                            signature,
+                        });
+    
+                        if (!confirmation.value.err) {
+                            profile.subscriptionPrice = Number(subPrice)
+                            profile.subscriptionToken = mintFromSymbol[subToken.name]
+                            profile.subscriptionBrickToken = tokenMint.toString()
+                            const res = await fetch('/api/updateMonetization', {
+                                method: 'POST',
+                                body: JSON.stringify(profile)
+                            })
+                            if (res.status === 201) addNotification(res.statusText, NotificationType.SUCCESS)
+                            if (res.status === 400) addNotification(res.statusText, NotificationType.ERROR)
+                        } else {
+                            addNotification('Can not confirm your transaction', NotificationType.ERROR)
+                        }
                     //}
-                    addNotification('Monetization added!', NotificationType.SUCCESS)
                 }
             }
         } catch (e) { console.log(e) }

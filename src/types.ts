@@ -58,13 +58,14 @@ export type Post = {
     summary: string
     content: string
     tags: string[]
-    comments?: Comment[]
+    comments: Comment[]
 }
 
 export type Comment = {
     createdAt: number
     username: string
     message: string
+    postId: string
 }
 
 export type NavLink = {
