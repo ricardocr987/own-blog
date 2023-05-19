@@ -1,6 +1,6 @@
 import ProfilePostCard from '@/components/ProfilePostCard';
-import { confirmOptions, connection, symbolFromMint } from '@/constants';
-import { Author, NextAuthUser, NotificationType, Post, Subscription, SubscriptionInfo } from '@/types';
+import { confirmOptions, connection, messagesAddress, symbolFromMint } from '@/constants';
+import { Author, NextAuthUser, NotificationType, Post, PostStoredAleph, Subscription, SubscriptionInfo } from '@/types';
 import { convertToLamports } from '@/utils/conversions';
 import { PublicKey } from '@metaplex-foundation/js';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -18,6 +18,8 @@ import { BuyTokenInstructionAccounts, BuyTokenInstructionArgs, UseTokenInstructi
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import BN from 'bn.js';
 import { getWithdrawals } from '@/utils/getWithdrawals';
+import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
+import { decryptData } from '@/utils/encrypt';
 
 type ServerSideProps = {
     props: {
@@ -49,52 +51,69 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
   
     if (params && typeof params.id === "string") {
         try {
-            const res = await fetch(`/api/getUser?param=${encodeURIComponent(params.id)}`, {
-                method: 'GET',
+            const userResponse = await getPost<PostStoredAleph>({
+                types: 'PostStoredAleph',
+                pagination: 200,
+                page: 1,
+                refs: [],
+                addresses: [messagesAddress],
+                tags: [`user:${params.id}`],
+                hashes: [],
+                APIServer: "https://api2.aleph.im"
             });
-            props.props.profile = JSON.parse(await res.json()) as Author
-            const session = await getServerSession(context.req, context.res, authOptions());
-            if (session) {
-                const user = Object.fromEntries(
-                    Object.entries(session.user).filter(([_, value]) => value !== undefined)
-                ) as NextAuthUser;
-                const res = await fetch(`/api/getSubscriptions?param=${encodeURIComponent(params.id)}`, {
-                    method: 'GET',
-                });
-                const subscription = JSON.parse(await res.json()) as Subscription
-
-                props.props.subscriber.is = subscription.subs.some((sub) => sub.pubkey === user.id);
-                const subscriber = subscription.subs.find((sub) => sub.pubkey === user.id);
-                const monthTimestamp = 30 * 24 * 60 * 60 * 1000
-                if (subscriber) props.props.subscriber.timeleft = subscriber.timestamp + monthTimestamp;
-                
-                if (user.id === params.id) {
-                    props.props.author = true;
-                    const withdrawals = JSON.stringify(await getWithdrawals(new PublicKey(params.id), connection));
-                    if (withdrawals) props.props.withdrawals
+            if (userResponse.posts[0].content.data) {
+                props.props.profile = JSON.parse(decryptData(userResponse.posts[0].content.data)) as Author
+                if (props.props.profile.subscriptionPrice > 0) {
+                    const session = await getServerSession(context.req, context.res, authOptions());
+                    if (session && session.user.username) {
+                        const user = Object.fromEntries(
+                            Object.entries(session.user).filter(([_, value]) => value !== undefined)
+                        ) as NextAuthUser;
+                        const subsResponse = await getPost<PostStoredAleph>({
+                            types: 'PostStoredAleph',
+                            pagination: 200,
+                            page: 1,
+                            refs: [],
+                            addresses: [messagesAddress],
+                            tags: [`user:${params.id}`],
+                            hashes: [],
+                            APIServer: "https://api2.aleph.im"
+                        });
+                        if (subsResponse.posts[0].content.data) {
+                            const subscription = JSON.parse(decryptData(subsResponse.posts[0].content.data)) as Subscription
+            
+                            props.props.subscriber.is = subscription.subs.some((sub) => sub.pubkey === user.id);
+                            const subscriber = subscription.subs.find((sub) => sub.pubkey === user.id);
+                            const monthTimestamp = 30 * 24 * 60 * 60 * 1000;
+                            if (subscriber) props.props.subscriber.timeleft = subscriber.timestamp + monthTimestamp;
+                            
+                            if (user.id === params.id) {
+                                props.props.author = true;
+                                const withdrawals = JSON.stringify(await getWithdrawals(new PublicKey(params.id), connection));
+                                if (withdrawals) props.props.withdrawals
+                            }
+                        }
+                    }
                 }
-            }
-            const articlesResponse = await fetch(`/api/getArticle?param=${encodeURIComponent(params.id)}`, {
-                method: 'GET',
-            });
-            const articles = JSON.parse(await articlesResponse.json()) as Post[]
-
-            if (articles.length > 0) {
-                props.props.articles = articles;
-            } else {
-                props.props.articles = null;
-            }    
-        } catch (e) {
-            props.props.profile = null;
-            props.props.articles = null;
-            props.props.author = false;
+                const articlesResponse = await getPost<PostStoredAleph>({
+                    types: 'PostStoredAleph',
+                    pagination: 200,
+                    page: 1,
+                    refs: [],
+                    addresses: [messagesAddress],
+                    tags: [`article:${params.id}`],
+                    hashes: [],
+                    APIServer: "https://api2.aleph.im"
+                });
+                props.props.articles = articlesResponse.posts.map((article) => JSON.parse(decryptData(article.content.data)) as Post);
+            } 
+        } catch(e) {
+            console.log(e)
         }
     }
 
     return props;
 }
-  
-  
 
 export default function Profile({ subscriber, profile, articles, author, withdrawals }: ServerSideProps['props']) {
     const { addNotification } = useContext(NotificationContext);

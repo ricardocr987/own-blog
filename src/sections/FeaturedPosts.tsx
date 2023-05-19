@@ -20,7 +20,8 @@ const featuredPosts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
-    ]
+    ],
+    commentsPostHash: '',
   },
   {     
     id: '2',
@@ -36,7 +37,8 @@ const featuredPosts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
-    ]
+    ],
+    commentsPostHash: '',
   },
   {     
     id: '2',
@@ -51,7 +53,8 @@ const featuredPosts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
-    ]
+    ],
+    commentsPostHash: '',
   },
   {     
     id: '2',
@@ -66,7 +69,8 @@ const featuredPosts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
-    ]
+    ],
+    commentsPostHash: '',
   },
   {     
     id: '2',
@@ -81,7 +85,8 @@ const featuredPosts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
-    ]
+    ],
+    commentsPostHash: '',
   },
   {     
     id: '2',
@@ -96,7 +101,8 @@ const featuredPosts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
-    ]
+    ],
+    commentsPostHash: '',
   },
 ]
 

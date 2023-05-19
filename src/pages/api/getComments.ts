@@ -14,7 +14,7 @@ export default async function handler(
     try {
         const param = req.query.param
         const commmentsResponse = await getPost<PostStoredAleph>({
-            types: 'string',
+            types: 'PostStoredAleph',
             pagination: 200,
             page: 1,
             refs: [],

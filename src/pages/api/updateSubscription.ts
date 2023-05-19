@@ -29,7 +29,7 @@ export default async function handler(
             page: 1,
             refs: [],
             addresses: [messagesAddress],
-            tags: ['subscription', subInfo.authorId],
+            tags: [`subscription:${subInfo.authorId}`],
             hashes: [],
             APIServer: "https://api2.aleph.im"
         });
@@ -41,10 +41,10 @@ export default async function handler(
 
         await publishPost({
             account: account,
-            postType: 'PostStoredAleph',
+            postType: 'amend',
             content: {
                 data: encryptData(JSON.stringify(data)),
-                tags: ['subscription', data]
+                tags: ['subscription', subInfo.authorId, `subscription:${subInfo.authorId}`],
             },
             channel: 'own-blog',
             APIServer: 'https://api2.aleph.im',

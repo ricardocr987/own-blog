@@ -13,23 +13,23 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const session = await getServerSession(req, res, authOptions(req))
-    if (!session) return res.status(401).json({ message: "You must be logged in." });
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
     if (!process.env.MESSAGES_KEY) return res.status(500).send('MESSAGES_KEY environment variable not found.');
+    const session = await getServerSession(req, res, authOptions(req))
+    if (!session) return res.status(401).json({ message: "You must be logged in." });
 
     try {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)))
         const newComment = JSON.parse(req.body) as CommentInfo
 
         const commentsResponse = await getPost<PostStoredAleph>({
-            types: 'CommentInfo[]',
+            types: 'PostStoredAleph',
             pagination: 200,
             page: 1,
             refs: [],
             addresses: [messagesAddress],
-            tags: ['comments', newComment.postId],
-            hashes: [],
+            tags: [],
+            hashes: [newComment.hashId],
             APIServer: "https://api2.aleph.im"
         });
 
@@ -39,10 +39,8 @@ export default async function handler(
         await publishPost({
             account: account,
             postType: 'amend',
-            content: {
-                data: encryptData(JSON.stringify(data)),
-                tags: ['comments', newComment.postId],
-            },
+            content: { data: encryptData(JSON.stringify(data)) },
+            ref: newComment.hashId,
             channel: 'own-blog',
             APIServer: 'https://api2.aleph.im',
             inlineRequested: true,

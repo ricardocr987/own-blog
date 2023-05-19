@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
-import { CommentInfo, NotificationType } from '@/types'
+import { CommentInfo, Comments, NotificationType } from '@/types'
 import { useSession } from 'next-auth/react';
 import { NotificationContext } from '@/contexts/NotificationContext';
 
-const CreateComment = ({postId}: {postId: string})  => {
-  const [formData, setFormData] = useState<CommentInfo>({ createdAt: 0, username: '', message: '', postId });
+const CreateComment = ({comments, hashId}: {comments: Comments, hashId: string })  => {
+  const [formData, setFormData] = useState<CommentInfo>({ createdAt: 0, username: '', message: '', hashId });
   const { data: session } = useSession();
   const { addNotification } = useContext(NotificationContext);
 
@@ -16,7 +16,6 @@ const CreateComment = ({postId}: {postId: string})  => {
 
     formData.createdAt = Date.now()
     formData.username = session.user.username
-    formData.postId = postId
     
     try {
       const res = await fetch('/api/postComment', {
@@ -24,8 +23,9 @@ const CreateComment = ({postId}: {postId: string})  => {
         body: JSON.stringify(formData)
       })
       if (res.status === 201) {
+        comments.comments.unshift(formData)
         addNotification('Comment posted successfully', NotificationType.SUCCESS)
-        setFormData({ createdAt: 0, username: '', message: '', postId })
+        setFormData({ createdAt: 0, username: '', message: '', hashId })
       } else {
         addNotification(res.statusText, NotificationType.ERROR)
       }

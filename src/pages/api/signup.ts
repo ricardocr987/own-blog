@@ -24,22 +24,33 @@ export default async function handler(
             page: 1,
             refs: [],
             addresses: [messagesAddress],
-            tags: ['user'],
+            tags: [newUser.username],
             hashes: [],
             APIServer: "https://api2.aleph.im"
         });
+        if (usersResponse.posts.length > 0)  return res.status(406).send('User already exists');
 
-        for (const post of usersResponse.posts) {
-            const profile = JSON.parse(decryptData(post.content.data)) as Author
-            if (profile.username === newUser.username) return res.status(406).send('User already exists');
-        }
-
+        //post with the profile
         await publishPost({
             account: account,
             postType: 'PostStoredAleph',
             content: {
                 data: encryptData(req.body),
-                tags: ['author', newUser.pubkey]
+                tags: ['user', newUser.pubkey, newUser.username, `user:${newUser.pubkey}`]
+            },
+            channel: 'own-blog',
+            APIServer: 'https://api2.aleph.im',
+            inlineRequested: true,
+            storageEngine: ItemType.inline
+        })
+
+        // post with article subscription content
+        await publishPost({
+            account: account,
+            postType: 'amend',
+            content: {
+                data: encryptData(JSON.stringify({ authorId: newUser.pubkey, subs: [] })),
+                tags: ['subscription', newUser.pubkey, `subscription:${newUser.pubkey}`],
             },
             channel: 'own-blog',
             APIServer: 'https://api2.aleph.im',

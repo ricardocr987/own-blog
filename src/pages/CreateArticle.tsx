@@ -76,6 +76,7 @@ const CreateArticle = () => {
         }
         post.id = uuid()
         post.createdAt = Date.now()
+        console.log(post.tags)
         const res = await fetch('/api/postArticle', {
           method: 'POST',
           body: JSON.stringify(post)

@@ -123,12 +123,14 @@ export const postInitialValues: Post = {
     featuredImage: '',
     title: '',
     author: {
+        id: '',
         username: '',
         uri: ''
     }, 
     summary: '',
     content: '',
     tags: [],
+    commentsPostHash: ''
 };
 
 export const tokens: TokenInfo[] = [ 

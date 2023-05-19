@@ -20,9 +20,7 @@ const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
 
     let details: Author | undefined = undefined
     try {
-      const res = await fetch(`/api/getUser?param=${encodeURIComponent(wallet.publicKey.toString())}`, {
-        method: 'GET',
-      });      
+      const res = await fetch(`/api/getUser?param=${encodeURIComponent(wallet.publicKey.toString())}`, { method: 'GET' });      
       details = JSON.parse(await res.json()) as Author
       setAuthorDetails(details);
     } catch(e) {

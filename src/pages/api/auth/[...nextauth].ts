@@ -63,7 +63,6 @@ export function authOptions(req?: NextApiRequest, ctx?: GetServerSidePropsContex
         return false
       },
       async jwt({ token, user }) {
-        console.log(user)
         if (user) {
           token = { ...token, ...user }
         }

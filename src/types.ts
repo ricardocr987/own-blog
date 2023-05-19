@@ -48,6 +48,7 @@ export type Post = {
     summary: string
     content: string
     tags: string[]
+    commentsPostHash: string
 }
 
 export type Comments = {
@@ -59,7 +60,7 @@ export type CommentInfo = {
     createdAt: number
     username: string
     message: string
-    postId: string
+    hashId: string
 }
 
 export type NavLink = {

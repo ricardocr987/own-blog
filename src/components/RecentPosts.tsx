@@ -20,7 +20,8 @@ const posts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Solana',
-    ]
+    ],
+    commentsPostHash: '',
   },
   {     
     id: '2',
@@ -37,7 +38,8 @@ const posts: Post[] = [
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph',
-    ]
+    ],
+    commentsPostHash: '',
   },
 ]
 

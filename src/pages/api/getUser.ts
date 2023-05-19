@@ -14,27 +14,28 @@ export default async function handler(
     try {
         const param = req.query.param
         const userResponse = await getPost<PostStoredAleph>({
-            types: 'string',
+            types: 'PostStoredAleph',
             pagination: 200,
             page: 1,
             refs: [],
             addresses: [messagesAddress],
-            tags: param ?  Array.isArray(param) ? ['user', ...param] : ['user', param] : [],
+            tags: param ? Array.isArray(param) ? [...param] : [`user:${param}`] : [],
             hashes: [],
             APIServer: "https://api2.aleph.im"
         });
 
-        if (userResponse.posts.length === 1) {
-            return res.status(201).json(decryptData(userResponse.posts[0].content.data));
-        } else {
-            if(userResponse.posts.length > 1) {
-                const articles = []
+        switch(userResponse.posts.length) {
+            case 0:
+                return res.status(404).send('User not found');
+            case 1:
+                return res.status(201).json(decryptData(userResponse.posts[0].content.data));
+            default: 
+                const users = []
                 for (const post of userResponse.posts) {
-                    articles.push(decryptData(post.content.data))
+                    users.push(decryptData(post.content.data))
                 }
-                return res.status(201).json(JSON.stringify(articles));
-            }
-        }    
+                return res.status(201).json(JSON.stringify(users));
+        }
     } catch (error) {
         res.status(500).send('Internal Server Error.');
     }

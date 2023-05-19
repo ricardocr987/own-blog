@@ -57,46 +57,40 @@ const Header = () => {
   
   const handleSignIn = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const fetchAuthorDetails = async () => {
-      try {
+      if (!wallet.publicKey || !wallet.signMessage) return;
+      const profileResponse = await fetch(`/api/getUser?param=${encodeURIComponent(wallet.publicKey.toString())}`, { method: 'GET' });
+      if (profileResponse.status === 404) setNewAuthor(!newAuthor)
+      if (profileResponse.status === 201) {
         const csrf = await getCsrfToken();
-        if (!wallet.publicKey || !csrf || !wallet.signMessage) return;
+        if (!csrf) return;
+        const profile = JSON.parse(await profileResponse.json()) as Author
+        console.log(profile)
+        const message = new SigninMessage({
+          domain: window.location.host,
+          publicKey: wallet.publicKey?.toBase58(),
+          username: profile.username,
+          uri: profile.uri,
+          statement: `Sign in.`,
+          nonce: csrf,
+        });
+        const data = new TextEncoder().encode(message.prepare());
+        const signature = await wallet.signMessage(data);
+        const serializedSignature = bs58.encode(signature);
 
-        let details: Author | undefined = undefined
-        try {
-          const res = await fetch(`/api/getUser?param=${encodeURIComponent(wallet.publicKey.toString())}`, {
-            method: 'GET',
-          });
-          setAuthorDetails(JSON.parse(await res.json()))
-          console.log(details)
+        e.preventDefault()
+        //signIn() function will handle obtaining the CSRF token in the background
+        const signInResponse = await signIn("credentials", {
+          message: JSON.stringify(message),
+          redirect: false,
+          signature: serializedSignature,
+        });
+        if (signInResponse?.ok) {
+          addNotification('Sing in successfully', NotificationType.SUCCESS)
+          setAuthorDetails(profile)
+        } else {
+          console.log('here')
+          addNotification('Error signin in', NotificationType.ERROR)
         }
-        catch(e) {
-          setNewAuthor(!newAuthor)
-        }
-        if (details) {
-          const message = new SigninMessage({
-            domain: window.location.host,
-            publicKey: wallet.publicKey?.toBase58(),
-            username: authorDetails.username,
-            uri: authorDetails.uri,
-            statement: `Sign in.`,
-            nonce: csrf,
-          });
-          const data = new TextEncoder().encode(message.prepare());
-          const signature = await wallet.signMessage(data);
-          const serializedSignature = bs58.encode(signature);
-
-          e.preventDefault()
-          //signIn() function will handle obtaining the CSRF token in the background
-          const res = await signIn("credentials", {
-            message: JSON.stringify(message),
-            redirect: false,
-            signature: serializedSignature,
-          });
-          if (res?.status === 200) addNotification('Sing in successfully', NotificationType.SUCCESS)
-          if (res && res.ok) setAuthorDetails(details);
-        }
-      } catch(e) {
-        console.log(e)
       }
     };
     fetchAuthorDetails();
@@ -114,7 +108,7 @@ const Header = () => {
           <div className="float-right py-1 cursor-pointer text-white hover:text-black">
             <div className="rounded-lg border border-white hover:border-white text-white font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-gray-200 hover:text-black">
               {wallet.connected ? 
-                status === "authenticated" && session?.user.username ? 
+                status === "authenticated" && session?.user ? 
                   <HeaderAuthorDetails authorDetails={authorDetails} session={session.user} links={links}/>
                 :
                   <div className='relative px-2 md:px-3 py-2 font-medium cursor-pointer' onClick={(e) => handleSignIn(e)}>
