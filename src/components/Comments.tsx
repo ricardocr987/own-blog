@@ -1,12 +1,12 @@
 import React from 'react';
 import moment from 'moment';
-import { Comment } from '@/types';
+import { CommentInfo } from '@/types';
 
 type CommentsProps = {
-  comments: Comment[]
+  comments: CommentInfo[]
 }
 
-const Comments = ({comments}: CommentsProps) => {
+const CommentsComponent = ({comments}: CommentsProps) => {
   return (
     <>
       {comments && comments.length > 0 && (
@@ -34,4 +34,4 @@ const Comments = ({comments}: CommentsProps) => {
   );
 };
 
-export default Comments;
+export default CommentsComponent;

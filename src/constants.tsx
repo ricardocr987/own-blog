@@ -112,7 +112,10 @@ export const authorInitValues: Author = {
     createdAt: 0,
     bio: '',
     uri: '',
-    articles: []
+    subscriptionPrice: 0,
+    subscriptionToken: '',
+    subscriptionBrickToken: '',
+    tags: []
 }
 export const postInitialValues: Post = {
     id: '',
@@ -121,9 +124,8 @@ export const postInitialValues: Post = {
     title: '',
     author: {
         username: '',
-        id: '',
-        uri: '',
-    },
+        uri: ''
+    }, 
     summary: '',
     content: '',
     tags: [],

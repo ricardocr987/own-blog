@@ -1,64 +1,51 @@
 import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
-import { NextApiRequest, NextApiResponse } from "next";
-import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
-import { UsernameAndPubkey } from "@/types";
-import { createUserAggregate } from "@/utils/createUserAggregate"; 
-import { getServerSession } from "next-auth";
-import { authOptions } from "./auth/[...nextauth]";
-import { ItemType } from "aleph-sdk-ts/dist/messages/message"
 import { Publish as publishPost } from 'aleph-sdk-ts/dist/messages/post';
+import { ItemType } from "aleph-sdk-ts/dist/messages/message";
+import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
+import { decryptData, encryptData } from "@/utils/encrypt";
+import { NextApiRequest, NextApiResponse } from "next";
+import { Author, PostStoredAleph } from "@/types";
+import { messagesAddress } from "@/constants";
+
 
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
-    
     if (!process.env.MESSAGES_KEY) return res.status(500).send('MESSAGES_KEY environment variable not found.');
-
-    const session = await getServerSession(req, res, authOptions(req))
-    if (!session) return res.status(401).json({ message: "You must be logged in." });
+    if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     try {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)))
-        const newUser = JSON.parse(req.body)
-
-        const post = await getPost<UsernameAndPubkey[]>({
-            types: 'UsernameAndPubkey[]',
+        const user = JSON.parse(req.body) as Author
+        const usersResponse = await getPost<PostStoredAleph>({
+            types: 'PostStoredAleph',
             pagination: 200,
             page: 1,
             refs: [],
-            addresses: [],
-            tags: [],
-            hashes: ['e20405765ee6eff946c34803e3be913124181f9a10ba3d736c93178f459e32a7'],
+            addresses: [messagesAddress],
+            tags: ['user'],
+            hashes: [],
             APIServer: "https://api2.aleph.im"
-        })
-        const previousContent = post.posts[0].content
-        // check if the new username exists
-        const foundUser = previousContent.find(user => user.username === newUser.username);
-        if (foundUser) return res.status(406).send('User already exists');
+        });
 
-        // changes the username in the post with the ner username
-        const foundUserIndex = previousContent.findIndex(user => user.id === newUser.pubkey);
-        if (foundUserIndex !== -1) {
-            previousContent[foundUserIndex].username = newUser.username;
+        for (const post of usersResponse.posts) {
+            const profile = JSON.parse(decryptData(post.content.data)) as Author
+            if (profile.username === user.username) {
+                await publishPost({
+                    account: account,
+                    postType: 'PostStoredAleph',
+                    content: {
+                        data: encryptData(req.body),
+                        tags: ['author', user.pubkey]
+                    },
+                    channel: 'own-blog',
+                    APIServer: 'https://api2.aleph.im',
+                    inlineRequested: true,
+                    storageEngine: ItemType.inline
+                })
+            }
         }
-
-        // updates post with authors pubkeys
-        await publishPost({
-            account,
-            postType: 'amend',
-            ref: 'e20405765ee6eff946c34803e3be913124181f9a10ba3d736c93178f459e32a7',
-            content: previousContent, 
-            channel: 'own-blog',
-            APIServer: 'https://api2.aleph.im',
-            inlineRequested: true,
-            storageEngine: ItemType.inline
-        })
-
-
-        // updates user aggregate message
-        await createUserAggregate(account, newUser)
 
         return res.status(201).send("User created correctly");
     } catch (error) {

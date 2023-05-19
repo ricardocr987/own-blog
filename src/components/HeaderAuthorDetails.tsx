@@ -1,11 +1,11 @@
-import { Author, NavLink, ReducedAuthor } from "@/types";
+import { Author, NavLink, AuthorInfo } from "@/types";
 import Image from "next/image";
 import ProfileMenu from "./ProfileMenu";
 import { useClickOutside } from "@/hooks";
 import { useState, useRef } from "react";
 
 interface ProfileMenuProps {
-    session: ReducedAuthor
+    session: AuthorInfo
     links: NavLink[]
     authorDetails: Author
 }

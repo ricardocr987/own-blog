@@ -15,7 +15,7 @@ const featuredPosts: Post[] = [
       username: 'Riki',
       id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-  },
+    },
     summary: 'Solana is great',
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
@@ -31,7 +31,7 @@ const featuredPosts: Post[] = [
       username: 'Riki',
       id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-  },
+    },
     summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
@@ -47,8 +47,7 @@ const featuredPosts: Post[] = [
       username: 'Riki',
       id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-  },
-    summary: 'Aleph is great',
+    },    summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
@@ -63,8 +62,7 @@ const featuredPosts: Post[] = [
       username: 'Riki',
       id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-  },
-    summary: 'Aleph is great',
+    },    summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
@@ -79,8 +77,7 @@ const featuredPosts: Post[] = [
       username: 'Riki',
       id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-  },
-    summary: 'Aleph is great',
+    },    summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'
@@ -95,8 +92,7 @@ const featuredPosts: Post[] = [
       username: 'Riki',
       id: '',
       uri: 'https://arweave.net/uNWOKfIZWEGcd5GIlW-vruvi2NUlpW0SHe6rc4qG95Q',
-  },
-    summary: 'Aleph is great',
+    },    summary: 'Aleph is great',
     content: 'because is cheap, fast and with an awesome UX',
     tags: [  
       'Aleph'

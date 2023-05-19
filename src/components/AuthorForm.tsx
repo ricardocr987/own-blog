@@ -4,7 +4,6 @@ import { connection } from '@/constants';
 import { getTokenInfo } from '@/services';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useClickOutside } from '@/hooks';
-import { Notification } from '@/types';
 import Loader from './Loader';
 import ImagesDropdown from './ImagesDropdown';
 import { NotificationContext } from '@/contexts/NotificationContext';
@@ -28,7 +27,17 @@ const AuthorForm = ({ onAuthorCreate, setNewAuthor, newAuthor }: AuthorFormProps
     const handleSubmit = async () => {
         if (username !== '' && selectedToken !== '' && publicKey) {
             try {
-                onAuthorCreate({ username, pubkey: publicKey.toString() , bio, uri: selectedToken, createdAt: Date.now(), articles: [] }); 
+                onAuthorCreate({ 
+                    username,
+                    createdAt: Date.now(),
+                    bio,
+                    uri: selectedToken,
+                    pubkey: publicKey.toString(),
+                    subscriptionPrice: 0,
+                    subscriptionToken: '',
+                    subscriptionBrickToken: '',
+                    tags: [],
+                }); 
             } catch(e) {
                 addNotification('Aleph network error', NotificationType.ERROR);
             }

@@ -44,7 +44,6 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
     async function handleWithdrawals() {
         if (!wallet.publicKey) return;
         if (!withdrawals) return;
-        console.log(withdrawals)
         const transaction = new Transaction()
         const paymentAccounts = JSON.parse(withdrawals) as Withdrawals[]
         await Promise.all(paymentAccounts.map(async (account) => {
@@ -133,7 +132,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                         profile.subscriptionPrice = Number(subPrice)
                         profile.subscriptionToken = mintFromSymbol[subToken.name]
                         profile.subscriptionBrickToken = tokenMint.toString()
-                        const res = await fetch('/api/updateMonetization', {
+                        const res = await fetch('/api/updateSubscription', {
                             method: 'POST',
                             body: JSON.stringify(profile)
                         })
@@ -156,8 +155,8 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                         acceptedMint: new PublicKey(mintFromSymbol[subToken.name]),
                         tokenMetadata: metadataAccount,
                     }
-                    const date = new Date();
-                    /*const uri: Uri = {
+                    /*const date = new Date();
+                    const uri: Uri = {
                         name: profile.username, 
                         symbol:'Own-Blog', 
                         description:`You are a subscriber of ${profile.username} for ${date.toLocaleString('default', { month: 'long' })} month`,
@@ -213,7 +212,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                             profile.subscriptionPrice = Number(subPrice)
                             profile.subscriptionToken = mintFromSymbol[subToken.name]
                             profile.subscriptionBrickToken = tokenMint.toString()
-                            const res = await fetch('/api/updateMonetization', {
+                            const res = await fetch('/api/updateSubscription', {
                                 method: 'POST',
                                 body: JSON.stringify(profile)
                             })

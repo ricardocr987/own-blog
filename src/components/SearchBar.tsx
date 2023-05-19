@@ -1,5 +1,5 @@
 import { useClickOutside } from "@/hooks";
-import { GetArticleResponse, GetUserResponse, Post } from "@/types";
+import { Post } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import Author from "./Author";
 import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';

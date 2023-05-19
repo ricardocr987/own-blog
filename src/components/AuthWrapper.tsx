@@ -1,10 +1,8 @@
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useContext, useEffect } from "react";
 import Author from "./Author";
-import { GetUserResponse, NotificationType } from "@/types";
+import { NotificationType } from "@/types";
 import { useSession } from "next-auth/react";
-import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
-import { messagesAddress } from "@/constants";
 import { NotificationContext } from "@/contexts/NotificationContext";
 
 interface AuthWrapperProps {
@@ -22,32 +20,28 @@ const AuthWrapper = ({ children, setAuthorDetails }: AuthWrapperProps) => {
 
     let details: Author | undefined = undefined
     try {
-      const response = await getAggregate<GetUserResponse>({
-        keys: [wallet.publicKey.toString()],
-        address: messagesAddress,
-        APIServer: 'https://api2.aleph.im'
-      });
-      details = response[wallet.publicKey.toString()]
+      const res = await fetch(`/api/getUser?param=${encodeURIComponent(wallet.publicKey.toString())}`, {
+        method: 'GET',
+      });      
+      details = JSON.parse(await res.json()) as Author
       setAuthorDetails(details);
-    } catch {
+    } catch(e) {
       return;
     }
   };
 
   useEffect(() => {
+    // Listen for when the page is visible, if the user switches tabs
+    // and makes our tab visible again, re-fetch the session
+    const visibilityHandler = () => document.visibilityState === "visible" && update()
+    window.addEventListener("visibilitychange", visibilityHandler, false)
+    window.removeEventListener("visibilitychange", visibilityHandler, false)
+
     // TIP: You can also use `navigator.onLine` and some extra event handlers
     // to check if the user is online and only update the session if they are.
     // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine
     const interval = setInterval(() => update(), 1000 * 60 * 60)
-    return () => clearInterval(interval)
-  }, [update])
-  
-  // Listen for when the page is visible, if the user switches tabs
-  // and makes our tab visible again, re-fetch the session
-  useEffect(() => {
-    const visibilityHandler = () => document.visibilityState === "visible" && update()
-    window.addEventListener("visibilitychange", visibilityHandler, false)
-    return () => window.removeEventListener("visibilitychange", visibilityHandler, false)
+    clearInterval(interval)
   }, [update])
 
   useEffect(() => {

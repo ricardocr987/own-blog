@@ -1,93 +1,64 @@
-import React, { useContext, useEffect } from 'react';
-import { PostDetail, Comments, CommentsForm } from '@/components';
-import { GetUserResponse, NextAuthUser, NotificationType, Post } from '@/types';
-import {  GetArticleResponse } from '@/types';
-import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
-import { GetServerSidePropsContext } from 'next';
-import { messagesAddress } from '@/constants';
+import { Author, Comments, NotificationType, Post, Subscription } from '@/types';
 import { NotificationContext } from '@/contexts/NotificationContext';
-import { getServerSession } from 'next-auth';
 import { authOptions } from '../api/auth/[...nextauth]';
+import { PostDetail, CommentsForm, CommentsComponent } from '@/components';
+import React, { useContext, useEffect } from 'react';
+import { GetServerSidePropsContext } from 'next';
+import { getServerSession } from 'next-auth';
 
 type ServerSideProps = {
     props: {
-        post?: Post
-        notAllowed?: boolean 
+        post: Post | null
+        comments: Comments | null
+        allowed: boolean
+        author: Author | null
     }
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext): Promise<ServerSideProps> {
-    const { params } = context
+    const { params } = context;
+    let props: ServerSideProps = {
+        props: {
+            post: null,
+            comments: null,
+            allowed: false,
+            author: null,
+        },
+    };
     if (params && typeof params.id === "string") {
         try {
-            const response = await getAggregate<GetArticleResponse>({
-                keys: [params.id],
-                address: messagesAddress,
-                APIServer: 'https://api2.aleph.im'
-            });
-            if (response) {
-                if (response[params.id].comments) response[params.id].comments?.sort((a, b) => b.createdAt - a.createdAt)
-                const authorResponse = await getAggregate<GetUserResponse>({
-                    keys: [response[params.id].author.id],
-                    address: messagesAddress,
-                    APIServer: 'https://api2.aleph.im'
-                });
-                if (!authorResponse[response[params.id].author.id].subscriptionPrice || authorResponse[response[params.id].author.id].subscriptionPrice === 0) {
-                    return {
-                        props: {
-                            post: response[params.id],
-                        }
-                    }
-                } else {
-                    const session = await getServerSession(context.req, context.res, authOptions());
-                    if (session) {
-                        if (authorResponse[response[params.id].author.id].subs?.some(sub => sub.pubkey === session.user.id)) {
-                            return {
-                                props: {
-                                    post: response[params.id],
-                                }
-                            }
-                        } else {
-                            const user = Object.fromEntries(
-                                Object.entries(session.user).filter(([_, value]) => value !== undefined)
-                            ) as NextAuthUser
-                            if (user.id === authorResponse[response[params.id].author.id].pubkey){
-                                return {
-                                    props: {
-                                        post: response[params.id],
-                                    }
-                                }
-                            }
-                            return {
-                                props: {
-                                    notAllowed: true
-                                }
-                            }
-                        }
-                    }
-                }
+            const authorResponse = await fetch(`/api/getUser?param=${encodeURIComponent(params.id)}`, { method: 'GET' });
+            const author = JSON.parse(await authorResponse.json()) as Author
+            const subscriptionResponse = await fetch(`/api/getSubscription?param=${encodeURIComponent(params.id)}`, { method: 'GET' });
+            const subscription = JSON.parse(await subscriptionResponse.json()) as Subscription
+            if (author.subscriptionPrice === 0) props.props.allowed = true
+            else {
+                const session = await getServerSession(context.req, context.res, authOptions());
+                if (session && subscription.subs.some(sub => sub.pubkey === session.user.id)) props.props.allowed = true
             }
+            if (!props.props.allowed) return props
+
+            const articleResponse = await fetch(`/api/getArticle?param=${encodeURIComponent(params.id)}`, { method: 'GET' });
+            const commentsResponse = await fetch(`/api/getComments?param=${encodeURIComponent(params.id)}`, { method: 'GET' });
+            const comments = JSON.parse(await commentsResponse.json()) as Comments
+            comments.comments.sort((a, b) => b.createdAt - a.createdAt)
+            props.props.post = JSON.parse(await articleResponse.json()) as Post
+            props.props.comments = comments
+            props.props.author = author
         } catch(e) {
-            return {
-                props: {}
-            }
+            return props
         }
     }
-    return {
-        props: {}
-    }
+    return props
 }
 
 
-const PostDetails = ({ notAllowed, post }: ServerSideProps['props']) => {
+const PostDetails = ({ post, comments, allowed, author }: ServerSideProps['props']) => {
     const { addNotification } = useContext(NotificationContext);
 
     useEffect(() => {
-        if (notAllowed) {
-            addNotification('You are not subscribed to this author', NotificationType.INFO);
-        } else {
-            if (!post) addNotification('This article does not exist', NotificationType.ERROR);
-        }
+        if (!allowed) addNotification('You are not subscribed to this author', NotificationType.INFO);
+        else if (!post) addNotification('This article does not exist', NotificationType.ERROR);
     }, []);
     
     return (
@@ -96,7 +67,7 @@ const PostDetails = ({ notAllowed, post }: ServerSideProps['props']) => {
                 <div className="container mx-auto px-10 mb-8">
                     <PostDetail post={post} />
                     <CommentsForm postId={post.id} />
-                    { post.comments && <Comments comments={post.comments} /> }
+                    { comments && <CommentsComponent comments={comments.comments} /> }
                 </div>
             }
         </>

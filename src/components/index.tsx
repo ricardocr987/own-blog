@@ -5,7 +5,7 @@ export { default as Author } from './Author';
 export { default as RecentPosts } from './RecentPosts';
 export { default as FesaturedPostCard } from './FeaturedPostCard';
 export { default as EditPostCard } from './EditPostCard';
-export { default as Comments } from './Comments';
+export { default as CommentsComponent } from './Comments';
 export { default as CommentsForm } from './CreateComment';
 export { default as Loader } from './Loader';
 export { default as Button } from './Button';

@@ -70,7 +70,6 @@ interface Notification {
 
 const NotificationsContainer = () => {
   const { notifications, removeNotification } = useContext(NotificationContext);
-  console.log(notifications)
   return (
     <div className="flex flex-col fixed bottom-10 right-4 z-99">
       {notifications.map((notification) => (

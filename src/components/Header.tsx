@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import Link from 'next/link';
-import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
-import { Author, GetUserResponse, NavLink, NotificationType } from '@/types';
+import { Author, NavLink, NotificationType } from '@/types';
 import dynamic from 'next/dynamic';
 import { useWallet } from "@solana/wallet-adapter-react";
 import AuthorForm from './AuthorForm';
@@ -39,7 +38,7 @@ const Header = () => {
   const { data: session, status } = useSession();
   const { addNotification } = useContext(NotificationContext);
 
-  if (session?.user.id) links[1].url = `profile/${session.user.id}`
+  if (session && session.user && session?.user.id) links[1].url = `profile/${session.user.id}`
 
   const handleCreateAuthor = async (authorDetails: Author) => {
     if (wallet.publicKey && wallet.connected) {
@@ -64,13 +63,13 @@ const Header = () => {
 
         let details: Author | undefined = undefined
         try {
-          const response = await getAggregate<GetUserResponse>({
-            keys: [wallet.publicKey.toString()],
-            address: messagesAddress,
-            APIServer: 'https://api2.aleph.im'
+          const res = await fetch(`/api/getUser?param=${encodeURIComponent(wallet.publicKey.toString())}`, {
+            method: 'GET',
           });
-          details = response[wallet.publicKey.toString()]
-        } catch {
+          setAuthorDetails(JSON.parse(await res.json()))
+          console.log(details)
+        }
+        catch(e) {
           setNewAuthor(!newAuthor)
         }
         if (details) {
@@ -82,7 +81,6 @@ const Header = () => {
             statement: `Sign in.`,
             nonce: csrf,
           });
-
           const data = new TextEncoder().encode(message.prepare());
           const signature = await wallet.signMessage(data);
           const serializedSignature = bs58.encode(signature);
@@ -116,15 +114,15 @@ const Header = () => {
           <div className="float-right py-1 cursor-pointer text-white hover:text-black">
             <div className="rounded-lg border border-white hover:border-white text-white font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-gray-200 hover:text-black">
               {wallet.connected ? 
-                status === "authenticated" && session?.user ? 
+                status === "authenticated" && session?.user.username ? 
                   <HeaderAuthorDetails authorDetails={authorDetails} session={session.user} links={links}/>
                 :
                   <div className='relative px-2 md:px-3 py-2 font-medium cursor-pointer' onClick={(e) => handleSignIn(e)}>
                     Sign in
                   </div>
               :
-              <WalletMultiButtonDynamic className='font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-white hover:text-black !important'/>
-            }
+                <WalletMultiButtonDynamic className='font-medium cursor-pointer transition-colors duration-300 ease-in-out hover:bg-white hover:text-black !important'/>
+              }
             </div>
           </div>
           <SearchBar />

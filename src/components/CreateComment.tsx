@@ -1,10 +1,10 @@
 import React, { useContext, useState } from 'react';
-import { Comment, NotificationType, Post } from '@/types'
+import { CommentInfo, NotificationType } from '@/types'
 import { useSession } from 'next-auth/react';
 import { NotificationContext } from '@/contexts/NotificationContext';
 
 const CreateComment = ({postId}: {postId: string})  => {
-  const [formData, setFormData] = useState<Comment>({ createdAt: 0, username: '', message: '', postId });
+  const [formData, setFormData] = useState<CommentInfo>({ createdAt: 0, username: '', message: '', postId });
   const { data: session } = useSession();
   const { addNotification } = useContext(NotificationContext);
 
@@ -16,7 +16,8 @@ const CreateComment = ({postId}: {postId: string})  => {
 
     formData.createdAt = Date.now()
     formData.username = session.user.username
-
+    formData.postId = postId
+    
     try {
       const res = await fetch('/api/postComment', {
         method: 'POST',

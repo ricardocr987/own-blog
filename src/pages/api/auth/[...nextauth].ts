@@ -1,12 +1,10 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { GetServerSidePropsContext, NextApiRequest, NextApiResponse } from "next";
 import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { SigninMessage } from "../../../utils/SignMessage";
 import { getUrl } from "@/utils/checkEnvironment";
-import { Author } from "@/types";
-import { getCsrfToken } from "next-auth/react";
 
-export function authOptions(req?: NextApiRequest): AuthOptions {
+export function authOptions(req?: NextApiRequest, ctx?: GetServerSidePropsContext): AuthOptions {
   return {
     providers: [
       CredentialsProvider({
@@ -31,11 +29,16 @@ export function authOptions(req?: NextApiRequest): AuthOptions {
             if (signinMessage.domain !== nextAuthUrl.href) return null;
             
             const validationResult = await signinMessage.validate(credentials?.signature || "");
-            const csrfToken = await getCsrfToken({ req: { ...req, body: null } });
-            if (signinMessage.nonce !== csrfToken) return null
-
             if (!validationResult)
               throw new Error("Could not validate the signed message");
+
+            /*
+              https://next-auth.js.org/getting-started/client#getcsrftoken: 
+              You likely only need to use this if you are not using the built-in signIn() and signOut() methods, 
+              but i think is needed, gives a different number
+              const csrfToken = await getCsrfToken({ req: { ...req, body: null } });
+              if (signinMessage.nonce !== csrfToken) return null
+            */
 
             return {
               id: signinMessage.publicKey,
@@ -53,21 +56,16 @@ export function authOptions(req?: NextApiRequest): AuthOptions {
     },
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
-      async signIn({ account, credentials }) {
-        const author: Author = JSON.parse(credentials?.author as string)
+      async signIn({ account }) {
         if (account) {
-          account.id = author.pubkey
-          account.username = author.username
-          account.uri = author.uri
           return true
         }
         return false
       },
-      async jwt({ token, account }) {
-        if (account) {
-          token.id = account.id
-          token.username = account.username
-          token.uri = account.uri 
+      async jwt({ token, user }) {
+        console.log(user)
+        if (user) {
+          token = { ...token, ...user }
         }
         return token
       },
@@ -78,7 +76,7 @@ export function authOptions(req?: NextApiRequest): AuthOptions {
 
         return session
       },
-    },
+    }
   }
 }
 

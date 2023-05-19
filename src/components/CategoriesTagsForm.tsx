@@ -1,6 +1,6 @@
 import { NotificationContext } from "@/contexts/NotificationContext";
 import { NotificationType, Post } from "@/types";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 interface CategoriesTagsFormProps {
   setPost: React.Dispatch<React.SetStateAction<Post>>

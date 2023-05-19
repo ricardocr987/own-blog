@@ -1,15 +1,15 @@
-import React, { useState } from "react"
-import { AuthWrapper, Author, Button, Editor, PreviewContent} from "@/components";
+import React, { useContext, useState } from "react"
+import { AuthWrapper, Author, Editor, PreviewContent} from "@/components";
 import { authorInitValues, postInitialValues } from "@/constants";
-import { Post, ReducedPost } from "@/types";
+import { NotificationType, Post } from "@/types";
 import PostConfig from "@/components/PostConfig";
 import { v4 as uuid } from 'uuid'
-import { NextApiRequest, NextApiResponse } from "next";
 import { Publish as publishStore } from 'aleph-sdk-ts/dist/messages/store';
-import { ItemType, StoreMessage } from "aleph-sdk-ts/dist/messages/message";
+import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { GetAccountFromProvider } from "aleph-sdk-ts/dist/accounts/solana";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useSession } from "next-auth/react";
+import { NotificationContext } from "@/contexts/NotificationContext";
 
 const CreateArticle = () => {
   const [showPreview, setShowPreview] = useState(false);
@@ -19,6 +19,7 @@ const CreateArticle = () => {
   const [file, setFile] = useState<File | undefined>();
   const wallet = useWallet()
   const { data: session } = useSession();
+  const { addNotification } = useContext(NotificationContext);
 
   const handleContentChange = (newContent: string) => {
     const updatedPost = { ...post, content: newContent };
@@ -42,7 +43,7 @@ const CreateArticle = () => {
   }
   
   const handlePublish = () => {
-    const uploadFeaturedImage = async () => {
+    const uploadArticle = async () => {
       if (!file) {
         console.log('No file was dropped or an error occurred while processing the file.');
         return;
@@ -75,17 +76,17 @@ const CreateArticle = () => {
         }
         post.id = uuid()
         post.createdAt = Date.now()
-        post.tags.push(session.user.username)
         const res = await fetch('/api/postArticle', {
           method: 'POST',
           body: JSON.stringify(post)
         })
-        console.log(res)
+        if (res.status === 201) addNotification(res.statusText, NotificationType.SUCCESS)
+        if (res.status === 400) addNotification(res.statusText, NotificationType.ERROR)
       } catch (error) {
         console.log(error);
       }
     };
-    uploadFeaturedImage()
+    uploadArticle()
   }
   
   return (
@@ -126,8 +127,3 @@ const CreateArticle = () => {
 };
 
 export default CreateArticle;
-
-interface Props {
-  req: NextApiRequest, 
-  res: NextApiResponse
-}

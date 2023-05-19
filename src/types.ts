@@ -4,14 +4,21 @@ export type Author = {
     bio: string
     uri: string
     pubkey: string
-    subscriptionPrice?: number
-    subscriptionToken?: string
-    subscriptionBrickToken?: string
-    articles: string[]
-    subs?: {
-        pubkey: string
-        timestamp: number
-    }[]
+    subscriptionPrice: number
+    subscriptionToken: string
+    subscriptionBrickToken: string
+    tags: string[]
+}
+
+export type Subscription = {
+    subs: SubscriptionInfo[]
+}
+
+export type SubscriptionInfo = {
+    pubkey: string
+    timestamp: number
+    subTransaction: string
+    authorId: string
 }
 
 export type Uri = {
@@ -32,36 +39,23 @@ export type Uri = {
     };
 };
 
-export type ReducedAuthor = {
-    username: string
-    uri: string
-    id: string
-}
-
-export type UsernameAndPubkey = {
-    username: string
-    id: string
-}
-
-export type ReducedPost = {
-    id: string
-    title: string
-    author: ReducedAuthor
-}
-
 export type Post = {
     id: string
+    author: AuthorInfo
     createdAt: number
     featuredImage: string
     title: string
-    author: ReducedAuthor
     summary: string
     content: string
     tags: string[]
-    comments: Comment[]
 }
 
-export type Comment = {
+export type Comments = {
+    articleId: string
+    comments: CommentInfo[]
+}
+
+export type CommentInfo = {
     createdAt: number
     username: string
     message: string
@@ -102,14 +96,6 @@ export interface Notification {
     type: NotificationType
 }
 
-export type GetUserResponse = {
-    [key: string]: Author
-}
-
-export type GetArticleResponse = {
-    [key: string]: Post
-}
-
 export type NextAuthUser = {
     id: string,
     username: string,
@@ -128,4 +114,15 @@ export type Withdrawals = {
     refundConsumedAt: string
     bump: number
     bumpVault: number
-  }
+}
+
+export type PostStoredAleph = {
+    data: string,
+    tags: string[]
+}
+
+export type AuthorInfo = {
+    username: string
+    uri: string
+    id: string
+}

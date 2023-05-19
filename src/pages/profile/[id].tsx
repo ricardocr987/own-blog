@@ -1,11 +1,10 @@
 import ProfilePostCard from '@/components/ProfilePostCard';
-import { confirmOptions, connection, messagesAddress, symbolFromMint } from '@/constants';
-import { Author, GetArticleResponse, GetUserResponse, NextAuthUser, NotificationType, Post } from '@/types';
-import { convertToLamports } from '@/utils/solToLamports';
-import { PublicKey, Sft } from '@metaplex-foundation/js';
+import { confirmOptions, connection, symbolFromMint } from '@/constants';
+import { Author, NextAuthUser, NotificationType, Post, Subscription, SubscriptionInfo } from '@/types';
+import { convertToLamports } from '@/utils/conversions';
+import { PublicKey } from '@metaplex-foundation/js';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { SYSVAR_CLOCK_PUBKEY, SYSVAR_RENT_PUBKEY, SystemProgram, Transaction } from '@solana/web3.js';
-import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
 import moment from 'moment';
 import { GetServerSidePropsContext } from 'next';
 import { getServerSession } from 'next-auth';
@@ -15,7 +14,7 @@ import { AuthorProfileView } from '@/components/AuthorProfileView';
 import { NotificationContext } from '@/contexts/NotificationContext';
 import { useContext } from 'react';
 import { getTokenPubkey, getPaymentPubkey, getPaymentVaultPubkey } from '@/services';
-import { BuyTokenInstructionAccounts, BuyTokenInstructionArgs, PaymentArgs, UseTokenInstructionAccounts, createBuyTokenInstruction, createUseTokenInstruction } from '@/utils/solita';
+import { BuyTokenInstructionAccounts, BuyTokenInstructionArgs, UseTokenInstructionAccounts, createBuyTokenInstruction, createUseTokenInstruction } from '@/utils/solita';
 import { getAssociatedTokenAddress, TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import BN from 'bn.js';
 import { getWithdrawals } from '@/utils/getWithdrawals';
@@ -50,69 +49,41 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
   
     if (params && typeof params.id === "string") {
         try {
-            const response = await getAggregate<GetUserResponse>({
-                keys: [params.id],
-                address: messagesAddress,
-                APIServer: 'https://api2.aleph.im',
+            const res = await fetch(`/api/getUser?param=${encodeURIComponent(params.id)}`, {
+                method: 'GET',
             });
+            props.props.profile = JSON.parse(await res.json()) as Author
             const session = await getServerSession(context.req, context.res, authOptions());
             if (session) {
                 const user = Object.fromEntries(
                     Object.entries(session.user).filter(([_, value]) => value !== undefined)
                 ) as NextAuthUser;
-                const { subs } = response[params.id];
-                const originalSubs = subs ? [...subs] : [];
-                if (subs) {
-                    const monthTimestamp = 30 * 24 * 60 * 60 * 1000
-                    const oneMonthAgo = Date.now() - monthTimestamp;
-                    const updatedSubs = subs.filter((sub) => sub.timestamp >= oneMonthAgo);
+                const res = await fetch(`/api/getSubscriptions?param=${encodeURIComponent(params.id)}`, {
+                    method: 'GET',
+                });
+                const subscription = JSON.parse(await res.json()) as Subscription
+
+                props.props.subscriber.is = subscription.subs.some((sub) => sub.pubkey === user.id);
+                const subscriber = subscription.subs.find((sub) => sub.pubkey === user.id);
+                const monthTimestamp = 30 * 24 * 60 * 60 * 1000
+                if (subscriber) props.props.subscriber.timeleft = subscriber.timestamp + monthTimestamp;
                 
-                    if (JSON.stringify(updatedSubs) !== JSON.stringify(originalSubs)) {
-                        fetch('api/updateSubs', {
-                            method: 'POST',
-                            body: JSON.stringify(updatedSubs),
-                            headers: {
-                            'Content-Type': 'application/json',
-                            },
-                        }).catch((error) => {
-                            console.log(error);
-                        });
-                    }
-                
-                    if (session) {
-                        props.props.subscriber.is = updatedSubs.some((sub) => sub.pubkey === user.id);
-                        const subscriber = updatedSubs.find((sub) => sub.pubkey === user.id);
-                        if (subscriber) props.props.subscriber.timeleft = subscriber.timestamp + monthTimestamp;
-                    }
-                }
                 if (user.id === params.id) {
                     props.props.author = true;
                     const withdrawals = JSON.stringify(await getWithdrawals(new PublicKey(params.id), connection));
                     if (withdrawals) props.props.withdrawals
                 }
             }
-            const articlesResponse = response[params.id].articles;
-            if (articlesResponse.length > 0) {
-                const articlesPromises = articlesResponse.map(async (article) => {
-                    try {
-                        const res = await getAggregate<GetArticleResponse>({
-                            keys: [article],
-                            address: messagesAddress,
-                            APIServer: 'https://api2.aleph.im',
-                        });
-                        return res[article];
-                    } catch (e) {
-                        console.error(`Error while fetching article ${article}: ${e}`);
-                        return null;
-                    }
-                });
-                const articles = await Promise.all(articlesPromises);
-                props.props.articles = articles.filter((a) => a !== null) as Post[];
+            const articlesResponse = await fetch(`/api/getArticle?param=${encodeURIComponent(params.id)}`, {
+                method: 'GET',
+            });
+            const articles = JSON.parse(await articlesResponse.json()) as Post[]
+
+            if (articles.length > 0) {
+                props.props.articles = articles;
             } else {
                 props.props.articles = null;
-            }
-    
-            props.props.profile = response[params.id];
+            }    
         } catch (e) {
             props.props.profile = null;
             props.props.articles = null;
@@ -159,11 +130,9 @@ export default function Profile({ subscriber, profile, articles, author, withdra
         } 
         if (!profile || !profile.subscriptionBrickToken || !profile.subscriptionToken) return
 
-
         const tokenMint = new PublicKey(profile.subscriptionBrickToken)
         const acceptedMint = new PublicKey(profile.subscriptionToken)
         const token = getTokenPubkey(tokenMint)
-
         const buyerTokenVault = await getAssociatedTokenAddress(tokenMint, wallet.publicKey)
         const buyerTransferVault = await getAssociatedTokenAddress(acceptedMint, wallet.publicKey)
         const buyTimestamp = new BN(Math.floor(Date.now()/1000))
@@ -209,18 +178,15 @@ export default function Profile({ subscriber, profile, articles, author, withdra
                 signature,
             });
             if (!confirmation.value.err) {
-                if (!profile.subs) {
-                    profile.subs = [{ pubkey: wallet.publicKey?.toString(), timestamp: Date.now() }];
-                } else {
-                    profile.subs.push({ pubkey: wallet.publicKey?.toString(), timestamp: Date.now() });
+                const subscriptionInfo: SubscriptionInfo = {
+                    pubkey: wallet.publicKey.toString(),
+                    timestamp: Date.now(),
+                    subTransaction: signature,
+                    authorId: profile.pubkey,
                 }
-                const updateSubsPayload = {
-                    profile,
-                    signature
-                }
-                const res = await fetch('/api/updateSubs', {
+                const res = await fetch('/api/updateSubscription', {
                     method: 'POST',
-                    body: JSON.stringify(updateSubsPayload)
+                    body: JSON.stringify(subscriptionInfo)
                 })
                 if (res.status === 406) addNotification("Internal server error", NotificationType.ERROR)
                 if (res.status === 201) addNotification("Subscription completed", NotificationType.SUCCESS);
