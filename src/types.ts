@@ -10,6 +10,13 @@ export type Author = {
     tags: string[]
 }
 
+export type UpdateSubscriptionPayload = {
+    subscriptionPrice: number
+    subscriptionToken: string
+    subscriptionBrickToken: string
+    brickSignature: string
+}
+
 export type Subscription = {
     subs: SubscriptionInfo[]
 }
@@ -19,6 +26,7 @@ export type SubscriptionInfo = {
     timestamp: number
     subTransaction: string
     authorId: string
+    brickToken: string
 }
 
 export type Uri = {

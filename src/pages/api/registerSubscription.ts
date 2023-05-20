@@ -1,7 +1,7 @@
 import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
 import { Publish as publishPost } from 'aleph-sdk-ts/dist/messages/post';
-import { Author, PostStoredAleph, Subscription, UpdateSubscriptionPayload } from "@/types";
-import { CreateAppInstructionAccounts, InstructionType, getInstructionType } from "@/utils/solita";
+import { PostStoredAleph, Subscription, SubscriptionInfo } from "@/types";
+import { BuyTokenInstructionAccounts, InstructionType, UseTokenInstructionAccounts, getInstructionType } from "@/utils/solita";
 import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
 import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { PartiallyDecodedInstruction } from "@solana/web3.js";
@@ -20,19 +20,36 @@ export default async function handler(
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
     if (!process.env.MESSAGES_KEY) return res.status(500).send('MESSAGES_KEY environment variable not found.');
     const session = await getServerSession(req, res, authOptions(req))
-    if (!session) return res.status(401).send({ message: "You must be logged in." });
+    if (!session) return res.status(401).json({ message: "You must be logged in." });
 
     try {
         const account = ImportAccountFromPrivateKey(Uint8Array.from(JSON.parse(process.env.MESSAGES_KEY)))
-        const subInfo = JSON.parse(req.body) as UpdateSubscriptionPayload
+        const subInfo = JSON.parse(req.body) as SubscriptionInfo
+        if (subInfo.pubkey !== session.user.id) return res.status(400).send('Are you trying to impersonate someone? gm') 
+
+        const subsResponse = await getPost<PostStoredAleph>({
+            types: 'PostStoredAleph',
+            pagination: 1,
+            page: 1,
+            refs: [],
+            addresses: [messagesAddress],
+            tags: [`subscription:${subInfo.authorId}`],
+            hashes: [],
+            APIServer: "https://api2.aleph.im"
+        });
+
+        const data = JSON.parse(decryptData(subsResponse.posts[0].content.data)) as Subscription
+
+        // check historic transaction, to avoid replay attack
+        const signatureHistory = data.subs.some((sub) => sub.subTransaction === subInfo.subTransaction)
+        if (signatureHistory) return res.status(400).send('Are you trying to submit a already submitted transaction? gn') 
 
         // validate transaction
-        const transaction = await connection.getParsedTransaction(subInfo.brickSignature, {
+        const transaction = await connection.getParsedTransaction(subInfo.subTransaction, {
             commitment: 'finalized',
             maxSupportedTransactionVersion: 0,
         })
         
-        let author: string = ''
         if (transaction && transaction.meta?.innerInstructions) {
             if (transaction)
             for (const ix of transaction.transaction.message.instructions) {
@@ -41,40 +58,28 @@ export default async function handler(
                 const type = getInstructionType(Buffer.from(bs58.decode(rawIx.data)))
                 if (type) {
                     const accounts = parseInstructionAccounts(type, rawIx)
-                    if (type == InstructionType.CreateApp) {
-                        const { authority } = accounts as CreateAppInstructionAccounts
-                        if (authority.toString() !== session.user.id)
+                    if (type == InstructionType.BuyToken) {
+                        const { authority, tokenMint } = accounts as BuyTokenInstructionAccounts
+                        if (authority.toString() !== session.user.id || subInfo.subTransaction !== tokenMint.toString())
                             return res.status(401).send('Wrong transaction sir')
-                        
-                        author = authority.toString()
+                    }
+                    if (type == InstructionType.UseToken) {
+                        const { authority, tokenMint } = accounts as UseTokenInstructionAccounts
+                        if (authority.toString() !== session.user.id || subInfo.subTransaction !== tokenMint.toString())
+                            return res.status(401).send('Wrong transaction sir')
                     }
                 }
             }
         }
-
-        const userResponse = await getPost<PostStoredAleph>({
-            types: 'PostStoredAleph',
-            pagination: 1,
-            page: 1,
-            refs: [],
-            addresses: [messagesAddress],
-            tags: [`subscription:${author}`],
-            hashes: [],
-            APIServer: "https://api2.aleph.im"
-        });
-
-        const data = JSON.parse(decryptData(userResponse.posts[0].content.data)) as Author
-        data.subscriptionBrickToken = subInfo.subscriptionBrickToken
-        data.subscriptionPrice = subInfo.subscriptionPrice
-        data.subscriptionToken = subInfo.subscriptionToken
+        data.subs.push(subInfo)
 
         await publishPost({
             account: account,
             postType: 'amend',
-            ref: userResponse.posts[0].hash,
+            ref: subsResponse.posts[0].hash,
             content: {
                 data: encryptData(JSON.stringify(data)),
-                tags: ['user', data.pubkey, data.username, `user:${data.pubkey}`]
+                tags: ['subscription', subInfo.authorId, `subscription:${subInfo.authorId}`],
             },
             channel: 'own-blog',
             APIServer: 'https://api2.aleph.im',

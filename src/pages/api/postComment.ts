@@ -24,7 +24,7 @@ export default async function handler(
 
         const commentsResponse = await getPost<PostStoredAleph>({
             types: 'PostStoredAleph',
-            pagination: 200,
+            pagination: 1,
             page: 1,
             refs: [],
             addresses: [messagesAddress],
@@ -39,8 +39,8 @@ export default async function handler(
         await publishPost({
             account: account,
             postType: 'amend',
+            ref: commentsResponse.posts[0].hash,
             content: { data: encryptData(JSON.stringify(data)) },
-            ref: newComment.hashId,
             channel: 'own-blog',
             APIServer: 'https://api2.aleph.im',
             inlineRequested: true,

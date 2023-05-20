@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Post } from '@/types';
 
 const ProfilePostCard = ({post}: {post: Post}) => (
-  <div className="h-40 overflow-hidden">
+  <div className="h-40 overflow-hidden mb-2">
     <Link href={`/post/${post.id}`} className="block w-full h-full cursor-pointer">
-      <div className="w-full h-full flex rounded-lg shadow-md mb-4 bg-white">
+      <div className="w-full h-full flex rounded-lg shadow-md mb-4 bg-white ">
         <div
           className="w-40 h-full bg-center bg-no-repeat bg-cover rounded-l-lg shadow-md inline-block"
           style={{ backgroundImage: `url(${post.featuredImage})` }}

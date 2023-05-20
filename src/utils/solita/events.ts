@@ -1,5 +1,6 @@
 import BN from 'bn.js'
 import * as solita from './instructions/index'
+import { BuyTokenAccounts, CreateAppAccounts, CreateTokenAccounts, EditTokenPriceAccounts, RefundAccounts, ShareTokenAccounts, UseTokenAccounts, WithdrawFundsAccounts } from './instructions'
 
 export enum InstructionType {
   CreateApp = 'CreateAppEvent',
@@ -175,3 +176,71 @@ export type ParsedEvents =
   | RefundEvent
   | UseTokenEvent
   | DeletetokenEvent
+
+  export function getInstructionType(data: Buffer): InstructionType | undefined {
+    const discriminator = data.slice(0, 8)
+    return IX_METHOD_CODE.get(discriminator.toString('ascii'))
+  }
+  
+  export const IX_METHOD_CODE: Map<string, InstructionType | undefined> = new Map<
+    string,
+    InstructionType | undefined
+  >([
+    [
+      Buffer.from(solita.createAppInstructionDiscriminator).toString('ascii'),
+      InstructionType.CreateApp,
+    ],
+    [
+      Buffer.from(solita.createTokenInstructionDiscriminator).toString('ascii'),
+      InstructionType.CreateToken,
+    ],
+    [
+      Buffer.from(solita.editTokenPriceInstructionDiscriminator).toString(
+        'ascii',
+      ),
+      InstructionType.EditTokenPrice,
+    ],
+    [
+      Buffer.from(solita.buyTokenInstructionDiscriminator).toString('ascii'),
+      InstructionType.BuyToken,
+    ],
+    [
+      Buffer.from(solita.shareTokenInstructionDiscriminator).toString('ascii'),
+      InstructionType.ShareToken,
+    ],
+    [
+      Buffer.from(solita.withdrawFundsInstructionDiscriminator).toString('ascii'),
+      InstructionType.WithdrawFunds,
+    ],
+    [
+      Buffer.from(solita.refundInstructionDiscriminator).toString('ascii'),
+      InstructionType.Refund,
+    ],
+    [
+      Buffer.from(solita.useTokenInstructionDiscriminator).toString('ascii'),
+      InstructionType.UseToken,
+    ],
+  ])
+  
+  export const IX_DATA_LAYOUT: Partial<Record<InstructionType, any>> = {
+    [InstructionType.CreateApp]: solita.createAppStruct,
+    [InstructionType.CreateToken]: solita.createTokenStruct,
+    [InstructionType.EditTokenPrice]: solita.editTokenPriceStruct,
+    [InstructionType.BuyToken]: solita.buyTokenStruct,
+    [InstructionType.ShareToken]: solita.shareTokenStruct,
+    [InstructionType.WithdrawFunds]: solita.withdrawFundsStruct,
+    [InstructionType.Refund]: solita.refundStruct,
+    [InstructionType.UseToken]: solita.useTokenStruct,
+  }
+  
+  export const IX_ACCOUNTS_LAYOUT: Partial<Record<InstructionType, any>> = {
+    [InstructionType.CreateApp]: CreateAppAccounts,
+    [InstructionType.CreateToken]: CreateTokenAccounts,
+    [InstructionType.EditTokenPrice]: EditTokenPriceAccounts,
+    [InstructionType.BuyToken]: BuyTokenAccounts,
+    [InstructionType.ShareToken]: ShareTokenAccounts,
+    [InstructionType.WithdrawFunds]: WithdrawFundsAccounts,
+    [InstructionType.Refund]: RefundAccounts,
+    [InstructionType.UseToken]: UseTokenAccounts,
+  }
+  

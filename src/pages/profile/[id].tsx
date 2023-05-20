@@ -53,7 +53,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
         try {
             const userResponse = await getPost<PostStoredAleph>({
                 types: 'PostStoredAleph',
-                pagination: 200,
+                pagination: 1,
                 page: 1,
                 refs: [],
                 addresses: [messagesAddress],
@@ -63,15 +63,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
             });
             if (userResponse.posts[0].content.data) {
                 props.props.profile = JSON.parse(decryptData(userResponse.posts[0].content.data)) as Author
+                const session = await getServerSession(context.req, context.res, authOptions());
                 if (props.props.profile.subscriptionPrice > 0) {
-                    const session = await getServerSession(context.req, context.res, authOptions());
                     if (session && session.user.username) {
                         const user = Object.fromEntries(
                             Object.entries(session.user).filter(([_, value]) => value !== undefined)
                         ) as NextAuthUser;
+                        console.log(user.id,params.id )
                         const subsResponse = await getPost<PostStoredAleph>({
                             types: 'PostStoredAleph',
-                            pagination: 200,
+                            pagination: 1,
                             page: 1,
                             refs: [],
                             addresses: [messagesAddress],
@@ -86,18 +87,22 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                             const subscriber = subscription.subs.find((sub) => sub.pubkey === user.id);
                             const monthTimestamp = 30 * 24 * 60 * 60 * 1000;
                             if (subscriber) props.props.subscriber.timeleft = subscriber.timestamp + monthTimestamp;
-                            
-                            if (user.id === params.id) {
-                                props.props.author = true;
-                                const withdrawals = JSON.stringify(await getWithdrawals(new PublicKey(params.id), connection));
-                                if (withdrawals) props.props.withdrawals
-                            }
                         }
+                    }
+                }
+                if (session && session.user.username) {
+                    const user = Object.fromEntries(
+                        Object.entries(session.user).filter(([_, value]) => value !== undefined)
+                    ) as NextAuthUser;
+                    if (user.id === params.id){
+                        props.props.author = true;
+                        const withdrawals = JSON.stringify(await getWithdrawals(new PublicKey(params.id), connection));
+                        if (withdrawals) props.props.withdrawals
                     }
                 }
                 const articlesResponse = await getPost<PostStoredAleph>({
                     types: 'PostStoredAleph',
-                    pagination: 200,
+                    pagination: 1,
                     page: 1,
                     refs: [],
                     addresses: [messagesAddress],
@@ -202,8 +207,9 @@ export default function Profile({ subscriber, profile, articles, author, withdra
                     timestamp: Date.now(),
                     subTransaction: signature,
                     authorId: profile.pubkey,
+                    brickToken: profile.subscriptionToken
                 }
-                const res = await fetch('/api/updateSubscription', {
+                const res = await fetch('/api/registerSubscription', {
                     method: 'POST',
                     body: JSON.stringify(subscriptionInfo)
                 })
@@ -287,14 +293,16 @@ export default function Profile({ subscriber, profile, articles, author, withdra
                             ))}
                         </div>
                     }
-                    <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 bg-white rounded-lg shadow-md mb-4">
-                        <div className="py-5 px-10 flex justify-center text-center">
-                            <p className="text-black text-4xl text-center">Dashboard</p>
+                    {author &&
+                        <div className="container mx-auto px-6 md:px-10 grid grid-cols-1 bg-white rounded-lg shadow-md mb-4">
+                            <div className="py-5 px-10 flex justify-center text-center">
+                                <p className="text-black text-4xl text-center">Dashboard</p>
+                            </div>
+                            <div className="py-5 h-96 border rounded mb-4 flex justify-center text-center">
+                                CREATE DATA CHARTS
+                            </div>
                         </div>
-                        <div className="py-5 h-96 border rounded mb-4 flex justify-center text-center">
-                            CREATE DATA CHARTS
-                        </div>
-                    </div>
+                    }
                 </>
             }
         </div>

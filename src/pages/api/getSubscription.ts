@@ -20,7 +20,7 @@ export default async function handler(
 
         const subsResponse = await getPost<PostStoredAleph>({
             types: 'PostStoredAleph',
-            pagination: 200,
+            pagination: 1,
             page: 1,
             refs: [],
             addresses: [messagesAddress],

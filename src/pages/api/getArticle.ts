@@ -15,7 +15,7 @@ export default async function handler(
         const param = req.query.param
         const articleResponse = await getPost<PostStoredAleph>({
             types: 'string',
-            pagination: 200,
+            pagination: 1,
             page: 1,
             refs: [],
             addresses: [messagesAddress],

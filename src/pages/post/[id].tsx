@@ -32,7 +32,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
         try {
             const articleResponse = await getPost<PostStoredAleph>({
                 types: 'PostStoredAleph',
-                pagination: 200,
+                pagination: 1,
                 page: 1,
                 refs: [],
                 addresses: [messagesAddress],
@@ -43,7 +43,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
             props.props.post = JSON.parse(decryptData(articleResponse.posts[0].content.data)) as Post
             const commentsResponse = await getPost<PostStoredAleph>({
                 types: 'PostStoredAleph',
-                pagination: 200,
+                pagination: 1,
                 page: 1,
                 refs: [],
                 addresses: [messagesAddress],
@@ -55,7 +55,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
             props.props.comments.comments.sort((a, b) => b.createdAt - a.createdAt)
             const userResponse = await getPost<PostStoredAleph>({
                 types: 'PostStoredAleph',
-                pagination: 200,
+                pagination: 1,
                 page: 1,
                 refs: [],
                 addresses: [messagesAddress],
@@ -75,7 +75,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                         else {
                             const subsResponse = await getPost<PostStoredAleph>({
                                 types: 'PostStoredAleph',
-                                pagination: 200,
+                                pagination: 1,
                                 page: 1,
                                 refs: [],
                                 addresses: [messagesAddress],

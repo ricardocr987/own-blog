@@ -24,7 +24,7 @@ export default async function handler(
         const updatedUser = JSON.parse(req.body) as Author
         const responseCheckUsername = await getPost<PostStoredAleph>({
             types: 'PostStoredAleph',
-            pagination: 200,
+            pagination: 1,
             page: 1,
             refs: [],
             addresses: [messagesAddress],
@@ -36,7 +36,7 @@ export default async function handler(
 
         const usersResponse = await getPost<PostStoredAleph>({
             types: 'PostStoredAleph',
-            pagination: 200,
+            pagination: 1,
             page: 1,
             refs: [],
             addresses: [messagesAddress],
@@ -46,10 +46,12 @@ export default async function handler(
         });
         if (usersResponse.posts.length === 0)  return res.status(406).send('User does not exists');
 
-        // delete previous post with the old user data
+        // would be nice to delete previous post with the old user data
+
         await publishPost({
             account: account,
-            postType: 'PostStoredAleph',
+            postType: 'amend',
+            ref: usersResponse.posts[0].hash,
             content: {
                 data: encryptData(req.body),
                 tags: ['user', updatedUser.pubkey, updatedUser.username, `user:${updatedUser.pubkey}`]

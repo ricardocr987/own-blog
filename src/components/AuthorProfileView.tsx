@@ -1,7 +1,7 @@
 import ImagesDropdown from "@/components/ImagesDropdown";
 import { METADATA_PROGRAM_ID_PK, authorInitValues, decimalsFromPubkey, initialTokenValues, messagesAddress, mintFromSymbol, tokens } from "@/constants";
 import { getAppPubkey, getMetadataPubkey, getPaymentVaultPubkey, getTokenInfo, getTokenMintPubkey, getTokenPubkey } from "@/services";
-import { Author, NotificationType, TokenInfo, Uri, Withdrawals } from "@/types";
+import { Author, NotificationType, SubscriptionInfo, TokenInfo, UpdateSubscriptionPayload, Uri, Withdrawals } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
@@ -104,7 +104,8 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                 const tokenAccount = getTokenPubkey(tokenMint)
                 const appAccount = getAppPubkey('own-blog')
                 const metadataAccount = getMetadataPubkey(tokenMint)
-                if (profile.subscriptionBrickToken) {
+
+                if (profile.subscriptionPrice > 0) {
                     const accounts: EditTokenPriceInstructionAccounts = {
                         authority: wallet.publicKey,
                         token: tokenAccount,
@@ -129,12 +130,15 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                     });
 
                     if (!confirmation.value.err) {
-                        profile.subscriptionPrice = Number(subPrice)
-                        profile.subscriptionToken = mintFromSymbol[subToken.name]
-                        profile.subscriptionBrickToken = tokenMint.toString()
+                        const updateSubscriptionPayload: UpdateSubscriptionPayload = {
+                            subscriptionPrice: Number(subPrice),
+                            subscriptionToken: mintFromSymbol[subToken.name],
+                            subscriptionBrickToken: tokenMint.toString(),
+                            brickSignature: signature
+                        }
                         const res = await fetch('/api/updateSubscription', {
                             method: 'POST',
-                            body: JSON.stringify(profile)
+                            body: JSON.stringify(updateSubscriptionPayload)
                         })
                         if (res.status === 201) addNotification('Monetization updated!', NotificationType.SUCCESS)
                         if (res.status === 400) addNotification(res.statusText, NotificationType.ERROR)
@@ -193,11 +197,9 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                             tokenUri: 'https://arweave.net/W0GZ1H3wql5BvcH3Hugjx-111K_IJy3LSFnAng8Zpew' // `https://api2.aleph.im/api/v0/aggregates/${messagesAddress}.json?keys=${profile.pubkey}tokenUri`,
                         }
                     
-                        const transaction = new Transaction().add(
-                            createCreateTokenInstruction(accounts, args)
-                        )
-                        let blockhash = (await connection.getLatestBlockhash('finalized'));
-                        transaction.recentBlockhash = blockhash.blockhash;
+                        const transaction = new Transaction().add(createCreateTokenInstruction(accounts, args))
+                        let blockhash = (await connection.getLatestBlockhash('finalized'))
+                        transaction.recentBlockhash = blockhash.blockhash
                         const signature = await wallet.sendTransaction(
                             transaction,
                             connection,
@@ -209,12 +211,15 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                         });
     
                         if (!confirmation.value.err) {
-                            profile.subscriptionPrice = Number(subPrice)
-                            profile.subscriptionToken = mintFromSymbol[subToken.name]
-                            profile.subscriptionBrickToken = tokenMint.toString()
+                            const updateSubscriptionPayload: UpdateSubscriptionPayload = {
+                                subscriptionPrice: Number(subPrice),
+                                subscriptionToken: mintFromSymbol[subToken.name],
+                                subscriptionBrickToken: tokenMint.toString(),
+                                brickSignature: signature
+                            }
                             const res = await fetch('/api/updateSubscription', {
                                 method: 'POST',
-                                body: JSON.stringify(profile)
+                                body: JSON.stringify(updateSubscriptionPayload)
                             })
                             if (res.status === 201) addNotification(res.statusText, NotificationType.SUCCESS)
                             if (res.status === 400) addNotification(res.statusText, NotificationType.ERROR)

@@ -20,7 +20,7 @@ export default async function handler(
         const newUser = JSON.parse(req.body) as Author
         const usersResponse = await getPost<PostStoredAleph>({
             types: 'PostStoredAleph',
-            pagination: 200,
+            pagination: 1,
             page: 1,
             refs: [],
             addresses: [messagesAddress],
