@@ -80,7 +80,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                                 page: 1,
                                 refs: [],
                                 addresses: [messagesAddress],
-                                tags: [`user:${params.id}`],
+                                tags: [`subscription:${params.id}`],
                                 hashes: [],
                                 APIServer: "https://api2.aleph.im"
                             });
@@ -213,9 +213,8 @@ export default function Profile({ subscriber, profile, articles, author, withdra
                     timestamp: Date.now(),
                     subTransaction: signature,
                     authorId: profile.pubkey,
-                    brickToken: profile.subscriptionToken
+                    brickToken: profile.subscriptionBrickToken
                 }
-                console.log(subscriptionInfo)
                 const res = await fetch('/api/registerSubscription', {
                     method: 'POST',
                     body: JSON.stringify(subscriptionInfo)

@@ -46,7 +46,7 @@ export default async function handler(
 
         // validate transaction
         const transaction = await connection.getParsedTransaction(subInfo.subTransaction, { commitment: 'confirmed' })
-        
+
         if (transaction && transaction.meta?.innerInstructions) {
             if (transaction)
             for (const ix of transaction.transaction.message.instructions) {
@@ -57,7 +57,7 @@ export default async function handler(
                     const accounts = parseInstructionAccounts(type, rawIx)
                     if (type == InstructionType.BuyToken) {
                         const { authority, tokenMint } = accounts as BuyTokenInstructionAccounts
-                        if (authority.toString() !== session.user.id || subInfo.brickToken !== tokenMint.toString())
+                        if (authority.toString() !== session.user.id || subInfo.brickToken.toString() !== tokenMint.toString())
                             return res.status(401).send('Wrong transaction sir')
                     }
                     if (type == InstructionType.UseToken) {
@@ -70,7 +70,7 @@ export default async function handler(
         }
         data.subs.push(subInfo)
 
-        const resp = await publishPost({
+        await publishPost({
             account: account,
             postType: 'amend',
             ref: subsResponse.posts[0].hash,
@@ -83,7 +83,6 @@ export default async function handler(
             inlineRequested: true,
             storageEngine: ItemType.inline
         })
-        console.log(resp)
 
         return res.status(201).send('Monetization updated!');
     } catch (error) {
