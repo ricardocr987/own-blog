@@ -1,14 +1,14 @@
 import ImagesDropdown from "@/components/ImagesDropdown";
-import { METADATA_PROGRAM_ID_PK, authorInitValues, decimalsFromPubkey, initialTokenValues, messagesAddress, mintFromSymbol, tokens } from "@/constants";
+import { METADATA_PROGRAM_ID_PK, decimalsFromPubkey, initialTokenValues, mintFromSymbol, tokens } from "@/constants";
 import { getAppPubkey, getMetadataPubkey, getPaymentVaultPubkey, getTokenInfo, getTokenMintPubkey, getTokenPubkey } from "@/services";
-import { Author, NotificationType, SubscriptionInfo, TokenInfo, UpdateSubscriptionPayload, Uri, Withdrawals } from "@/types";
+import { Author, NotificationType, TokenInfo, UpdateSubscriptionPayload, Withdrawals } from "@/types";
 import { useWallet } from "@solana/wallet-adapter-react";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
 import { connection } from '@/constants';
 import TokenDropdown from "@/components/TokenDropdown";
 import { ACCOUNTS_DATA_LAYOUT, AccountType, AppArgs, CreateTokenInstructionAccounts, CreateTokenInstructionArgs, EditTokenPriceInstructionAccounts, EditTokenPriceInstructionArgs, PaymentArgs, TokenMetadataArgs, WithdrawFundsInstructionAccounts, createCreateTokenInstruction, createEditTokenPriceInstruction, createWithdrawFundsInstruction } from "@/utils/solita";
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddress } from "@solana/spl-token";
+import { ASSOCIATED_TOKEN_PROGRAM_ID, TOKEN_PROGRAM_ID, createAssociatedTokenAccountInstruction, getAccount, getAssociatedTokenAddress, getOrCreateAssociatedTokenAccount } from "@solana/spl-token";
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, Transaction } from "@solana/web3.js";
 import BN from "bn.js";
 import { NotificationContext } from "@/contexts/NotificationContext";
@@ -45,6 +45,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
         if (!wallet.publicKey) return;
         if (!withdrawals) return;
         const transaction = new Transaction()
+        let blockhash = (await connection.getLatestBlockhash('finalized'));
         const paymentAccounts = JSON.parse(withdrawals) as Withdrawals[]
         await Promise.all(paymentAccounts.map(async (account) => {
             if (!wallet.publicKey) return;
@@ -52,7 +53,32 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
             if (!encodedTokenAccount) return;
             const decodedTokenAccount: TokenMetadataArgs = ACCOUNTS_DATA_LAYOUT[AccountType.TokenMetadata].deserialize(encodedTokenAccount.data)[0]
             const paymentVault = getPaymentVaultPubkey(new PublicKey(account.pubkey))
-            const receiverVault = await getAssociatedTokenAddress(new PublicKey(account.paidMint), wallet.publicKey)
+            let receiverVault = await getAssociatedTokenAddress(new PublicKey(account.paidMint), wallet.publicKey)
+            console.log(account.paidMint)
+            try {
+                await getAccount(connection, receiverVault);
+            } catch {
+                const txn = new Transaction().add(
+                    createAssociatedTokenAccountInstruction(
+                        wallet.publicKey,
+                        receiverVault,
+                        wallet.publicKey,
+                        new PublicKey(account.paidMint),
+                        TOKEN_PROGRAM_ID,
+                        ASSOCIATED_TOKEN_PROGRAM_ID
+                    )
+                );
+                txn.recentBlockhash = blockhash.blockhash;
+                const signature = await wallet.sendTransaction(
+                    txn,
+                    connection,
+                )
+                const confirmation = await connection.confirmTransaction({
+                    blockhash: blockhash.blockhash,
+                    lastValidBlockHeight: blockhash.lastValidBlockHeight,
+                    signature,
+                });
+            }
             const appAccount = await connection.getAccountInfo(new PublicKey(decodedTokenAccount.app))
             if (!appAccount) return;
             const decodedAppAccount: AppArgs = ACCOUNTS_DATA_LAYOUT[AccountType.App].deserialize(appAccount.data)[0]
@@ -71,7 +97,6 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
             }
             transaction.add(createWithdrawFundsInstruction(accounts))
         }))
-        let blockhash = (await connection.getLatestBlockhash('finalized'));
         transaction.recentBlockhash = blockhash.blockhash;
         const signature = await wallet.sendTransaction(
             transaction,
@@ -127,8 +152,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                         blockhash: blockhash.blockhash,
                         lastValidBlockHeight: blockhash.lastValidBlockHeight,
                         signature,
-                    });
-
+                    }, 'confirmed');
                     if (!confirmation.value.err) {
                         const updateSubscriptionPayload: UpdateSubscriptionPayload = {
                             subscriptionPrice: Number(subPrice),
@@ -217,6 +241,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                                 subscriptionBrickToken: tokenMint.toString(),
                                 brickSignature: signature
                             }
+                            console.log(updateSubscriptionPayload)
                             const res = await fetch('/api/updateSubscription', {
                                 method: 'POST',
                                 body: JSON.stringify(updateSubscriptionPayload)

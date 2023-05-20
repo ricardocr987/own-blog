@@ -47,7 +47,7 @@ export default async function handler(
         // post with article subscription content
         await publishPost({
             account: account,
-            postType: 'amend',
+            postType: 'PostStoredAleph',
             content: {
                 data: encryptData(JSON.stringify({ authorId: newUser.pubkey, subs: [] })),
                 tags: ['subscription', newUser.pubkey, `subscription:${newUser.pubkey}`],

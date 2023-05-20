@@ -1,7 +1,7 @@
 import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
 import { Publish as publishPost } from 'aleph-sdk-ts/dist/messages/post';
 import { Author, PostStoredAleph, Subscription, UpdateSubscriptionPayload } from "@/types";
-import { CreateAppInstructionAccounts, InstructionType, getInstructionType } from "@/utils/solita";
+import { CreateAppInstructionAccounts, CreateTokenInstructionAccounts, EditTokenPriceInstructionAccounts, InstructionType, getInstructionType } from "@/utils/solita";
 import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
 import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { PartiallyDecodedInstruction } from "@solana/web3.js";
@@ -27,12 +27,10 @@ export default async function handler(
         const subInfo = JSON.parse(req.body) as UpdateSubscriptionPayload
 
         // validate transaction
-        const transaction = await connection.getParsedTransaction(subInfo.brickSignature, {
-            commitment: 'finalized',
-            maxSupportedTransactionVersion: 0,
-        })
-        
+        const transaction = await connection.getParsedTransaction(subInfo.brickSignature, { commitment: 'confirmed' })
+
         let author: string = ''
+        let allowed = false
         if (transaction && transaction.meta?.innerInstructions) {
             if (transaction)
             for (const ix of transaction.transaction.message.instructions) {
@@ -41,16 +39,26 @@ export default async function handler(
                 const type = getInstructionType(Buffer.from(bs58.decode(rawIx.data)))
                 if (type) {
                     const accounts = parseInstructionAccounts(type, rawIx)
-                    if (type == InstructionType.CreateApp) {
-                        const { authority } = accounts as CreateAppInstructionAccounts
+                    if (type == InstructionType.EditTokenPrice) {
+                        const { authority } = accounts as EditTokenPriceInstructionAccounts
                         if (authority.toString() !== session.user.id)
                             return res.status(401).send('Wrong transaction sir')
                         
                         author = authority.toString()
+                        allowed = true
+                    }
+                    if (type == InstructionType.CreateToken) {
+                        const { authority } = accounts as CreateTokenInstructionAccounts
+                        if (authority.toString() !== session.user.id)
+                            return res.status(401).send('Wrong transaction sir')
+                        
+                        author = authority.toString()
+                        allowed = true
                     }
                 }
             }
         }
+        if (!allowed) return res.status(400).send('Any brick instructions')
 
         const userResponse = await getPost<PostStoredAleph>({
             types: 'PostStoredAleph',
@@ -58,12 +66,12 @@ export default async function handler(
             page: 1,
             refs: [],
             addresses: [messagesAddress],
-            tags: [`subscription:${author}`],
+            tags: [`user:${author}`],
             hashes: [],
             APIServer: "https://api2.aleph.im"
         });
 
-        const data = JSON.parse(decryptData(userResponse.posts[0].content.data)) as Author
+        let data = JSON.parse(decryptData(userResponse.posts[0].content.data)) as Author
         data.subscriptionBrickToken = subInfo.subscriptionBrickToken
         data.subscriptionPrice = subInfo.subscriptionPrice
         data.subscriptionToken = subInfo.subscriptionToken

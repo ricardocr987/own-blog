@@ -46,7 +46,6 @@ export default async function handler(
         });
         if (usersResponse.posts.length === 0)  return res.status(406).send('User does not exists');
 
-        // would be nice to delete previous post with the old user data
 
         await publishPost({
             account: account,

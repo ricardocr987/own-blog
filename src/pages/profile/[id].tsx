@@ -69,24 +69,30 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                         const user = Object.fromEntries(
                             Object.entries(session.user).filter(([_, value]) => value !== undefined)
                         ) as NextAuthUser;
-                        console.log(user.id,params.id )
-                        const subsResponse = await getPost<PostStoredAleph>({
-                            types: 'PostStoredAleph',
-                            pagination: 1,
-                            page: 1,
-                            refs: [],
-                            addresses: [messagesAddress],
-                            tags: [`user:${params.id}`],
-                            hashes: [],
-                            APIServer: "https://api2.aleph.im"
-                        });
-                        if (subsResponse.posts[0].content.data) {
-                            const subscription = JSON.parse(decryptData(subsResponse.posts[0].content.data)) as Subscription
-            
-                            props.props.subscriber.is = subscription.subs.some((sub) => sub.pubkey === user.id);
-                            const subscriber = subscription.subs.find((sub) => sub.pubkey === user.id);
-                            const monthTimestamp = 30 * 24 * 60 * 60 * 1000;
-                            if (subscriber) props.props.subscriber.timeleft = subscriber.timestamp + monthTimestamp;
+                        if (user.id === params.id){
+                            props.props.author = true;
+                            const withdrawals = JSON.stringify(await getWithdrawals(new PublicKey(params.id), connection));
+                            if (withdrawals) props.props.withdrawals
+                        } else {
+                            const subsResponse = await getPost<PostStoredAleph>({
+                                types: 'PostStoredAleph',
+                                pagination: 1,
+                                page: 1,
+                                refs: [],
+                                addresses: [messagesAddress],
+                                tags: [`user:${params.id}`],
+                                hashes: [],
+                                APIServer: "https://api2.aleph.im"
+                            });
+                            if (subsResponse.posts[0].content.data) {
+                                const subscription = JSON.parse(decryptData(subsResponse.posts[0].content.data)) as Subscription
+                                if (subscription.subs.length > 0) {
+                                    props.props.subscriber.is = subscription.subs.some((sub) => sub.pubkey === user.id);
+                                    const subscriber = subscription.subs.find((sub) => sub.pubkey === user.id);
+                                    const monthTimestamp = 30 * 24 * 60 * 60 * 1000;
+                                    if (subscriber) props.props.subscriber.timeleft = subscriber.timestamp + monthTimestamp;
+                                }
+                            }
                         }
                     }
                 }
@@ -97,7 +103,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                     if (user.id === params.id){
                         props.props.author = true;
                         const withdrawals = JSON.stringify(await getWithdrawals(new PublicKey(params.id), connection));
-                        if (withdrawals) props.props.withdrawals
+                        if (withdrawals) props.props.withdrawals = withdrawals
                     }
                 }
                 const articlesResponse = await getPost<PostStoredAleph>({
@@ -111,7 +117,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                     APIServer: "https://api2.aleph.im"
                 });
                 props.props.articles = articlesResponse.posts.map((article) => JSON.parse(decryptData(article.content.data)) as Post);
-            } 
+            }
         } catch(e) {
             console.log(e)
         }
@@ -209,6 +215,7 @@ export default function Profile({ subscriber, profile, articles, author, withdra
                     authorId: profile.pubkey,
                     brickToken: profile.subscriptionToken
                 }
+                console.log(subscriptionInfo)
                 const res = await fetch('/api/registerSubscription', {
                     method: 'POST',
                     body: JSON.stringify(subscriptionInfo)

@@ -1,7 +1,8 @@
+import { BuyTokenInstructionAccounts, InstructionType, UseTokenInstructionAccounts, getInstructionType } from "@/utils/solita";
 import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
 import { Publish as publishPost } from 'aleph-sdk-ts/dist/messages/post';
 import { PostStoredAleph, Subscription, SubscriptionInfo } from "@/types";
-import { BuyTokenInstructionAccounts, InstructionType, UseTokenInstructionAccounts, getInstructionType } from "@/utils/solita";
+import { parseInstructionAccounts } from "@/utils/transactionParser";
 import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
 import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { PartiallyDecodedInstruction } from "@solana/web3.js";
@@ -11,7 +12,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { authOptions } from "./auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import bs58 from "bs58";
-import { parseInstructionAccounts } from "@/utils/transactionParser";
 
 export default async function handler(
     req: NextApiRequest,
@@ -45,10 +45,7 @@ export default async function handler(
         if (signatureHistory) return res.status(400).send('Are you trying to submit a already submitted transaction? gn') 
 
         // validate transaction
-        const transaction = await connection.getParsedTransaction(subInfo.subTransaction, {
-            commitment: 'finalized',
-            maxSupportedTransactionVersion: 0,
-        })
+        const transaction = await connection.getParsedTransaction(subInfo.subTransaction, { commitment: 'confirmed' })
         
         if (transaction && transaction.meta?.innerInstructions) {
             if (transaction)
@@ -60,12 +57,12 @@ export default async function handler(
                     const accounts = parseInstructionAccounts(type, rawIx)
                     if (type == InstructionType.BuyToken) {
                         const { authority, tokenMint } = accounts as BuyTokenInstructionAccounts
-                        if (authority.toString() !== session.user.id || subInfo.subTransaction !== tokenMint.toString())
+                        if (authority.toString() !== session.user.id || subInfo.brickToken !== tokenMint.toString())
                             return res.status(401).send('Wrong transaction sir')
                     }
                     if (type == InstructionType.UseToken) {
                         const { authority, tokenMint } = accounts as UseTokenInstructionAccounts
-                        if (authority.toString() !== session.user.id || subInfo.subTransaction !== tokenMint.toString())
+                        if (authority.toString() !== session.user.id || subInfo.brickToken !== tokenMint.toString())
                             return res.status(401).send('Wrong transaction sir')
                     }
                 }
@@ -73,7 +70,7 @@ export default async function handler(
         }
         data.subs.push(subInfo)
 
-        await publishPost({
+        const resp = await publishPost({
             account: account,
             postType: 'amend',
             ref: subsResponse.posts[0].hash,
@@ -86,6 +83,7 @@ export default async function handler(
             inlineRequested: true,
             storageEngine: ItemType.inline
         })
+        console.log(resp)
 
         return res.status(201).send('Monetization updated!');
     } catch (error) {
