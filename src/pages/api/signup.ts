@@ -2,9 +2,9 @@ import { ImportAccountFromPrivateKey } from "aleph-sdk-ts/dist/accounts/solana";
 import { Publish as publishPost } from 'aleph-sdk-ts/dist/messages/post';
 import { ItemType } from "aleph-sdk-ts/dist/messages/message";
 import { Get as getPost } from 'aleph-sdk-ts/dist/messages/post';
-import { decryptData, encryptData } from "@/utils/encrypt";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Author, PostStoredAleph } from "@/types";
+import { encryptData } from "@/utils/encrypt";
 import { messagesAddress } from "@/constants";
 
 

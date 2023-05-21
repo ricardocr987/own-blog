@@ -2,7 +2,8 @@ import crypto from 'crypto'
 
 // Encrypt data
 export function encryptData(data: string) {
-  if (!process.env.SECRET_KEY || !process.env.SECRET_IV || !process.env.ECNRYPTION_METHOD) throw new Error('secretKey, secretIV, and ecnryptionMethod are required')
+  if (!process.env.SECRET_KEY || !process.env.SECRET_IV || !process.env.ECNRYPTION_METHOD) 
+    throw new Error('secretKey, secretIV, and ecnryptionMethod are required')
   // Generate secret hash with crypto to use for encryption
   const key = crypto
     .createHash('sha512')
@@ -22,7 +23,8 @@ export function encryptData(data: string) {
 
 // Decrypt data
 export function decryptData(encryptedData: string) {
-  if (!process.env.SECRET_KEY || !process.env.SECRET_IV || !process.env.ECNRYPTION_METHOD) throw new Error('secretKey, secretIV, and ecnryptionMethod are required')
+  if (!process.env.SECRET_KEY || !process.env.SECRET_IV || !process.env.ECNRYPTION_METHOD) 
+    throw new Error('secretKey, secretIV, and ecnryptionMethod are required')
   // Generate secret hash with crypto to use for encryption
   const key = crypto
     .createHash('sha512')

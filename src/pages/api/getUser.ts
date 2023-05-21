@@ -15,11 +15,11 @@ export default async function handler(
         const param = req.query.param
         const userResponse = await getPost<PostStoredAleph>({
             types: 'PostStoredAleph',
-            pagination: 1,
+            pagination: 200,
             page: 1,
             refs: [],
             addresses: [messagesAddress],
-            tags: param ? Array.isArray(param) ? [...param] : [`user:${param}`] : [],
+            tags: param ? Array.isArray(param) ? [...param] : [`user:${param}`] : ['user'],
             hashes: [],
             APIServer: "https://api2.aleph.im"
         });

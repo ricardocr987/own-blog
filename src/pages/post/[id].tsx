@@ -14,6 +14,7 @@ type ServerSideProps = {
         post: Post | null
         comments: Comments | null
         allowed: boolean
+        isAuthor: boolean
         author: Author | null
     }
 }
@@ -26,6 +27,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
             comments: null,
             allowed: false,
             author: null,
+            isAuthor: false
         },
     };
     if (params && typeof params.id === "string") {
@@ -71,7 +73,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                         const user = Object.fromEntries(
                             Object.entries(session.user).filter(([_, value]) => value !== undefined)
                         ) as NextAuthUser;
-                        if (user.id === params.id) props.props.allowed = true;
+                        if (user.id === params.id){
+                            props.props.allowed = true;
+                            props.props.isAuthor = true;
+                        } 
                         else {
                             const subsResponse = await getPost<PostStoredAleph>({
                                 types: 'PostStoredAleph',
@@ -85,16 +90,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                             });
                             if (subsResponse.posts[0].content.data) {
                                 const subscription = JSON.parse(decryptData(subsResponse.posts[0].content.data)) as Subscription
-                                props.props.allowed = subscription.subs.some((sub) => sub.pubkey === user.id);
+                                props.props.allowed = subscription.subs.some((sub) => sub.pubkey === user.id && sub.timestamp > Date.now());
                             }
                         }
 
                     }
                 } else {
                     props.props.allowed = true
-                } 
-                if (props.props.allowed) {
-
                 }
             }
         } catch(e) {

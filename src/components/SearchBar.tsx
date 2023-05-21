@@ -2,17 +2,18 @@ import { useClickOutside } from "@/hooks";
 import { Post } from "@/types";
 import { useEffect, useRef, useState } from "react";
 import Author from "./Author";
-import { Get as getAggregate } from 'aleph-sdk-ts/dist/messages/aggregate';
-import { messagesAddress } from "@/constants";
 import moment from "moment";
 import { debounce } from 'lodash';
 import Link from "next/link";
+
 
 const SearchBar = () => {
     const [showSearchBarPopup, setShowSearchBarPopup] = useState(false);
     const [searchTerm, setSearchTerm] = useState('')
     const [authorsResult, setAuthorsResult] = useState<Author[]>([])
     const [postsResult, setPostResult] = useState<Post[]>([])
+    const [authorsFiltered, setAuthorsFiltered] = useState<Author[]>([])
+    const [postsFiltered, setPostFiltered] = useState<Post[]>([])
     const searchBarRef = useRef<HTMLDivElement | null>(null);
     useClickOutside(searchBarRef, () => setShowSearchBarPopup(false));
 
@@ -20,40 +21,79 @@ const SearchBar = () => {
         setSearchTerm(value);
     };
 
-    const debouncedSearch = debounce((searchTerm: string) => {
-        const fetchData = async () => {
-            const authorsAndPostsResult = await getAggregate<GetUserResponse | GetArticleResponse>({
-                address: messagesAddress,
-                APIServer: 'https://api2.aleph.im'
-            })
-
-            const authors = Object.values(authorsAndPostsResult)
-                .filter((obj) => obj.hasOwnProperty('articles') && obj.username.toLowerCase().includes(searchTerm.toLowerCase()))
-                .sort((a, b) => {
-                    const aScore = a.username.toLowerCase().indexOf(searchTerm.toLowerCase());
-                    const bScore = b.username.toLowerCase().indexOf(searchTerm.toLowerCase());
-                    return bScore - aScore;
+    // Fetch data function
+    const fetchData = async () => {
+        try {
+            const userResponse = await fetch('/api/getUser', { method: 'GET' });
+            const userArray: string[] = JSON.parse(await userResponse.json());
+            const users = userArray
+                .map((user: string) => JSON.parse(user))
+                .filter((user: Author) => {
+                    return Object.values(user).every((value) => value !== undefined);
                 }) as Author[];
-          
-            const posts = Object.values(authorsAndPostsResult)
-                .filter((obj) => obj.hasOwnProperty('content') && obj.title.toLowerCase().includes(searchTerm.toLowerCase()))
-                .sort((a, b) => {
-                    const aScore = a.title.toLowerCase().indexOf(searchTerm.toLowerCase());
-                    const bScore = b.title.toLowerCase().indexOf(searchTerm.toLowerCase());
-                    return bScore - aScore;
-                }) as Post[];          
-
-            setAuthorsResult(authors);
+      
+            const articleResponse = await fetch('/api/getArticle', { method: 'GET' });
+            const postsArray: string[] = JSON.parse(await articleResponse.json());
+            const posts = postsArray
+                .map((post: string) => JSON.parse(post))
+                .filter((post: Post) => {
+                    return Object.values(post).every((value) => value !== undefined);
+                }) as Post[];
+        
+            setAuthorsResult(users);
             setPostResult(posts);
-        };
-        fetchData()
-    }, 200);
+            setAuthorsFiltered(users);
+            setPostFiltered(posts);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+      
+    
+    // Search function
+    const search = (searchTerm: string) => {
+        console.log(authorsResult)
+        const authors = authorsResult
+        .filter((author) => {
+            if (author.username) {
+              return author.username.toLowerCase().includes(searchTerm.toLowerCase());
+            }
+            return false;
+          })
+            .sort((a, b) => {
+                const aScore = a.username.toLowerCase().indexOf(searchTerm.toLowerCase());
+                const bScore = b.username.toLowerCase().indexOf(searchTerm.toLowerCase());
+                return bScore - aScore;
+            });
+        
+        const posts = postsResult
+            .filter((obj) => obj.title.toLowerCase().includes(searchTerm.toLowerCase()))
+            .sort((a, b) => {
+                const aScore = a.title.toLowerCase().indexOf(searchTerm.toLowerCase());
+                const bScore = b.title.toLowerCase().indexOf(searchTerm.toLowerCase());
+                return bScore - aScore;
+            });
+      
+        console.log(authors)
+        setAuthorsFiltered(authors);
+        setPostFiltered(posts);
+    };
 
+    // Fetch data useEffect
+    useEffect(() => {
+        if (showSearchBarPopup) fetchData();
+    }, [showSearchBarPopup]);
+
+    // Debounce search function
+    const debouncedSearch = debounce(search, 200);
+
+    // Search useEffect
     useEffect(() => {
         debouncedSearch(searchTerm);
 
         return debouncedSearch.cancel;
     }, [searchTerm]);
+  
 
     return (
         <>
@@ -79,10 +119,10 @@ const SearchBar = () => {
                             </svg>
                         </div>
                         <div className="grid grid-cols-2 gap-2" style={{ gridAutoRows: 'minmax(0, 1fr)' }}>
-                            {authorsResult.length > 0 && (
+                            {authorsFiltered.length > 0 && (
                                 <div className="max-w-screen-md mx-auto h-32 w-44">
                                     <h2 className="text-xl text-white font-bold mb-4">Authors:</h2>
-                                    {authorsResult.map((author) => (
+                                    {authorsFiltered.map((author) => (
                                         <Link href={`/profile/${author.pubkey}`} key={author.pubkey} onClick={() => setShowSearchBarPopup(false)}>
                                             <div className="bg-gray-200 p-4 mb-4 rounded-md h-full w-full truncate cursor-pointer">
                                                 <h3 className="text-xl font-bold mb-2">{author.username}</h3>
@@ -93,10 +133,10 @@ const SearchBar = () => {
                                     ))}
                                 </div>
                             )}
-                            {postsResult.length > 0 && (
+                            {postsFiltered.length > 0 && (
                                 <div className="max-w-screen-md mx-auto h-32 w-44">
                                     <h2 className="text-xl text-white font-bold mb-4">Articles:</h2>
-                                    {postsResult.map((post) => (
+                                    {postsFiltered.map((post) => (
                                         <Link href={`/post/${post.id}`} key={post.id} onClick={() => setShowSearchBarPopup(false)}>
                                             <div className="bg-gray-200 p-4 mb-4 rounded-md h-full w-full truncate cursor-pointer">
                                                 <h3 className="text-xl font-bold mb-2">{post.title}</h3>
