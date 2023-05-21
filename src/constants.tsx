@@ -73,7 +73,7 @@ export const responsiveEditor: Record<string, Responsive> = {
 };
 
 export const confirmOptions: ConfirmOptions = { commitment: "confirmed" };
-export const connection = new Connection(Envs.RPC || process.env.PUBLIC_RPC || "https://api.mainnet-beta.solana.com");
+export const connection = new Connection(Envs.RPC || process.env.NEXT_PUBLIC_RPC || "https://api.mainnet-beta.solana.com");
 
 export const BRICK_PROGRAM_ID = 'BrickarF2QeREBZsapbhgYPHJi5FYkJVnx7mZhxETCt5'
 export const BRICK_PROGRAM_ID_PK = new PublicKey(BRICK_PROGRAM_ID)
