@@ -25,12 +25,14 @@ export function authOptions(req?: NextApiRequest, ctx?: GetServerSidePropsContex
               JSON.parse(credentials?.message || "{}")
             );
 
+            console.log(signinMessage)
             const nextAuthUrl = new URL(process.env.NEXTAUTH_URL || getUrl());
+            console.log(nextAuthUrl, signinMessage.domain)
+
             if (signinMessage.domain !== nextAuthUrl.href) return null;
             
             const validationResult = await signinMessage.validate(credentials?.signature || "");
-            if (!validationResult)
-              throw new Error("Could not validate the signed message");
+            if (!validationResult) return null;
 
             /*
               https://next-auth.js.org/getting-started/client#getcsrftoken: 

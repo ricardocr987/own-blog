@@ -88,7 +88,7 @@ const Header = () => {
           addNotification('Sing in successfully', NotificationType.SUCCESS)
           setAuthorDetails(profile)
         } else {
-          console.log('here')
+          console.log(signInResponse)
           addNotification('Error signin in', NotificationType.ERROR)
         }
       }
