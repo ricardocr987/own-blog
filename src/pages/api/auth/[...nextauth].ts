@@ -25,11 +25,8 @@ export function authOptions(req?: NextApiRequest, ctx?: GetServerSidePropsContex
               JSON.parse(credentials?.message || "{}")
             );
 
-            console.log(signinMessage)
             const nextAuthUrl = new URL(process.env.NEXTAUTH_URL || getUrl());
-            console.log(nextAuthUrl, signinMessage.domain)
-
-            if (signinMessage.domain !== nextAuthUrl.href) return null;
+            if (signinMessage.domain !== nextAuthUrl.host) return null;
             
             const validationResult = await signinMessage.validate(credentials?.signature || "");
             if (!validationResult) return null;
