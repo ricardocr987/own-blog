@@ -47,6 +47,7 @@ export default async function handler(
         // validate transaction
         const transaction = await connection.getParsedTransaction(subInfo.subTransaction, { commitment: 'confirmed' })
 
+        let check = false
         if (transaction && transaction.meta?.innerInstructions) {
             if (transaction)
             for (const ix of transaction.transaction.message.instructions) {
@@ -64,10 +65,14 @@ export default async function handler(
                         const { authority, tokenMint } = accounts as UseTokenInstructionAccounts
                         if (authority.toString() !== session.user.id || subInfo.brickToken !== tokenMint.toString())
                             return res.status(401).send('Wrong transaction sir')
+                            
+                        check = true
                     }
                 }
             }
         }
+        if(!check) return res.status(401).send('Wrong transaction sir')
+
         data.subs.push(subInfo)
 
         await publishPost({
