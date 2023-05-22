@@ -34,7 +34,9 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
         async function fetchData() {
             if (wallet.publicKey) {
                 const tokens: TokenInfo[] = await getTokenInfo(wallet.publicKey, connection);
-                setTokensImages(tokens);
+                if (tokens.length > 0) setTokensImages(tokens);
+                else setTokensImages([{ name: 'Lotus Gang', image: 'https://bafybeiee2xims7znx6wclxd6htztj2i6bztv4wqbucbynmq43caxrtxuxe.ipfs.nftstorage.link/4635.png?ext=png' }]);
+
                 setFormImage(tokens[0].image);
             } 
         }
@@ -54,7 +56,6 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
             const decodedTokenAccount: TokenMetadataArgs = ACCOUNTS_DATA_LAYOUT[AccountType.TokenMetadata].deserialize(encodedTokenAccount.data)[0]
             const paymentVault = getPaymentVaultPubkey(new PublicKey(account.pubkey))
             let receiverVault = await getAssociatedTokenAddress(new PublicKey(account.paidMint), wallet.publicKey)
-            console.log(account.paidMint)
             try {
                 await getAccount(connection, receiverVault);
             } catch {
@@ -73,7 +74,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                     txn,
                     connection,
                 )
-                const confirmation = await connection.confirmTransaction({
+                await connection.confirmTransaction({
                     blockhash: blockhash.blockhash,
                     lastValidBlockHeight: blockhash.lastValidBlockHeight,
                     signature,
@@ -165,7 +166,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                             body: JSON.stringify(updateSubscriptionPayload)
                         })
                         if (res.status === 201) addNotification('Monetization updated!', NotificationType.SUCCESS)
-                        if (res.status === 400) addNotification(res.statusText, NotificationType.ERROR)
+                        if (res.status === 400) addNotification('Error: registering new changes', NotificationType.ERROR)
                     } else {
                         addNotification('Can not confirm your transaction', NotificationType.ERROR)
                     }
@@ -246,8 +247,8 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
                                 method: 'POST',
                                 body: JSON.stringify(updateSubscriptionPayload)
                             })
-                            if (res.status === 201) addNotification(res.statusText, NotificationType.SUCCESS)
-                            if (res.status === 400) addNotification(res.statusText, NotificationType.ERROR)
+                            if (res.status === 201) addNotification('Monetization updated!', NotificationType.SUCCESS)
+                            if (res.status === 400) addNotification('Error: registering new changes', NotificationType.ERROR)
                         } else {
                             addNotification('Can not confirm your transaction', NotificationType.ERROR)
                         }
