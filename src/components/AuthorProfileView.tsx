@@ -34,9 +34,7 @@ export const AuthorProfileView = ({ profile, withdrawals }: AuthorProfileViewPro
         async function fetchData() {
             if (wallet.publicKey) {
                 const tokens: TokenInfo[] = await getTokenInfo(wallet.publicKey, connection);
-                if (tokens.length > 0) setTokensImages(tokens);
-                else setTokensImages([{ name: 'Lotus Gang', image: 'https://bafybeiee2xims7znx6wclxd6htztj2i6bztv4wqbucbynmq43caxrtxuxe.ipfs.nftstorage.link/4635.png?ext=png' }]);
-
+                setTokensImages(tokens);
                 setFormImage(tokens[0].image);
             } 
         }

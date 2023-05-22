@@ -32,10 +32,13 @@ export async function getMetadatas(publicKey: PublicKey, connection: Connection)
 
 export async function getTokenInfo(publicKey: PublicKey, connection: Connection): Promise<TokenInfo[]>{
     const metadatas = await getMetadatas(publicKey, connection);
-    return metadatas.map(metadata => {
-        const { name, image } = metadata?.json || {};
-        return { name, image };
-    }).filter(token => token.image && token.image.includes("arweave")) as { name: string, image: string }[];
+    return metadatas.length === 0 ? 
+        [{ name: 'Lotus Gang', image: 'https://bafybeiee2xims7znx6wclxd6htztj2i6bztv4wqbucbynmq43caxrtxuxe.ipfs.nftstorage.link/4635.png?ext=png' }] 
+    : 
+        metadatas.map(metadata => {
+            const { name, image } = metadata?.json || {};
+            return { name, image };
+        }).filter(token => token.image && token.image.includes("arweave")) as { name: string, image: string }[];
 }
 
 
