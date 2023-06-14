@@ -44,7 +44,7 @@ export default async function handler(
             storageEngine: ItemType.inline
         })
 
-        // post with article subscription content
+        // post with author subscription content
         await publishPost({
             account: account,
             postType: 'PostStoredAleph',
