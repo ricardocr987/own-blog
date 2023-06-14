@@ -42,7 +42,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                 hashes: [],
                 APIServer: "https://api2.aleph.im"
             });
-            props.props.post = JSON.parse(decryptData(articleResponse.posts[0].content.data)) as Post
+            const post = JSON.parse(decryptData(articleResponse.posts[0].content.data)) as Post
             const commentsResponse = await getPost<PostStoredAleph>({
                 types: 'PostStoredAleph',
                 pagination: 1,
@@ -50,18 +50,17 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                 refs: [],
                 addresses: [messagesAddress],
                 tags: [],
-                hashes: [props.props.post.commentsPostHash],
+                hashes: [post.commentsPostHash],
                 APIServer: "https://api2.aleph.im"
             });
-            props.props.comments = JSON.parse(decryptData(commentsResponse.posts[0].content.data)) as Comments
-            props.props.comments.comments.sort((a, b) => b.createdAt - a.createdAt)
+
             const userResponse = await getPost<PostStoredAleph>({
                 types: 'PostStoredAleph',
                 pagination: 1,
                 page: 1,
                 refs: [],
                 addresses: [messagesAddress],
-                tags: [`user:${props.props.post.author.id}`],
+                tags: [`user:${post.author.id}`],
                 hashes: [],
                 APIServer: "https://api2.aleph.im"
             });
@@ -73,7 +72,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                         const user = Object.fromEntries(
                             Object.entries(session.user).filter(([_, value]) => value !== undefined)
                         ) as NextAuthUser;
-                        if (user.id === props.props.post.author.id){
+                        if (user.id === post.author.id){
+                            props.props.post = JSON.parse(decryptData(articleResponse.posts[0].content.data)) as Post
+                            props.props.comments = JSON.parse(decryptData(commentsResponse.posts[0].content.data)) as Comments
+                            props.props.comments.comments.sort((a, b) => b.createdAt - a.createdAt)
                             props.props.allowed = true;
                             props.props.isAuthor = true;
                         } 
@@ -84,13 +86,16 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                                 page: 1,
                                 refs: [],
                                 addresses: [messagesAddress],
-                                tags: [`subscription:${props.props.post.author.id}`],
+                                tags: [`subscription:${post.author.id}`],
                                 hashes: [],
                                 APIServer: "https://api2.aleph.im"
                             });
                             if (subsResponse.posts[0].content.data) {
                                 const subscription = JSON.parse(decryptData(subsResponse.posts[0].content.data)) as Subscription
-                                props.props.allowed = subscription.subs.some((sub) => sub.pubkey === user.id && sub.timestamp > Date.now());
+                                props.props.allowed = subscription.subs.some((sub) => sub.pubkey === user.id && sub.timestamp < Date.now());
+                                props.props.post = JSON.parse(decryptData(articleResponse.posts[0].content.data)) as Post
+                                props.props.comments = JSON.parse(decryptData(commentsResponse.posts[0].content.data)) as Comments
+                                props.props.comments.comments.sort((a, b) => b.createdAt - a.createdAt)
                             }
                         }
                     } else {
@@ -98,6 +103,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                     }
                 } else {
                     props.props.allowed = true
+                    props.props.post = JSON.parse(decryptData(articleResponse.posts[0].content.data)) as Post
+                    props.props.comments = JSON.parse(decryptData(commentsResponse.posts[0].content.data)) as Comments
+                    props.props.comments.comments.sort((a, b) => b.createdAt - a.createdAt)
                 }
             }
         } catch(e) {
