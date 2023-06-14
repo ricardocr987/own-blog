@@ -84,7 +84,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                                 page: 1,
                                 refs: [],
                                 addresses: [messagesAddress],
-                                tags: [`user:${params.id}`],
+                                tags: [`subscription:${props.props.post.author.id}`],
                                 hashes: [],
                                 APIServer: "https://api2.aleph.im"
                             });
