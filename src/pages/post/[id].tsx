@@ -73,7 +73,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                         const user = Object.fromEntries(
                             Object.entries(session.user).filter(([_, value]) => value !== undefined)
                         ) as NextAuthUser;
-                        if (user.id === params.id){
+                        if (user.id === props.props.post.author.id){
                             props.props.allowed = true;
                             props.props.isAuthor = true;
                         } 
@@ -93,7 +93,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext): Pr
                                 props.props.allowed = subscription.subs.some((sub) => sub.pubkey === user.id && sub.timestamp > Date.now());
                             }
                         }
-
+                    } else {
+                        props.props.allowed = false
                     }
                 } else {
                     props.props.allowed = true
